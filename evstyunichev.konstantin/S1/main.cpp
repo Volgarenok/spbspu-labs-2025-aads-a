@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iterator>
-#include <fstream>
 #include <list>
 #include <string>
 
@@ -9,12 +8,11 @@ using pair_t = std::pair< std::string, std::list< int > >;
 
 int main()
 {
-  std::fstream fin("input.txt");
   std::list< pair_t > sequences;
   std::list< long long > summ;
   std::string str;
   bool flag = false;
-  while (fin >> str)
+  while (std::cin >> str)
   {
     if (isalpha(str[0]))
     {
