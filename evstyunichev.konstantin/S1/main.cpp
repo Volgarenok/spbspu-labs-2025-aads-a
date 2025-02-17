@@ -8,9 +8,9 @@ using pair_t = std::pair< std::string, std::list< int > >;
 
 int main()
 {
-  std::list< pair_t > sequences;
-  std::list< long long > summ;
-  std::string str;
+  std::list< pair_t > sequences{};
+  std::list< long long > summ{};
+  std::string str{};
   bool flag = false;
   while (std::cin >> str)
   {
@@ -42,16 +42,26 @@ int main()
     {
       if (!(*iter_seq).second.empty())
       {
-        if (!flag)
-        {
-          summ.push_back(0ll);
-        }
-        int num = (*iter_seq).second.front();
-        std::cout << num << ' ';
-        summ.back() += num;
         flag = true;
+        int num = (*iter_seq).second.front();
         (*iter_seq).second.pop_front();
+        std::cout << num;
+        summ.push_back(num);
+        ++iter_seq;
+        break;
       }
+    }
+    for (; iter_seq != sequences.end(); ++iter_seq)
+    {
+      if ((*iter_seq).second.empty())
+      {
+        continue;
+      }
+      int num = (*iter_seq).second.front();
+      std::cout << ' ' << num;
+      summ.back() += num;
+      flag = true;
+      (*iter_seq).second.pop_front();
     }
   }
   auto it = summ.begin();
