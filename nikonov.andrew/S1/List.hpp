@@ -56,7 +56,7 @@ struct ListIterator
   {
     this_t tempCopy = *this;
     node = node->next;
-    return tempCopy; 
+    return tempCopy;
   }
 
   T & operator*()
