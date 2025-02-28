@@ -37,19 +37,45 @@ public:
 template< typename T >
 struct ListIterator
 {
-  List< T > * node;
+  ListNode< T > * node;
   using this_t = ListIterator< T >;
 
-  ListIterator(): node(nullptr) {}
+  ListIterator():
+    node(nullptr)
+  {}
   ~ListIterator() = default;
   ListIterator(const this_t &) = default;
   this_t & operator=(const this_t &) = default;
-  
-  this_t & operator++();
-  this_t operator++(int);
 
-  T & operator*(); //+ const-версия
-  T * operator->(); //+ const-версия
+  this_t & operator++()
+  {
+    node = node->next;
+    return *this;
+  }
+  this_t operator++(int)
+  {
+    this_t tempCopy = *this;
+    node = node->next;
+    return tempCopy; 
+  }
+
+  T & operator*()
+  {
+    return *node;
+  }
+  const T & operator*()
+  {
+    return *node;
+  }
+
+  T * operator->()
+  {
+    return node;
+  }
+  const T * operator->()
+  {
+    return node;
+  }
 
   bool operator!=(const this_t &) const;
   bool operator==(const this_t &) const;
