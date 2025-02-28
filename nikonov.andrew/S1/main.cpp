@@ -9,9 +9,10 @@ int main()
   {
     nikonov::processPList(pList);
   }
-  catch (const std::overflow_error & e)
+  catch (const std::exception & e)
   {
     std::cerr << e.what();
+    delete pList;
     return 1;
   }
   delete pList;
