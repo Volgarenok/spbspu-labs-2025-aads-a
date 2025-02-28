@@ -63,7 +63,7 @@ struct ListIterator
   {
     return *node;
   }
-  const T & operator*()
+  const T & operator*() const
   {
     return *node;
   }
@@ -72,7 +72,7 @@ struct ListIterator
   {
     return node;
   }
-  const T * operator->()
+  const T * operator->() const
   {
     return node;
   }
