@@ -6,7 +6,7 @@
 std::list< std::pair< std::string, std::list< int > > > * nikonov::getPList(std::istream& in)
 {
   using pair_t = std::pair< std::string, std::list< int > >;
-  std::list< pair_t >* stdList = new std::list< pair_t >;
+  std::list< pair_t > * stdList = new std::list< pair_t >;
   std::string data = "";
   std::string name = "";
   bool dataIsName = true;

@@ -7,7 +7,7 @@ int main()
   std::list< pair_t > * pList = nullptr;
   try
   {
-    std::list< pair_t > * pList = nikonov::getPList(std::cin);
+    pList = nikonov::getPList(std::cin);
     nikonov::processPList(pList);
   }
   catch (const std::exception & e)
