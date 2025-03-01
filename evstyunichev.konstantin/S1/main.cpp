@@ -36,7 +36,7 @@ int main()
   if (overflow_flag)
   {
     std::cout << '\n';
-    return 1;
+    return 0;
   }
   if (!sequences.empty())
   {
@@ -47,8 +47,9 @@ int main()
       std::cout << ' ' << iter_seq->first;
     }
   }
-  if (!non_empty_lists)
+  if (!non_empty_lists && !sequences.empty())
   {
+    std::cout << '\n';
     summ.push_back(0);
   }
   while (non_empty_lists)
