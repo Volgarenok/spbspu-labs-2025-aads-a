@@ -3,9 +3,9 @@
 #include <limits>
 #include <stdexcept>
 
-std::list< std::pair< std::string, std::list< int > > > * nikonov::getPList(std::istream& in)
+std::list< std::pair< std::string, std::list< size_t > > > * nikonov::getPList(std::istream& in)
 {
-  using pair_t = std::pair< std::string, std::list< int > >;
+  using pair_t = std::pair< std::string, std::list< size_t > >;
   std::list< pair_t > * stdList = new std::list< pair_t >;
   std::string data = "";
   std::string name = "";
@@ -13,7 +13,7 @@ std::list< std::pair< std::string, std::list< int > > > * nikonov::getPList(std:
   in >> data;
   while (!in.eof())
   {
-    std::list< int > vals;
+    std::list< size_t > vals;
     while (!in.eof())
     {
       if (dataIsName)
@@ -25,12 +25,11 @@ std::list< std::pair< std::string, std::list< int > > > * nikonov::getPList(std:
         dataIsName = false;
         try
         {
-          vals.push_back(std::stoi(data));
+          vals.push_back(std::stoull(data));
         }
         catch (const std::out_of_range & e)
         {
-          delete stdList;
-          throw std::overflow_error("overflow detected");
+          continue;
         }
       }
       else
@@ -44,7 +43,7 @@ std::list< std::pair< std::string, std::list< int > > > * nikonov::getPList(std:
   }
   return stdList;
 }
-void nikonov::processPList(std::list< std::pair< std::string, std::list< int > > > * pList)
+void nikonov::processPList(std::list< std::pair< std::string, std::list< size_t > > > * pList)
 {
   if (pList->size() == 0)
   {
@@ -61,7 +60,7 @@ void nikonov::processPList(std::list< std::pair< std::string, std::list< int > >
   }
   std::cout << '\n';
   size_t valId = 0;
-  std::list< int > strSum;
+  std::list< size_t > strSum;
   for (size_t i = 0; i < maxValCnt; ++i)
   {
     auto pIter2 = pList->begin();
@@ -69,15 +68,15 @@ void nikonov::processPList(std::list< std::pair< std::string, std::list< int > >
     {
       ++pIter2;
     }
-    int currElem = *getIterAt((*(pIter2++)).second, valId);
+    size_t currElem = *getIterAt((*(pIter2++)).second, valId);
     std::cout << currElem;
-    int currSum = currElem;
+    size_t currSum = currElem;
     for (; pIter2 != pList->end(); ++pIter2)
     {
       if (valId < (*pIter2).second.size())
       {
-        int currElem = *getIterAt((*pIter2).second, valId);
-        if (currSum > std::numeric_limits< int >::max() - currElem)
+        size_t currElem = *getIterAt((*pIter2).second, valId);
+        if (currSum > std::numeric_limits< size_t >::max() - currElem)
         {
           throw std::overflow_error("overflow detected");
         }
@@ -98,7 +97,7 @@ void nikonov::processPList(std::list< std::pair< std::string, std::list< int > >
   std::cout << '\n';
 }
 
-std::list< int >::iterator nikonov::getIterAt(std::list< int > & list, size_t id)
+std::list< size_t >::iterator nikonov::getIterAt(std::list< size_t > & list, size_t id)
 {
   auto iter = list.begin();
   for (size_t i = 0; i < id; ++i, ++iter);

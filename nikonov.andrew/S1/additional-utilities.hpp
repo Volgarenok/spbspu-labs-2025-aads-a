@@ -5,8 +5,8 @@
 #include <list>
 namespace nikonov
 {
-  std::list< std::pair< std::string, std::list< int > > > * getPList(std::istream& input);
-  void processPList(std::list< std::pair< std::string, std::list< int > > > * pList);
-  std::list< int >::iterator getIterAt(std::list< int > & list, size_t id);
+  std::list< std::pair< std::string, std::list< size_t > > > * getPList(std::istream& input);
+  void processPList(std::list< std::pair< std::string, std::list< size_t > > > * pList);
+  std::list< size_t >::iterator getIterAt(std::list< size_t > & list, size_t id);
 }
 #endif

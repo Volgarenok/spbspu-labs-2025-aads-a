@@ -1,6 +1,7 @@
 #ifndef LIST_HPP
 #define LIST_HPP
 #include <cstddef>
+#include <memory>
 template< typename T >
 struct ListNode
 {
@@ -54,30 +55,36 @@ struct ListIterator
   }
   this_t operator++(int)
   {
-    this_t tempCopy = *this;
-    node = node->next;
+    this_t tempCopy(*this);
+    ++(*this);
     return tempCopy;
   }
 
   T & operator*()
   {
-    return *node;
+    return node->data;
   }
   const T & operator*() const
   {
-    return *node;
+    return node->data;
   }
 
   T * operator->()
   {
-    return node;
+    return std::addressof(node->data);
   }
   const T * operator->() const
   {
-    return node;
+    return std::addressof(node->data);
   }
 
-  bool operator!=(const this_t &) const;
-  bool operator==(const this_t &) const;
+  bool operator!=(const this_t & rhs) const
+  {
+    return !(*this == rhs);
+  }
+  bool operator==(const this_t & rhs) const
+  {
+    return node == rhs.node;
+  }
 };
 #endif

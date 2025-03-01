@@ -3,7 +3,7 @@
 
 int main()
 {
-  using pair_t = std::pair< std::string, std::list< int > >;
+  using pair_t = std::pair< std::string, std::list< size_t > >;
   std::list< pair_t > * pList = nullptr;
   try
   {
