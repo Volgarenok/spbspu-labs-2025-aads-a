@@ -33,9 +33,14 @@ int main()
       }
     }
   }
-  auto iter_seq = sequences.begin();
+  if (overflow_flag)
+  {
+    std::cout << '\n';
+    return 1;
+  }
   if (!sequences.empty())
   {
+    auto iter_seq = sequences.begin();
     std::cout << (iter_seq++)->first;
     for (; iter_seq != sequences.end(); ++iter_seq)
     {
@@ -45,10 +50,10 @@ int main()
   if (!non_empty_lists)
   {
     summ.push_back(0);
-    std::cout << '\n';
   }
   while (non_empty_lists)
   {
+    auto iter_seq = sequences.begin();
     std::cout << '\n';
     non_empty_lists = false;
     for (iter_seq = sequences.begin(); iter_seq != sequences.end(); ++iter_seq)
@@ -84,9 +89,5 @@ int main()
     std::cout << ' ' << *it;
   }
   std::cout << '\n';
-  if (overflow_flag)
-  {
-    return 1;
-  }
   return 0;
 }
