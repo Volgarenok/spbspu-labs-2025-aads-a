@@ -25,7 +25,7 @@ std::list< pair_t > *evstyunichev::form_list(std::istream &in)
   return sequences;
 }
 
-int list_out(std::list< pair_t > *sequences, std::ostream &out)
+std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostream &out)
 {
   std::list< long long > summ{};
   size_t mx = 0;
@@ -78,5 +78,5 @@ int list_out(std::list< pair_t > *sequences, std::ostream &out)
   {
     out << ' ' << *it;
   }
-  return 0;
+  return out;
 }
