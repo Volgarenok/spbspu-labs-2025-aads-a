@@ -68,10 +68,10 @@ namespace nikonov
     ListNode< T > * fake;
   public:
     List():
-      fake(new ListNode< T >{ T(), nullptr })
+      fake(new ListNode< T >{ T(), fake })
     {}
     List(size_t k, const T & value):
-      fake(new ListNode< T >{ T(), nullptr })
+      fake(new ListNode< T >{ T(), fake })
     {
       ListNode< T > * tailNode = nullptr;
       for (size_t i = 0; i < k; ++i)
@@ -90,12 +90,13 @@ namespace nikonov
     ~List() noexcept
     {
       ListNode< T > * curr = fake->next;
-      while (curr != end())
+      while (curr != fake)
       {
         ListNode< T > * next = curr->next;
         delete curr;
         curr = next; 
       }
+      delete fake;
     }
     ListIterator< T > begin() noexcept
     {
@@ -108,22 +109,27 @@ namespace nikonov
 
     T& front() const
     {
-      return fake->data;
+      return *begin();
     }
     T& back() const
     {
-      return fake->data;
+      ListNode< T > * iter = fake->next;
+      while (iter->next != fake)
+      {
+        iter = iter->next;
+      }
+      return iter->data;
     }
 
     bool empty() const noexcept
     {
-      return fake->next == nullptr;
+      return fake->next == fake;
     }
     size_t size() const noexcept
     {
       ListIterator< T > iter = begin();
       size_t size = 0;
-      while (iter++ != fake)
+      while (iter++ != end())
       {
         ++size;
       }
@@ -133,7 +139,7 @@ namespace nikonov
     void push_(const T &  value)
     {
       ListNode< T > * newNode = new ListNode< T >{ value, fake };
-      ListNode< T > * iter = fake->next;
+      ListNode< T > * iter = fake;
       while (iter->next != fake)
       {
         iter = iter->next;
@@ -142,7 +148,7 @@ namespace nikonov
     }
     void pop_()
     {
-      ListNode< T > * iter = fake->next;
+      ListNode< T > * iter = fake;
       while (iter->next != fake)
       {
         iter = iter->next;
@@ -150,6 +156,8 @@ namespace nikonov
       delete iter;
       iter = fake;
     }
+    void swap(List< T >& rhs);
+    void clear() noexcept;
   };
 }
 #endif
