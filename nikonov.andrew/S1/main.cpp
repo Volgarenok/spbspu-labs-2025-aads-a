@@ -11,6 +11,10 @@ int main()
     pList = nikonov::getPList(std::cin, overflowFlag);
     nikonov::processPList(pList, overflowFlag);
   }
+  catch (const std::bad_alloc & e)
+  {
+    std::cerr << e.what() << '\n';
+  }
   catch (const std::overflow_error & e)
   {
     std::cerr << e.what() << '\n';

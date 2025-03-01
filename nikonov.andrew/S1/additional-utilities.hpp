@@ -7,6 +7,5 @@ namespace nikonov
 {
   std::list< std::pair< std::string, std::list< size_t > > > * getPList(std::istream& input, bool& overflowFlag);
   void processPList(std::list< std::pair< std::string, std::list< size_t > > > * pList, bool& overflowFlag);
-  std::list< size_t >::iterator getIterAt(std::list< size_t > & list, size_t id);
 }
 #endif
