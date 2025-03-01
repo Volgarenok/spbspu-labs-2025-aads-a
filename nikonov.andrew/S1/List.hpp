@@ -94,7 +94,7 @@ namespace nikonov
       {
         ListNode< T > * next = curr->next;
         delete curr;
-        curr = next; 
+        curr = next;
       }
       delete fake;
     }
@@ -107,11 +107,11 @@ namespace nikonov
       return ListIterator< T >{ fake };
     }
 
-    T& front() const
+    T & front() const
     {
       return *begin();
     }
-    T& back() const
+    T & back() const
     {
       ListNode< T > * iter = fake->next;
       while (iter->next != fake)
@@ -136,7 +136,7 @@ namespace nikonov
       return size;
     }
 
-    void push_(const T &  value)
+    void push_(const T & value)
     {
       ListNode< T > * newNode = new ListNode< T >{ value, fake };
       ListNode< T > * iter = fake;
@@ -156,7 +156,7 @@ namespace nikonov
       delete iter;
       iter = fake;
     }
-    void swap(List< T >& rhs);
+    void swap(List< T > & rhs);
     void clear() noexcept;
   };
 }
