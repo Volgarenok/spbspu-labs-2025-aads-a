@@ -4,6 +4,7 @@
 #include <stdexcept>
 namespace
 {
+  std::list< size_t >::iterator getIterAt(std::list< size_t > & list, size_t id);
   void printNumsNSums(std::list< std::pair< std::string, std::list< size_t > > > * pList, size_t maxValCnt);
   void printOnlyNums(std::list< std::pair< std::string, std::list< size_t > > > * pList, size_t maxValCnt);
 }
@@ -73,14 +74,14 @@ void nikonov::processPList(std::list< std::pair< std::string, std::list< size_t 
     throw std::overflow_error("overflow detected");
   }
 }
-std::list< size_t >::iterator getIterAt(std::list< size_t > & list, size_t id)
-{
-  auto iter = list.begin();
-  for (size_t i = 0; i < id; ++i, ++iter);
-  return iter;
-}
 namespace
 {
+  std::list< size_t >::iterator getIterAt(std::list< size_t > & list, size_t id)
+  {
+    auto iter = list.begin();
+    for (size_t i = 0; i < id; ++i, ++iter);
+    return iter;
+  }
   void printNumsNSums(std::list< std::pair< std::string, std::list< size_t > > > * pList, size_t maxValCnt)
   {
     std::list< size_t > strSum;
