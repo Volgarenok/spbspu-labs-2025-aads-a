@@ -33,6 +33,11 @@ std::list< std::pair< std::string, std::list< int > > > * nikonov::getPList(std:
           throw;
         }
       }
+      else
+      {
+        dataIsName = true;
+        break;
+      }
     }
     pair_t Pair{ name, vals };
     stdList->push_back(Pair);
