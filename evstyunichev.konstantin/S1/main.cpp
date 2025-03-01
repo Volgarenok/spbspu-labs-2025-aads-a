@@ -36,7 +36,7 @@ int main()
   if (overflow_flag)
   {
     std::cout << '\n';
-    return 0;
+    return 2;
   }
   if (!sequences.empty())
   {
