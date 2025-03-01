@@ -1,4 +1,5 @@
 #include "list_actions.hpp"
+#include <cmath>
 #include <iostream>
 #include <list>
 #include <stdexcept>
@@ -7,6 +8,7 @@
 std::list< pair_t > *evstyunichev::form_list(std::istream &in)
 {
   std::list< pair_t > *sequences = new std::list< pair_t >;
+  sequences->push_back({ "0", {} });
   std::string str = "";
   while (in >> str)
   {
@@ -16,51 +18,56 @@ std::list< pair_t > *evstyunichev::form_list(std::istream &in)
     }
     else
     {
-      sequences->back().second.push_back(std::stoi(str));
+      try
+      {
+        int n = std::stoi(str);
+        sequences->back().second.push_back(n);
+      }
+      catch(const std::exception& e)
+      {
+        sequences->front().first = "1";
+      }
     }
-  }
-  if (sequences->empty())
-  {
-    throw std::logic_error("empty!");
   }
   return sequences;
 }
 
 std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostream &out)
 {
-  std::list< long long > summ{};
-  size_t mx = 0;
-  if (!sequences->empty())
+  bool overflow_flag = (sequences->front().first[0] != '0');
+  sequences->pop_front();
+  if (sequences->empty())
   {
-    auto iter_seq = sequences->begin();
-    std::cout << (iter_seq++)->first;
-    for (; iter_seq != sequences->end(); ++iter_seq)
-    {
-      std::cout << ' ' << iter_seq->first;
-      mx = (iter_seq->second.size() > mx ? iter_seq->second.size() : mx);
-    }
+    out << "0";
+    return out;
   }
-  if (!mx && !sequences->empty())
+  std::list< long long > summ{};
+  auto iter_seq = sequences->begin();
+  size_t mx = iter_seq->second.size();
+  out << (iter_seq++)->first;
+  for (; iter_seq != sequences->end(); ++iter_seq)
   {
-    std::cout << '\n';
+    out << ' ' << iter_seq->first;
+    mx = std::max(mx, iter_seq->second.size());
+  }
+  if (!mx && !overflow_flag)
+  {
+    out << '\n';
     summ.push_back(0);
   }
   for (size_t i = 0; i < mx; i++)
   {
     auto iter_seq = sequences->begin();
     out << '\n';
-    for (iter_seq = sequences->begin(); iter_seq != sequences->end(); ++iter_seq)
+    for (iter_seq = sequences->begin(); iter_seq->second.empty(); ++iter_seq);
+    int num = iter_seq->second.front();
+    iter_seq->second.pop_front();
+    out << num;
+    if (!overflow_flag)
     {
-      if (!iter_seq->second.empty())
-      {
-        int num = iter_seq->second.front();
-        iter_seq->second.pop_front();
-        out << num;
-        summ.push_back(num);
-        ++iter_seq;
-        break;
-      }
+      summ.push_back(num);
     }
+    ++iter_seq;
     for (; iter_seq != sequences->end(); ++iter_seq)
     {
       if (iter_seq->second.empty())
@@ -69,19 +76,29 @@ std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostrea
       }
       int num = iter_seq->second.front();
       out << ' ' << num;
-      summ.back() += num;
+      if (!overflow_flag)
+      {
+        summ.back() += num;
+      }
       iter_seq->second.pop_front();
     }
   }
-  if (mx)
+  if (!overflow_flag)
   {
-    std::cout << '\n';
+    if (mx)
+    {
+      out << '\n';
+    }
+    auto it = summ.begin();
+    out << *(it++);
+    for (; it != summ.end(); it++)
+    {
+      out << ' ' << *it;
+    }
   }
-  auto it = summ.begin();
-  out << *(it++);
-  for (; it != summ.end(); it++)
+  else
   {
-    out << ' ' << *it;
+    throw std::overflow_error("overflow!");
   }
   return out;
 }

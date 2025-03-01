@@ -7,11 +7,11 @@
 
 int main()
 {
+  std::list< pair_t > *sequences = nullptr;
   try
   {
-    std::list< pair_t > *sequences = evstyunichev::form_list(std::cin);
+    sequences = evstyunichev::form_list(std::cin);
     evstyunichev::list_out(sequences, std::cout) << '\n';
-    delete sequences;
   }
   catch (const std::exception &e)
   {
