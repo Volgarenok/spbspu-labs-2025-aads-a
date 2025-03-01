@@ -35,6 +35,7 @@ int main()
   }
   if (overflow_flag)
   {
+    std::cout << '\n';
     return 1;
   }
   if (!sequences.empty())
@@ -49,7 +50,6 @@ int main()
   if (!non_empty_lists)
   {
     summ.push_back(0);
-    std::cout << '\n';
   }
   while (non_empty_lists)
   {
