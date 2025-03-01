@@ -1,32 +1,38 @@
 #include "list_actions.hpp"
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <list>
 #include <stdexcept>
 #include <string>
 
+namespace
+{
+  bool summ_overflow(size_t a, size_t b)
+  {
+    size_t n = std::numeric_limits< size_t >::max();
+    if (n - a < b)
+    {
+      return 1;
+    }
+    return 0;
+  }
+}
+
 std::list< pair_t > *evstyunichev::form_list(std::istream &in)
 {
   std::list< pair_t > *sequences = new std::list< pair_t >;
-  sequences->push_back({ "0", {} });
   std::string str = "";
   while (in >> str)
   {
     if (isalpha(str[0]))
     {
-      sequences->push_back({str, std::list< int >{}});
+      sequences->push_back({str, {} });
     }
     else
     {
-      try
-      {
-        int n = std::stoi(str);
-        sequences->back().second.push_back(n);
-      }
-      catch(const std::exception& e)
-      {
-        sequences->front().first = "1";
-      }
+      size_t n = std::stoull(str);
+      sequences->back().second.push_back(n);
     }
   }
   return sequences;
@@ -34,14 +40,13 @@ std::list< pair_t > *evstyunichev::form_list(std::istream &in)
 
 std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostream &out)
 {
-  bool overflow_flag = (sequences->front().first[0] != '0');
-  sequences->pop_front();
+  bool overflow_flag = false;
   if (sequences->empty())
   {
     out << "0";
     return out;
   }
-  std::list< long long > summ{};
+  std::list< size_t > summ{};
   auto iter_seq = sequences->begin();
   size_t mx = iter_seq->second.size();
   out << (iter_seq++)->first;
@@ -60,7 +65,7 @@ std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostrea
     auto iter_seq = sequences->begin();
     out << '\n';
     for (iter_seq = sequences->begin(); iter_seq->second.empty(); ++iter_seq);
-    int num = iter_seq->second.front();
+    size_t num = iter_seq->second.front();
     iter_seq->second.pop_front();
     out << num;
     if (!overflow_flag)
@@ -74,11 +79,18 @@ std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostrea
       {
         continue;
       }
-      int num = iter_seq->second.front();
+      size_t num = iter_seq->second.front();
       out << ' ' << num;
       if (!overflow_flag)
       {
-        summ.back() += num;
+        if (!summ_overflow(summ.back(), num))
+        {
+          summ.back() += num;
+        }
+        else
+        {
+          overflow_flag = 1;
+        }
       }
       iter_seq->second.pop_front();
     }
