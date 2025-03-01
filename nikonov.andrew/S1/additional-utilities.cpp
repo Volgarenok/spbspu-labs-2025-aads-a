@@ -27,10 +27,10 @@ std::list< std::pair< std::string, std::list< int > > > * nikonov::getPList(std:
         {
           vals.push_back(std::stoi(data));
         }
-        catch (const std::exception& e)
+        catch (const std::out_of_range & e)
         {
           delete stdList;
-          throw;
+          throw std::overflow_error("overflow detected");
         }
       }
       else
