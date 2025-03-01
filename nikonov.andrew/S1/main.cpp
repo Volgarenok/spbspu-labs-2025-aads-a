@@ -7,8 +7,9 @@ int main()
   std::list< pair_t > * pList = nullptr;
   try
   {
-    pList = nikonov::getPList(std::cin);
-    nikonov::processPList(pList);
+    bool overflowFlag = false;
+    pList = nikonov::getPList(std::cin, overflowFlag);
+    nikonov::processPList(pList, overflowFlag);
   }
   catch (const std::overflow_error & e)
   {

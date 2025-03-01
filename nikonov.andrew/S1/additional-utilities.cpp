@@ -3,7 +3,7 @@
 #include <limits>
 #include <stdexcept>
 
-std::list< std::pair< std::string, std::list< size_t > > > * nikonov::getPList(std::istream& in)
+std::list< std::pair< std::string, std::list< size_t > > > * nikonov::getPList(std::istream& in, bool& overflowFlag)
 {
   using pair_t = std::pair< std::string, std::list< size_t > >;
   std::list< pair_t > * stdList = new std::list< pair_t >;
@@ -14,6 +14,7 @@ std::list< std::pair< std::string, std::list< size_t > > > * nikonov::getPList(s
   while (!in.eof())
   {
     std::list< size_t > vals;
+    size_t currSum = 0;
     while (!in.eof())
     {
       if (dataIsName)
@@ -23,14 +24,13 @@ std::list< std::pair< std::string, std::list< size_t > > > * nikonov::getPList(s
       if (in >> data && std::isdigit(data[0]))
       {
         dataIsName = false;
-        try
+        size_t currElem = std::stoull(data);
+        vals.push_back(currElem);
+        if (currSum > std::numeric_limits< size_t >::max() - currElem)
         {
-          vals.push_back(std::stoull(data));
+          overflowFlag = true;
         }
-        catch (const std::out_of_range & e)
-        {
-          continue;
-        }
+        currSum += currElem;
       }
       else
       {
@@ -43,7 +43,7 @@ std::list< std::pair< std::string, std::list< size_t > > > * nikonov::getPList(s
   }
   return stdList;
 }
-void nikonov::processPList(std::list< std::pair< std::string, std::list< size_t > > > * pList)
+void nikonov::processPList(std::list< std::pair< std::string, std::list< size_t > > > * pList, bool& overflowFlag)
 {
   if (pList->size() == 0)
   {
@@ -59,6 +59,10 @@ void nikonov::processPList(std::list< std::pair< std::string, std::list< size_t 
     maxValCnt = maxValCnt > (*pIter1).second.size() ? maxValCnt : (*pIter1).second.size();
   }
   std::cout << '\n';
+  if (overflowFlag)
+  {
+    throw std::overflow_error("overflow detected");
+  }
   size_t valId = 0;
   std::list< size_t > strSum;
   for (size_t i = 0; i < maxValCnt; ++i)
@@ -76,10 +80,6 @@ void nikonov::processPList(std::list< std::pair< std::string, std::list< size_t 
       if (valId < (*pIter2).second.size())
       {
         size_t currElem = *getIterAt((*pIter2).second, valId);
-        if (currSum > std::numeric_limits< size_t >::max() - currElem)
-        {
-          throw std::overflow_error("overflow detected");
-        }
         currSum += currElem;
         std::cout << " " << currElem;
       }
