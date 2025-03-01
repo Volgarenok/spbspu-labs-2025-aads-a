@@ -23,12 +23,15 @@ std::list< std::pair< std::string, std::list< int > > > * nikonov::getPList(std:
       if (in >> data && std::isdigit(data[0]))
       {
         dataIsName = false;
-        vals.push_back(std::stoi(data));
-      }
-      else
-      {
-        dataIsName = true;
-        break;
+        try
+        {
+          vals.push_back(std::stoi(data));
+        }
+        catch (const std::exception& e)
+        {
+          delete stdList;
+          throw;
+        }
       }
     }
     pair_t Pair{ name, vals };
