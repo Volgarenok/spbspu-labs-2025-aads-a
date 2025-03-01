@@ -98,6 +98,7 @@ std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostrea
   }
   else
   {
+    out << "\n";
     throw std::overflow_error("overflow!");
   }
   return out;
