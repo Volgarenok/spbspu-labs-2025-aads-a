@@ -2,6 +2,7 @@
 #include <iostream>
 #include <list>
 #include <stdexcept>
+#include <string>
 
 std::list< pair_t > *evstyunichev::form_list(std::istream &in)
 {
@@ -39,12 +40,12 @@ std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostrea
       mx = (iter_seq->second.size() > mx ? iter_seq->second.size() : mx);
     }
   }
-  if (mx && !sequences->empty())
+  if (!mx && !sequences->empty())
   {
     std::cout << '\n';
     summ.push_back(0);
   }
-  while (mx--)
+  for (size_t i = 0; i < mx; i++)
   {
     auto iter_seq = sequences->begin();
     out << '\n';
@@ -71,6 +72,10 @@ std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostrea
       summ.back() += num;
       iter_seq->second.pop_front();
     }
+  }
+  if (mx)
+  {
+    std::cout << '\n';
   }
   auto it = summ.begin();
   out << *(it++);
