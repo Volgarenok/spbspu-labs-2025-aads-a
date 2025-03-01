@@ -10,19 +10,32 @@ int main()
 {
   std::list< pair_t > sequences{};
   std::list< long long > summ{};
-  std::string str{};
+  std::string str = "";
   bool flag = false;
-  while (std::cin >> str)
+  try
   {
-    if (isalpha(str[0]))
+    while (std::cin >> str)
     {
-      sequences.push_back({str, std::list< int >{}});
+      if (isalpha(str[0]))
+      {
+        sequences.push_back({str, std::list< int >{}});
+      }
+      else
+      {
+        sequences.back().second.push_back(std::stoi(str));
+        flag = true;
+      }
     }
-    else
-    {
-      sequences.back().second.push_back(std::stoi(str));
-      flag = true;
-    }
+  }
+  catch (const std::out_of_range &e)
+  {
+    std::cerr << e.what() << '\n';
+    return 1;
+  }
+  if (std::cin.eof() && str == "")
+  {
+    std::cerr << "zero input\n";
+    return 0;
   }
   auto iter_seq = sequences.begin();
   std::cout << (iter_seq++)->first;
