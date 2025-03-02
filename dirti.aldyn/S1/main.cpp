@@ -1,17 +1,17 @@
 #include <iostream>
 #include <list>
 #include <utility>
+#include <stdexcept>
 #include "outputList.hpp"
-#include <limits>
 
 int main()
 {
-  std::list< std::pair< std::string, std::list< int >>> mainList;
+  std::list< std::pair< std::string, std::list< size_t >>> mainList;
   std::string listName;
   while (std::cin >> listName && !std::cin.eof())
   {
-    int value = 0;
-    std::list< int > valueList;
+    size_t value = 0;
+    std::list< size_t > valueList;
     while (std::cin >> value)
     {
       valueList.push_back(value);
