@@ -1,6 +1,7 @@
 #include "outputList.hpp"
 #include "outputList.hpp"
 #include <stdexcept>
+#include <limits>
 
 namespace
 {
