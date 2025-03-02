@@ -24,8 +24,8 @@ int main()
   }
   if (mainList.empty())
   {
-    std::cerr << "Empty input" << "\n";
-    return 1;
+    std::cout << 0 << "\n";
+    return 0;
   }
   try
   {
