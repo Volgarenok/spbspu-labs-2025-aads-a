@@ -1,11 +1,15 @@
 #include "outputList.hpp"
+#include "outputList.hpp"
 #include <stdexcept>
 
 namespace
 {
-  bool checkNum(int num)
+  void checkNum(int num1, int num2)
   {
-    return num > std::numeric_limits< int >::max();
+    if (num1 > std::numeric_limits< int >::max() - num2)
+    {
+      throw std::overflow_error("big number");
+    }
   }
 }
 
@@ -51,6 +55,7 @@ void dirti::outputList(const std::list< std::pair< std::string, std::list< int >
       if (!((*valueIter).empty()))
       {
         out << " " << (*valueIter).front();
+        checkNum(s, (*valueIter).front());
         s += (*valueIter).front();
         (*valueIter).pop_front();
       }
@@ -66,10 +71,6 @@ void dirti::outputList(const std::list< std::pair< std::string, std::list< int >
     while (iter != sumList.end())
     {
       out << " " << *iter++;
-      if (!checkNum)
-      {
-        throw std::overflow_error("Big number");
-      }
     }
     out << "\n";
   }
