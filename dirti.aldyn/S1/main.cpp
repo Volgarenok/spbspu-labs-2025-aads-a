@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list>
 #include <utility>
+#include "outputList.hpp"
 
 int main()
 {
@@ -20,11 +21,5 @@ int main()
       std::cin.clear();
     }
   }
-  auto it = mainList.begin();
-  std::cout << it++->first;
-  for (it; it != mainList.end(); ++it)
-  {
-    std::cout << " " << it->first;
-  }
-  std::cout << '\n';
+  dirti::outputList(mainList, std::cout);
 }
