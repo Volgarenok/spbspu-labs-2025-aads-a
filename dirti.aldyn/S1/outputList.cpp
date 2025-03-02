@@ -1,6 +1,14 @@
 #include "outputList.hpp"
 #include <stdexcept>
 
+namespace
+{
+  bool checkNum(int num)
+  {
+    return num > std::numeric_limits< int >::max();
+  }
+}
+
 void dirti::outputList(const std::list< std::pair< std::string, std::list< int >>> mainList, std::ostream& out)
 {
   auto iter = mainList.begin();
@@ -58,6 +66,10 @@ void dirti::outputList(const std::list< std::pair< std::string, std::list< int >
     while (iter != sumList.end())
     {
       out << " " << *iter++;
+      if (!checkNum)
+      {
+        throw std::overflow_error("Big number");
+      }
     }
     out << "\n";
   }

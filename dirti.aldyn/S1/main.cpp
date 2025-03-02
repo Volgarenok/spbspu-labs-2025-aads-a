@@ -2,6 +2,7 @@
 #include <list>
 #include <utility>
 #include "outputList.hpp"
+#include <limits>
 
 int main()
 {
@@ -21,5 +22,18 @@ int main()
       std::cin.clear();
     }
   }
-  dirti::outputList(mainList, std::cout);
+  if (mainList.empty())
+  {
+    std::cerr << "Empty input" << "\n";
+    return 1;
+  }
+  try
+  {
+    dirti::outputList(mainList, std::cout);
+  }
+  catch (std::overflow_error&)
+  {
+    std::cerr << "Big number" << "\n";
+    return 1;
+  }
 }
