@@ -12,7 +12,7 @@ void dirti::outputList(const std::list< std::pair< std::string, std::list< int >
     size = iter->second.size();
   }
   out << iter++->first;
-  for (iter; iter != mainList.end(); ++iter)
+  while (iter != mainList.end())
   {
     out << " " << iter->first;
     if (!(iter->second.empty()))
@@ -23,6 +23,7 @@ void dirti::outputList(const std::list< std::pair< std::string, std::list< int >
         size = iter->second.size();
       }
     }
+  iter++;
   }
   out << '\n';
   for (size_t i = 0; i < size; ++i)
@@ -34,13 +35,14 @@ void dirti::outputList(const std::list< std::pair< std::string, std::list< int >
     }
     out << (*valueIter).front();
     (*valueIter++).pop_front();
-    for (valueIter; valueIter != valueList.end(); ++valueIter)
+    while (valueIter != valueList.end())
     {
       if (!((*valueIter).empty()))
       {
         out << " " << (*valueIter).front();
         (*valueIter).pop_front();
       }
+    valueIter++;
     }
     out << "\n";
   }
