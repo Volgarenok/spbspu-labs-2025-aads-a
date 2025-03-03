@@ -173,7 +173,16 @@ namespace nikonov
       }
       fake->next = fake;
     }
-    void remove(const T& val)
+    void remove(const T & val)
+    {
+      auto equal = [& val](const T & data)
+      {
+        return val == data;
+      };
+      remove_if(equal);
+    }
+    template < typename Predicate >
+    void remove_if(Predicate pred)
     {
       ListNode< T > * iter = fake->next;
       ListNode< T > * subhead = fake;
@@ -181,9 +190,10 @@ namespace nikonov
       while (iter != fake)
       {
         next = iter->next;
-        if (iter->data == val)
+        if (pred(iter->data))
         {
           delete iter;
+          subhead->next = next;
         }
         else
         {
@@ -192,8 +202,34 @@ namespace nikonov
         iter = next;
       }
     }
-    void remove_if();
-    void assign (size_t n, const T& val);
+    void assign (size_t n, const T & val)
+    {
+      ListNode< T > * curr = fake->next;
+      size_t lSize = size();
+      for (size_t i = 0; i < n && curr != fake; ++i)
+      {
+        curr->data = val;
+      }
+      if (size < n)
+      {       
+        for (size_t j = 0; j < n - size; ++j)
+        {
+          curr->next = new ListNode< T >{ val, fake };
+          curr = curr->next;
+        }
+      }
+      else
+      {
+        ListNode< T > * next = curr->next;
+        while (next != fake)
+        {
+          ListNode< T > * toDelete = next;
+          next = next->next;
+          delete toDelete;
+        }
+        curr->next = fake;
+      }
+    }
   };
 }
 #endif
