@@ -152,7 +152,7 @@ namespace nikonov
       ListNode< T > * subhead = fake;
       while (toDelete->next != fake)
       {
-        subhead = subhead = toDelete;
+        subhead = toDelete;
         toDelete = toDelete->next;
       }
       delete toDelete;
@@ -160,7 +160,7 @@ namespace nikonov
     }
     void swap(List< T > & rhs)
     {
-      std::swap(fake->next, rhs.fake->next);
+      std::swap(fake, rhs.fake);
     }
     void clear() noexcept
     {
