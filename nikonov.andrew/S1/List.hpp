@@ -148,16 +148,52 @@ namespace nikonov
     }
     void pop_()
     {
-      ListNode< T > * iter = fake;
-      while (iter->next != fake)
+      ListNode< T > * toDelete = fake;
+      ListNode< T > * subhead = fake;
+      while (toDelete->next != fake)
       {
-        iter = iter->next;
+        subhead = subhead = toDelete;
+        toDelete = toDelete->next;
       }
-      delete iter;
-      iter = fake;
+      delete toDelete;
+      subhead->next = fake;
     }
-    void swap(List< T > & rhs);
-    void clear() noexcept;
+    void swap(List< T > & rhs)
+    {
+      std::swap(fake->next, rhs.fake->next);
+    }
+    void clear() noexcept
+    {
+      ListNode< T > * toDelite = fake->next;
+      while (toDelite != fake)
+      {
+        ListNode< T > * next = toDelite->next;
+        delete toDelite;
+        toDelite = next;
+      }
+      fake->next = fake;
+    }
+    void remove(const T& val)
+    {
+      ListNode< T > * iter = fake->next;
+      ListNode< T > * subhead = fake;
+      ListNode< T > * next = iter->next;
+      while (iter != fake)
+      {
+        next = iter->next;
+        if (iter->data == val)
+        {
+          delete iter;
+        }
+        else
+        {
+          subhead = iter;
+        }
+        iter = next;
+      }
+    }
+    void remove_if();
+    void assign (size_t n, const T& val);
   };
 }
 #endif
