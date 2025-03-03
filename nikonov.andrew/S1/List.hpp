@@ -15,7 +15,9 @@ namespace nikonov
   {
     ListNode< T > * node;
     using this_t = ListIterator< T >;
-
+    ListIterator(ListNode<T>* ptr = nullptr):
+      node(ptr)
+    {}
     ListIterator():
       node(nullptr)
     {}
@@ -68,8 +70,10 @@ namespace nikonov
     ListNode< T > * fake;
   public:
     List():
-      fake(new ListNode< T >{ T(), fake })
-    {}
+      fake(new ListNode< T >{ T(), nullptr})
+    {
+      fake->next = fake;
+    }
     List(size_t k, const T & value):
       fake(new ListNode< T >{ T(), fake })
     {
@@ -98,13 +102,22 @@ namespace nikonov
       }
       delete fake;
     }
+
     ListIterator< T > begin() noexcept
     {
       return { fake->next };
     }
     ListIterator< T > end() noexcept
     {
-      return ListIterator< T >{ fake };
+      return { fake };
+    }
+    ListIterator<T> begin() const noexcept
+    {
+      return { fake->next };
+    }
+    ListIterator<T> end() const noexcept
+    {
+      return { fake };
     }
 
     T & front() const
@@ -129,9 +142,10 @@ namespace nikonov
     {
       ListIterator< T > iter = begin();
       size_t size = 0;
-      while (iter++ != end())
+      while (iter != end())
       {
         ++size;
+        ++iter;
       }
       return size;
     }
@@ -211,7 +225,7 @@ namespace nikonov
         curr->data = val;
       }
       if (size < n)
-      {       
+      {
         for (size_t j = 0; j < n - size; ++j)
         {
           curr->next = new ListNode< T >{ val, fake };
