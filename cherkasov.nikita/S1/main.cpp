@@ -20,11 +20,11 @@ int main()
       pair.second.push_back(strtoull(in.c_str(), nullptr, 0));
       std::cin >> in;
     }
-      if (maxSize < pair.second.size())
-      {
-        maxSize = pair.second.size();
-      }
-      list.push_back(pair);
+    if (maxSize < pair.second.size())
+    {
+      maxSize = pair.second.size();
+    }
+    list.push_back(pair);
   }
   if (list.empty())
   {

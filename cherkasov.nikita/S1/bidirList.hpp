@@ -44,7 +44,6 @@ namespace cherkasov
   tail_(nullptr),
   size_(0)
   {}
-
   template<typename T>
   BidirList<T>::~BidirList()
   {
@@ -108,7 +107,6 @@ namespace cherkasov
     delete temp;
     --size_;
 }
-
   template<typename T>
   void BidirList<T>::clear()
   {
