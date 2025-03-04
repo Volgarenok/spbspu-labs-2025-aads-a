@@ -1,65 +1,95 @@
 #include <iostream>
-#include <string>
 #include <list>
-#include "bidirList.hpp"
+#include <string>
+#include <limits>
+#include <algorithm>
 
 int main()
 {
-  std::list<std::pair<std::string, std::list<int>>> sequences;
-  std::string name;
-  while (!std::cin.eof() && std::cin >> name)
+  std::list<std::pair<std::string, std::list<unsigned long long>>> list;
+  std::string in;
+  std::cin >> in;
+  size_t maxSize = 0;
+  while (!std::cin.eof())
   {
-    std::list<int> numbers;
-    int num;
-    while (std::cin >> num)
+    std::pair<std::string, std::list<unsigned long long>> pair;
+    pair.first = in;
+    std::cin >> in;
+    while (!std::cin.eof() && std::all_of(in.begin(), in.end(), ::isdigit))
     {
-      numbers.push_back(num);
+      pair.second.push_back(strtoull(in.c_str(), nullptr, 0));
+      std::cin >> in;
     }
+      if (maxSize < pair.second.size())
+      {
+        maxSize = pair.second.size();
+      }
+      list.push_back(pair);
   }
-  if (sequences.empty())
+  if (list.empty())
   {
     std::cout << "0\n";
     return 0;
   }
-  for (auto it = sequences.begin(); it != sequences.end(); ++it)
+  for (auto it = list.begin(); it != --(list.end()); ++it)
   {
-    std::cout << it->first;
+    std::cout << it->first << " ";
   }
-  std::cout << "\n";
-  bool hasNumbers = true;
-  while (hasNumbers)
+  std::cout << (--list.end())->first << "\n";
+  std::list<unsigned long long> sumList;
+  bool overFlow = false;
+  unsigned long long maxValue = std::numeric_limits<unsigned long long>::max();
+  for (size_t i = 0; i < maxSize; ++i)
   {
-    hasNumbers = false;
-    for (auto it = sequences.begin(); it != sequences.end(); ++it)
+    unsigned long long sumOfLine = 0;
+    for (auto it = list.begin(); it != list.end(); ++it)
     {
-      if (!it->second.empty())
+      if (it->second.size() <= i)
       {
-        std::cout << it->second.front();
-        it->second.pop_front();
-        hasNumbers = true;
+        continue;
       }
+      auto currentValue = std::next(it->second.begin(), i);
+      if (maxValue - sumOfLine < *currentValue)
+      {
+        overFlow = true;
+        break;
+      }
+      sumOfLine += *currentValue;
     }
-    std::cout << "\n";
+    sumList.push_back(sumOfLine);
   }
-  std::list<int> sums;
-  for (auto it = sequences.begin(); it != sequences.end(); ++it)
+  for (size_t i = 0; i < maxSize; ++i)
   {
-    int sum = 0;
-    for (auto numIt = it->second.begin(); numIt != it->second.end(); ++numIt)
+    bool wasAvailable = false;
+    for (auto it = list.begin(); it != --(list.end()); ++it)
     {
-      sum += *numIt;
-    }
-    sums.push_back(sum);
+      if (it->second.size() > i)
+      {
+        if (wasAvailable)
+        {
+          std::cout << " ";
+        }
+        auto current = std::next(it->second.begin(), i);
+        std::cout << *current;
+        wasAvailable = true;
+       }
+     }
+     if ((--(list.end()))->second.size() <= i)
+     {
+       std::cout << "\n";
+        continue;
+     }
+     std::cout << " " << *(std::next((--(list.end()))->second.begin(), i)) << "\n";
   }
-  if (sums.empty())
+  if (overFlow)
   {
-    std::cerr << "error: \n";
+    std::cerr << "overflow!\n";
     return 1;
   }
-  for (auto it = sums.begin(); it != sums.end(); ++it)
+  for (auto it = sumList.begin(); it != --(sumList.end()); ++it)
   {
-    std::cout << *it;
+    std::cout << *it << " ";
   }
-  std::cout << "\n";
+  std::cout << *(--(sumList.end())) << "\n";
   return 0;
 }
