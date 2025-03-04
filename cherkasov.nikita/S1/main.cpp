@@ -3,7 +3,7 @@
 #include <list>
 #include "bidirList.hpp"
 
-int main() 
+int main()
 {
   std::list<std::pair<std::string, std::list<int>>> sequences;
   std::string name;
@@ -27,7 +27,7 @@ int main()
   }
   std::cout << "\n";
   bool hasNumbers = true;
-  while (hasNumbers) 
+  while (hasNumbers)
   {
     hasNumbers = false;
     for (auto it = sequences.begin(); it != sequences.end(); ++it)
@@ -51,7 +51,7 @@ int main()
     }
     sums.push_back(sum);
   }
-  if (sums.empty()) 
+  if (sums.empty())
   {
     std::cerr << "error: \n";
     return 1;
