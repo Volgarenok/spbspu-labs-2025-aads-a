@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include "bidirList.hpp"
 
 int main() 
 {

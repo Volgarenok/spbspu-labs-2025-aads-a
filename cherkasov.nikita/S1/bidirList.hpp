@@ -9,14 +9,14 @@ namespace cherkasov
   class BidirList
   {
     private:
-      Node<T> * head;
-      Node<T> * tail;
-      size_t size;
+      Node<T> * head_;
+      Node<T> * tail_;
+      size_t size_;
     public:
       class Iterator
       {
         private:
-          Node<T>* current;
+          Node<T> * current;
         public:
           Iterator(Node<T> * node):
           current(node)
@@ -40,9 +40,9 @@ namespace cherkasov
   };
   template<typename T>
   BidirList<T>::BidirList():
-  head(nullptr),
-  tail(nullptr),
-  size(0)
+  head_(nullptr),
+  tail_(nullptr),
+  size_(0)
   {}
 
   template<typename T>
@@ -76,55 +76,55 @@ namespace cherkasov
   void BidirList<T>::push_back(const T& val)
   {
     Node<T>* newNode = new Node<T>(val);
-    if (!tail)
+    if (!tail_)
     {
-      head = tail = newNode;
+      head_ = tail_ = newNode;
     }
     else
     {
-      tail->next = newNode;
-      newNode->prev = tail;
-      tail = newNode;
+      tail_->next = newNode;
+      newNode->prev = tail_;
+      tail_ = newNode;
     }
-    ++size;
+    ++size_;
   }
   template<typename T>
   void BidirList<T>::pop_back()
   {
-    if (!tail)
+    if (!tail_)
     {
       return;
     }
-    Node<T> * temp = tail;
-    tail = tail->prev;
-    if (tail)
+    Node<T> * temp = tail_;
+    tail_ = tail_->prev;
+    if (tail_)
     {
-      tail->next = nullptr;
+      tail_->next = nullptr;
     }
     else
     {
-      head = nullptr;
+      head_ = nullptr;
     }
     delete temp;
-    --size;
+    --size_;
 }
 
   template<typename T>
   void BidirList<T>::clear()
   {
-    while (head)
+    while (head_)
     {
-      Node<T>* temp = head;
-      head = head->next;
+      Node<T>* temp = head_;
+      head_ = head_->next;
       delete temp;
     }
-    tail = nullptr;
-    size = 0;
+    tail_ = nullptr;
+    size_ = 0;
 }
   template<typename T>
   typename BidirList<T>::Iterator BidirList<T>::begin()
   {
-    return Iterator(head);
+    return Iterator(head_);
   }
   template<typename T>
   typename BidirList<T>::Iterator BidirList<T>::end()
@@ -134,17 +134,17 @@ namespace cherkasov
   template<typename T>
   T & BidirList<T>::front()
   {
-    return head->data;
+    return head_->data;
   }
   template<typename T>
   T & BidirList<T>::back()
   {
-    return tail->data;
+    return tail_->data;
   }
   template<typename T>
   bool BidirList<T>::empty() const
   {
-    return size == 0;
+    return size_ == 0;
   }
   template<typename T>
   size_t BidirList<T>::size() const
