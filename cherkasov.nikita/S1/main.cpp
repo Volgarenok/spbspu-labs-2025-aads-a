@@ -61,5 +61,5 @@ int main()
     std::cout << *it;
   }
   std::cout << "\n";
-  return 0  ;
+  return 0;
 }
