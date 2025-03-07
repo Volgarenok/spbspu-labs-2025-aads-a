@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iterator>
-#include <list>
 #include <string>
 #include "../common/list.hpp"
 #include "list_actions.hpp"
@@ -8,7 +7,7 @@
 
 int main()
 {
-  std::list< pair_t > *sequences = nullptr;
+  evstyunichev::List< pair_t > *sequences = nullptr;
   try
   {
     sequences = evstyunichev::form_list(std::cin);

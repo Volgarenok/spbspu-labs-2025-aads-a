@@ -1,14 +1,13 @@
 #ifndef LIST_ACTIONS_HPP
 #define LIST_ACTIONS_HPP
 #include <iostream>
-#include <list>
 #include "../common/list.hpp"
 
-using pair_t = std::pair< std::string, std::list< size_t> >;
+using pair_t = std::pair< std::string, evstyunichev::List< size_t> >;
 
 namespace evstyunichev
 {
-  std::list< pair_t > *form_list(std::istream &);
-  std::ostream &list_out(std::list< pair_t > *, std::ostream &);
+  evstyunichev::List< pair_t > *form_list(std::istream &);
+  std::ostream &list_out(evstyunichev::List< pair_t > *, std::ostream &);
 }
 #endif

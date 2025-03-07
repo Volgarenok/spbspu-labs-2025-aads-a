@@ -33,9 +33,10 @@ BOOST_AUTO_TEST_CASE(iterator_test)
   list1.push_back(2);
   list1.push_back(3);
   std::stringstream out;
-  for (auto it = list1.begin(); it != list1.end(); ++it)
+  auto it = list1.begin();
+  for (; it != list1.end(); ++it)
   {
-    out << *it;
+    out << *(it);
   }
   BOOST_TEST(out.str() == "123");
 }

@@ -2,7 +2,6 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
-#include <list>
 #include <stdexcept>
 #include <string>
 #include "../common/list.hpp"
@@ -20,9 +19,9 @@ namespace
   }
 }
 
-std::list< pair_t > * evstyunichev::form_list(std::istream &in)
+evstyunichev::List< pair_t > * evstyunichev::form_list(std::istream &in)
 {
-  std::list< pair_t > *sequences = new std::list< pair_t >{};
+  evstyunichev::List< pair_t > *sequences = new evstyunichev::List< pair_t >{};
   std::string str = "";
   while (in >> str)
   {
@@ -39,7 +38,7 @@ std::list< pair_t > * evstyunichev::form_list(std::istream &in)
   return sequences;
 }
 
-std::ostream & evstyunichev::list_out(std::list< pair_t > *sequences, std::ostream &out)
+std::ostream & evstyunichev::list_out(evstyunichev::List< pair_t > *sequences, std::ostream &out)
 {
   bool overflow_flag = false;
   if (sequences->empty())
@@ -47,7 +46,7 @@ std::ostream & evstyunichev::list_out(std::list< pair_t > *sequences, std::ostre
     out << "0";
     return out;
   }
-  std::list< size_t > summ{};
+  evstyunichev::List< size_t > summ{};
   auto iter_seq = sequences->begin();
   size_t mx = iter_seq->second.size();
   out << (iter_seq++)->first;

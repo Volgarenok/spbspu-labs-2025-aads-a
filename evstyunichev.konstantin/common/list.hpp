@@ -3,8 +3,9 @@
 #include <cstddef>
 #include <stdexcept>
 #include <sstream>
-#include "list_iterator.hpp"
+#include "const_list_iterator.hpp"
 #include "list_node.hpp"
+#include "list_iterator.hpp"
 namespace evstyunichev
 {
   template< class T >
@@ -20,8 +21,11 @@ namespace evstyunichev
       T & back();
       void pop_back();
       void pop_front();
+
       ListIterator< T > begin();
       ListIterator< T > end();
+      ConstListIterator< T > cbegin();
+      ConstListIterator< T > cend();
       std::stringstream & out(std::stringstream &out);
 
   
@@ -75,7 +79,7 @@ namespace evstyunichev
 
   template< class T >
   List< T >::List():
-    temp_(new ListNode< T >{T{}, nullptr, nullptr}),
+    temp_(new ListNode< T >{T{}}),
     head_(temp_),
     tail_(temp_),
     size_(0)
@@ -84,8 +88,10 @@ namespace evstyunichev
   template< class T >
   void List< T >::push_back(T data)
   {
-    tail_->next_ = new ListNode< T >{data, tail_, temp_};
+    tail_->next_ = new ListNode< T >{data};
+    tail_->next_->prev_ = tail_;
     tail_ = tail_->next_;
+    tail_->next_ = temp_;
     if (empty())
     {
       head_ = tail_;
@@ -145,6 +151,19 @@ namespace evstyunichev
   ListIterator< T > List< T >::end()
   {
     return ListIterator< T >{temp_};
+  }
+
+
+  template< class T >
+  ConstListIterator< T > List< T >::cbegin()
+  {
+    return ConstListIterator< T >{head_};
+  }
+
+  template< class T >
+  ConstListIterator< T > List< T >::cend()
+  {
+    return ConstListIterator< T >{temp_};
   }
 }
 #endif
