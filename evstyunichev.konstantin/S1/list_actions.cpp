@@ -5,6 +5,7 @@
 #include <list>
 #include <stdexcept>
 #include <string>
+#include "../common/list.hpp"
 
 namespace
 {
@@ -19,9 +20,9 @@ namespace
   }
 }
 
-std::list< pair_t > *evstyunichev::form_list(std::istream &in)
+std::list< pair_t > * evstyunichev::form_list(std::istream &in)
 {
-  std::list< pair_t > *sequences = new std::list< pair_t >;
+  std::list< pair_t > *sequences = new std::list< pair_t >{};
   std::string str = "";
   while (in >> str)
   {
@@ -38,7 +39,7 @@ std::list< pair_t > *evstyunichev::form_list(std::istream &in)
   return sequences;
 }
 
-std::ostream &evstyunichev::list_out(std::list< pair_t > *sequences, std::ostream &out)
+std::ostream & evstyunichev::list_out(std::list< pair_t > *sequences, std::ostream &out)
 {
   bool overflow_flag = false;
   if (sequences->empty())

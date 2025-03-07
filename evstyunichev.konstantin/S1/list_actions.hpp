@@ -2,6 +2,7 @@
 #define LIST_ACTIONS_HPP
 #include <iostream>
 #include <list>
+#include "../common/list.hpp"
 
 using pair_t = std::pair< std::string, std::list< size_t> >;
 
