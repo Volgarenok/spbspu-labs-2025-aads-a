@@ -28,7 +28,7 @@ namespace evstyunichev
       ConstListIterator< T > cend();
       std::stringstream & out(std::stringstream &out);
 
-  
+
     private:
       ListNode< T > *temp_;
       ListNode< T > *head_;
