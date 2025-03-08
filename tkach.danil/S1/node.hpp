@@ -1,0 +1,39 @@
+#ifndef NODE_HPP
+#define NODE_HPP
+
+#include <utility>
+
+namespace tkach
+{
+  template< typename T >
+  struct Node
+  {
+    T data_;
+    Node< T >* next_;
+    Node() = default;
+    Node(const T& data, Node, Node< T >* next);
+    Node(const T& data);
+    Node(T&& data, Node< T >* next);
+    ~Node() =  default;
+  };
+
+  template< typename T >
+  Node< T >::Node(const T& data, Node , Node< T >* next):
+    data_(data),
+    next_(next)
+  {}
+
+  template< typename T >
+  Node< T >::Node(const T & data):
+    data_(data),
+    next_(nullptr)
+  {}
+
+  template< typename T >
+  Node< T >::Node(T&& data, Node< T > * next):
+    data_(std::move(data)),
+    next_(next)
+  {}
+}
+
+#endif
