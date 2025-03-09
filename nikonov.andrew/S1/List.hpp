@@ -1,87 +1,29 @@
 #ifndef LIST_HPP
 #define LIST_HPP
+#include "ListIterator.hpp"
 #include <cstddef>
-#include <memory>
+#include <cstdlib>
 namespace nikonov
 {
-  template< typename T >
-  struct ListNode
-  {
-    T data;
-    ListNode< T > * next;
-  };
-  template< typename T >
-  struct ListIterator
-  {
-    ListNode< T > * node;
-    using this_t = ListIterator< T >;
-    ListIterator(ListNode<T>* ptr = nullptr):
-      node(ptr)
-    {}
-    ListIterator():
-      node(nullptr)
-    {}
-    ~ListIterator() = default;
-    ListIterator(const this_t &) = default;
-    this_t & operator=(const this_t &) = default;
-
-    this_t & operator++()
-    {
-      node = node->next;
-      return *this;
-    }
-    this_t operator++(int)
-    {
-      this_t tempCopy(*this);
-      ++(*this);
-      return tempCopy;
-    }
-
-    T & operator*()
-    {
-      return node->data;
-    }
-    const T & operator*() const
-    {
-      return node->data;
-    }
-
-    T * operator->()
-    {
-      return std::addressof(node->data);
-    }
-    const T * operator->() const
-    {
-      return std::addressof(node->data);
-    }
-
-    bool operator!=(const this_t & rhs) const
-    {
-      return !(*this == rhs);
-    }
-    bool operator==(const this_t & rhs) const
-    {
-      return node == rhs.node;
-    }
-  };
   template< typename T >
   class List
   {
     ListNode< T > * fake;
   public:
     List():
-      fake(new ListNode< T >{ T(), nullptr})
+      fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
     {
       fake->next = fake;
     }
     List(size_t k, const T & value):
-      fake(new ListNode< T >{ T(), fake })
+      fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
     {
+      fake->next = fake;
       ListNode< T > * tailNode = nullptr;
       for (size_t i = 0; i < k; ++i)
       {
         ListNode< T > * newNode = new ListNode< T >{ value, fake };
-        if (fake->next == nullptr)
+        if (fake->next == fake)
         {
           fake->next = newNode;
           tailNode = newNode;
@@ -100,7 +42,7 @@ namespace nikonov
         delete curr;
         curr = next;
       }
-      delete fake;
+      free(fake);
     }
 
     ListIterator< T > begin() noexcept
