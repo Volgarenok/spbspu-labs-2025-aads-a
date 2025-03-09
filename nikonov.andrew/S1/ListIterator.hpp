@@ -54,14 +54,14 @@ namespace nikonov
   {
     ListNode< T > * node;
     using this_t = ConstListIterator< T >;
-    ListIterator(ListNode<T>* ptr = nullptr):
+    ConstListIterator(ListNode<T>* ptr = nullptr):
       node(ptr)
     {}
-    ListIterator():
+    ConstListIterator():
       node(nullptr)
     {}
-    ~ListIterator() = default;
-    ListIterator(const this_t &) = default;
+    ~ConstListIterator() = default;
+    ConstListIterator(const this_t &) = default;
     this_t & operator=(const this_t &) = default;
 
     this_t & operator++()
