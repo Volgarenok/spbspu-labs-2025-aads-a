@@ -86,6 +86,13 @@ namespace nikonov
       free(fake);
     }
 
+    List< T > & operator= (std::initializer_list< T > il)
+    {
+      List< T > tempList(il);
+      swap(tempList);
+      return *this;
+    }
+
     ListIterator< T > begin() noexcept
     {
       return { fake->next };
@@ -246,6 +253,34 @@ namespace nikonov
         }
         curr->next = fake;
       }
+    }
+    ListIterator< T > insert(ConstListIterator< T > position, const T& val)
+    {
+      ListNode< T > * subhead = fake;
+      ListNode< T > * next = fake->next;
+      while(next != position.node)
+      {
+        subhead = next;
+        next = next->next;
+      }
+      ListNode< T > * newNode = new ListNode< T >{ val,  next };
+      subhead->next = newNode;
+      return ListIterator< T >{ newNode };
+    }
+    ListIterator< T > erase(ConstListIterator< T > position)
+    {
+      ListNode< T > * subhead = fake;
+      ListNode< T > * curr = fake->next;
+      ListNode< T > * next = curr->next;
+      while(curr != position.node)
+      {
+        subhead = curr;
+        curr = next;
+        next = curr->next;
+      }
+      delete curr;
+      subhead->next = next;
+      return ListIterator< T >{ next };
     }
   };
 }
