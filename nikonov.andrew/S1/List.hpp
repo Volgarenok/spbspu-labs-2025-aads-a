@@ -15,6 +15,23 @@ namespace nikonov
     {
       fake->next = fake;
     }
+    List(const List & copy):
+      fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
+    {
+      fake->next = fake;
+      ConstListIterator< T > iter = copy.cbegin();
+      ListNode< T > * curr = fake;
+      while (iter != copy.cend())
+      {
+        ListNode< T > * newNode = new ListNode< T >{ *iter, fake };
+        curr->next = newNode;
+      }
+    }
+    List(List && copy):
+      fake(copy.fake)
+    {
+      copy.fake = nullptr;
+    }
     List(size_t k, const T & value):
       fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
     {
@@ -35,12 +52,15 @@ namespace nikonov
     }
     ~List() noexcept
     {
-      ListNode< T > * curr = fake->next;
-      while (curr != fake)
+      if (fake != nullptr)
       {
-        ListNode< T > * next = curr->next;
-        delete curr;
-        curr = next;
+        ListNode< T > * curr = fake->next;
+        while (curr != fake)
+        {
+          ListNode< T > * next = curr->next;
+          delete curr;
+          curr = next;
+        }
       }
       free(fake);
     }
@@ -62,11 +82,15 @@ namespace nikonov
       return { fake };
     }
 
-    T & front() const
+    T & front()
     {
       return *begin();
     }
-    T & back() const
+    const T & front() const
+    {
+      return *begin();
+    }
+    const T & back() const
     {
       ListNode< T > * iter = fake->next;
       while (iter->next != fake)
@@ -75,6 +99,10 @@ namespace nikonov
       }
       return iter->data;
     }
+    T & back()
+    {
+      return const_cast< T & >(static_cast< const List & >(*this).back());
+    }
 
     bool empty() const noexcept
     {
@@ -82,7 +110,7 @@ namespace nikonov
     }
     size_t size() const noexcept
     {
-      ListIterator< T > iter = begin();
+      ConstListIterator< T > iter = begin();
       size_t size = 0;
       while (iter != end())
       {
@@ -92,7 +120,13 @@ namespace nikonov
       return size;
     }
 
-    void push_(const T & value)
+    void push_front(const T & value)
+    {
+      ListNode< T > * next = fake->next;
+      ListNode< T > * newNode = new ListNode< T >{ value, next };
+      fake->next = newNode;
+    }
+    void push_back(const T & value)
     {
       ListNode< T > * newNode = new ListNode< T >{ value, fake };
       ListNode< T > * iter = fake;
@@ -102,7 +136,14 @@ namespace nikonov
       }
       iter->next = newNode;
     }
-    void pop_()
+    void pop_front()
+    {
+      ListNode< T > * toDelete = fake->next;
+      ListNode< T > * subhead = toDelete->next;
+      fake->next = subhead;
+      delete toDelete;
+    }
+    void pop_back()
     {
       ListNode< T > * toDelete = fake;
       ListNode< T > * subhead = fake;
@@ -158,7 +199,7 @@ namespace nikonov
         iter = next;
       }
     }
-    void assign (size_t n, const T & val)
+    void assign(size_t n, const T & val)
     {
       ListNode< T > * curr = fake->next;
       size_t lSize = size();

@@ -19,11 +19,13 @@ namespace nikonov
 
     this_t & operator++()
     {
+      assert(node != nullptr);
       node = node->next;
       return *this;
     }
     this_t operator++(int)
     {
+      assert(node != nullptr);
       this_t tempCopy(*this);
       ++(*this);
       return tempCopy;
@@ -31,11 +33,13 @@ namespace nikonov
 
     T & operator*()
     {
+      assert(node != nullptr);
       return node->data;
     }
 
-    const T * operator->() const
+    T * operator->()
     {
+      assert(node != nullptr);
       return std::addressof(node->data);
     }
 
