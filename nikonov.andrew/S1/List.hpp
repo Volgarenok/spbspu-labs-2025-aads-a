@@ -138,9 +138,9 @@ namespace nikonov
     }
     size_t size() const noexcept
     {
-      ConstListIterator< T > iter = begin();
+      ConstListIterator< T > iter = cbegin();
       size_t size = 0;
-      while (iter != end())
+      while (iter != cend())
       {
         ++size;
         ++iter;
