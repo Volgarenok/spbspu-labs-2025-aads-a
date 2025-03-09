@@ -49,15 +49,15 @@ namespace nikonov
     {
       return { fake->next };
     }
+    ConstListIterator< T > cbegin() const noexcept
+    {
+      return { fake->next };
+    }
     ListIterator< T > end() noexcept
     {
       return { fake };
     }
-    ListIterator<T> begin() const noexcept
-    {
-      return { fake->next };
-    }
-    ListIterator<T> end() const noexcept
+    ConstListIterator< T > cend() const noexcept
     {
       return { fake };
     }
