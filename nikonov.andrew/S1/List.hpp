@@ -3,6 +3,7 @@
 #include "ListIterator.hpp"
 #include <cstddef>
 #include <cstdlib>
+#include <initializer_list>
 namespace nikonov
 {
   template< typename T >
@@ -48,6 +49,26 @@ namespace nikonov
         }
         tailNode->next = newNode;
         tailNode = newNode;
+      }
+    }
+    List(std::initializer_list< T > il):
+      fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
+    {
+      fake->next = fake;
+      for (auto el : il)
+      {
+        ListNode< T > * newNode = new ListNode< T >{ el, fake };
+        fake->next = newNode;
+      }
+    }
+    List(ConstListIterator< T > begin, ConstListIterator< T > end):
+      fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
+    {
+      fake->next = fake;
+      while (begin != end)
+      {
+        ListNode< T > * newNode = new ListNode< T >{ *(begin++), fake };
+        fake->next = newNode;
       }
     }
     ~List() noexcept
@@ -181,22 +202,21 @@ namespace nikonov
     template < typename Predicate >
     void remove_if(Predicate pred)
     {
-      ListNode< T > * iter = fake->next;
+      ListNode< T > * curr = fake->next;
       ListNode< T > * subhead = fake;
-      ListNode< T > * next = iter->next;
-      while (iter != fake)
+      while (curr != fake)
       {
-        next = iter->next;
-        if (pred(iter->data))
+        ListNode< T > * next = curr->next;
+        if (pred(curr->data))
         {
-          delete iter;
+          delete curr;
           subhead->next = next;
         }
         else
         {
-          subhead = iter;
+          subhead = curr;
         }
-        iter = next;
+        curr = next;
       }
     }
     void assign(size_t n, const T & val)
@@ -207,9 +227,9 @@ namespace nikonov
       {
         curr->data = val;
       }
-      if (size < n)
+      if (lSize < n)
       {
-        for (size_t j = 0; j < n - size; ++j)
+        for (size_t j = 0; j < n - lSize; ++j)
         {
           curr->next = new ListNode< T >{ val, fake };
           curr = curr->next;
