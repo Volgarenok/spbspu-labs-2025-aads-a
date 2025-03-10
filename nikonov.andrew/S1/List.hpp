@@ -65,7 +65,7 @@ namespace nikonov
         curr = newNode;
       }
     }
-    List(ConstListIterator< T > begin, ConstListIterator< T > end):
+    List(ListIterator< T > begin, ListIterator< T > end):
       fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
     {
       fake->next = fake;
