@@ -5,7 +5,7 @@ namespace nikonov
   template< typename T >
   struct ListIterator
   {
-    const ListNode< T > * node;
+    ListNode< T > * node;
     using this_t = ListIterator< T >;
     ListIterator(ListNode<T>* ptr = nullptr):
       node(ptr)
@@ -56,7 +56,7 @@ namespace nikonov
   template< typename T >
   struct ConstListIterator
   {
-    ListNode< T > * node;
+    const ListNode< T > * node;
     using this_t = ConstListIterator< T >;
     ConstListIterator(ListNode<T>* ptr = nullptr):
       node(ptr)
