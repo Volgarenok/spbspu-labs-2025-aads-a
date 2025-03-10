@@ -1,3 +1,5 @@
+#ifndef LISTNODE_HPP
+#define LISTNODE_HPP
 namespace nikonov
 {
   template< typename T >
@@ -7,3 +9,4 @@ namespace nikonov
     ListNode< T > * next;
   };
 }
+#endif

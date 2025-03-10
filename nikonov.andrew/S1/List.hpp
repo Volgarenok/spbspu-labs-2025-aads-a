@@ -26,12 +26,14 @@ namespace nikonov
       {
         ListNode< T > * newNode = new ListNode< T >{ *iter, fake };
         curr->next = newNode;
+        curr = newNode;
       }
     }
     List(List && copy):
       fake(copy.fake)
     {
       copy.fake = nullptr;
+      //copy.fake->next = copy.fake;
     }
     List(size_t k, const T & value):
       fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
@@ -55,35 +57,33 @@ namespace nikonov
       fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
     {
       fake->next = fake;
+      ListNode< T > * curr = fake;
       for (auto el : il)
       {
         ListNode< T > * newNode = new ListNode< T >{ el, fake };
-        fake->next = newNode;
+        curr->next = newNode;
+        curr = newNode;
       }
     }
     List(ConstListIterator< T > begin, ConstListIterator< T > end):
       fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
     {
       fake->next = fake;
-      while (begin != end)
+      ListNode< T > * curr = fake;
+      while (begin++ != end)
       {
-        ListNode< T > * newNode = new ListNode< T >{ *(begin++), fake };
-        fake->next = newNode;
+        ListNode< T > * newNode = new ListNode< T >{ *begin, fake };
+        curr->next = newNode;
+        curr = newNode;
       }
     }
     ~List() noexcept
     {
       if (fake != nullptr)
       {
-        ListNode< T > * curr = fake->next;
-        while (curr != fake)
-        {
-          ListNode< T > * next = curr->next;
-          delete curr;
-          curr = next;
-        }
+        clear();
+        free(fake);
       }
-      free(fake);
     }
 
     List< T > & operator= (std::initializer_list< T > il)
