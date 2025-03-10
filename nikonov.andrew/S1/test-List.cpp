@@ -12,14 +12,9 @@ BOOST_AUTO_TEST_CASE(ListVariableConstructor_test)
   constexpr int data = 100;
   nikonov::List< int > list(size, data);
   BOOST_TEST(list.size() == size);
-  //for (auto el : list)
-  //{
-  //  BOOST_TEST(el == data);
-  //}
-  auto it = list.begin();
-  for (; it != list.end(); ++it)
+  for (auto el : list)
   {
-    BOOST_TEST(*it == data);
+   BOOST_TEST(el == data);
   }
 }
 BOOST_AUTO_TEST_CASE(ListCopyConstructor_test)

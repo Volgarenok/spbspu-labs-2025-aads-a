@@ -24,7 +24,7 @@ namespace nikonov
       ListNode< T > * curr = fake;
       while (iter != copy.cend())
       {
-        ListNode< T > * newNode = new ListNode< T >{ *iter, fake };
+        ListNode< T > * newNode = new ListNode< T >{ *(iter++), fake };
         curr->next = newNode;
         curr = newNode;
       }
@@ -32,8 +32,8 @@ namespace nikonov
     List(List && copy):
       fake(copy.fake)
     {
-      copy.fake = nullptr;
-      //copy.fake->next = copy.fake;
+      copy.fake = static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >)));;
+      copy.fake->next = copy.fake;
     }
     List(size_t k, const T & value):
       fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
@@ -70,7 +70,7 @@ namespace nikonov
     {
       fake->next = fake;
       ListNode< T > * curr = fake;
-      while (begin++ != end)
+      for (; begin != end; ++begin)
       {
         ListNode< T > * newNode = new ListNode< T >{ *begin, fake };
         curr->next = newNode;
@@ -79,11 +79,8 @@ namespace nikonov
     }
     ~List() noexcept
     {
-      if (fake != nullptr)
-      {
-        clear();
-        free(fake);
-      }
+      clear();
+      free(fake);
     }
 
     List< T > & operator= (std::initializer_list< T > il)
