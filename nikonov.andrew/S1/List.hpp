@@ -228,49 +228,13 @@ namespace nikonov
     }
     void assign(size_t n, const T & val)
     {
-      ListNode< T > * curr = fake->next;
-      size_t lSize = size();
-      for (size_t i = 0; i < n && curr != fake; ++i)
-      {
-        curr->data = val;
-      }
-      for (size_t j = 0; j < n - lSize; ++j)
-      {
-        curr->next = new ListNode< T >{ val, fake };
-        curr = curr->next;
-      }
-      ListNode< T > * next = curr->next;
-      while (next != fake)
-      {
-        ListNode< T > * toDelete = next;
-        next = next->next;
-        delete toDelete;
-      }
-      curr->next = fake;
+      List< T > tempList(n, val);
+      swap(tempList);
     }
     void assign(ListIterator< T > begin, ListIterator< T > end)
     {
-      size_t lSize = size();
-      ListNode< T > * curr = fake->next;
-      while (curr != fake && begin != end)
-      {
-        curr->data = *(begin++);
-        curr = curr->next;
-      }
-      while (begin != end)
-      {
-        ListNode< T > * newNode = new ListNode< T >{ *(begin++), fake };
-        curr->next = newNode;
-        curr = newNode;
-      }
-      ListNode< T > * subhead = curr;
-      while (curr != fake)
-      {
-        ListNode< T > * next = curr->next;
-        delete curr;
-        curr = next;
-      }
-      subhead->next = fake;
+      List< T > tempList(begin, end);
+      swap(tempList);
     }
     void assign(std::initializer_list< T > il)
     {
