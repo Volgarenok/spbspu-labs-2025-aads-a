@@ -234,25 +234,48 @@ namespace nikonov
       {
         curr->data = val;
       }
-      if (lSize < n)
+      for (size_t j = 0; j < n - lSize; ++j)
       {
-        for (size_t j = 0; j < n - lSize; ++j)
-        {
-          curr->next = new ListNode< T >{ val, fake };
-          curr = curr->next;
-        }
+        curr->next = new ListNode< T >{ val, fake };
+        curr = curr->next;
       }
-      else
+      ListNode< T > * next = curr->next;
+      while (next != fake)
+      {
+        ListNode< T > * toDelete = next;
+        next = next->next;
+        delete toDelete;
+      }
+      curr->next = fake;
+    }
+    void assign(ListIterator< T > begin, ListIterator< T > end)
+    {
+      size_t lSize = size();
+      ListNode< T > * curr = fake->next;
+      while (curr != fake && begin != end)
+      {
+        curr->data = *(begin++);
+        curr = curr->next;
+      }
+      while (begin != end)
+      {
+        ListNode< T > * newNode = new ListNode< T >{ *(begin++), fake };
+        curr->next = newNode;
+        curr = newNode;
+      }
+      ListNode< T > * subhead = curr;
+      while (curr != fake)
       {
         ListNode< T > * next = curr->next;
-        while (next != fake)
-        {
-          ListNode< T > * toDelete = next;
-          next = next->next;
-          delete toDelete;
-        }
-        curr->next = fake;
+        delete curr;
+        curr = next;
       }
+      subhead->next = fake;
+    }
+    void assign(std::initializer_list< T > il)
+    {
+      List< T > tempList(il);
+      swap(tempList);
     }
     ListIterator< T > insert(ConstListIterator< T > position, const T& val)
     {
