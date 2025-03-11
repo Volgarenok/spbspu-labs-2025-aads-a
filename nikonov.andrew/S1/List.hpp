@@ -65,7 +65,8 @@ namespace nikonov
         curr = newNode;
       }
     }
-    List(ListIterator< T > begin, ListIterator< T > end):
+    template < typename InputIterator >
+    List(InputIterator begin, InputIterator end):
       fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
     {
       fake->next = fake;

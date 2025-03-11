@@ -53,14 +53,14 @@ BOOST_AUTO_TEST_CASE(ListInitLConstructor_test)
 }
 BOOST_AUTO_TEST_CASE(ListRangeConstructor_test)
 {
-  using Iter = nikonov::ListIterator< int >;
+  using iter = nikonov::ListIterator< int >;
   constexpr size_t size = 10;
   constexpr int data = 100;
   nikonov::List< int > list(size, data);
-  Iter begin = list.begin();
-  Iter end = list.end();
+  iter begin = list.begin();
+  iter end = list.end();
   nikonov::List< int > newList(begin, end);
-  Iter newBegin = newList.begin();
+  iter newBegin = newList.begin();
   for (; newBegin != newList.end(); ++newBegin, ++begin)
   {
     BOOST_TEST(*begin == *newBegin);

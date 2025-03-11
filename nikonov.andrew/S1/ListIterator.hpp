@@ -1,12 +1,13 @@
 #ifndef LISTITERATOR_HPP
 #define LISTITERATOR_HPP
 #include "ListNode.hpp"
+#include <iterator>
 #include <memory>
 #include <cassert>
 namespace nikonov
 {
   template< typename T >
-  struct ListIterator
+  struct ListIterator: public std::iterator< std::forward_iterator_tag, T >
   {
     ListNode< T > * node;
     using this_t = ListIterator< T >;
@@ -57,7 +58,7 @@ namespace nikonov
   };
 
   template< typename T >
-  struct ConstListIterator
+  struct ConstListIterator: public std::iterator< std::forward_iterator_tag, T >
   {
     const ListNode< T > * node;
     using this_t = ConstListIterator< T >;
