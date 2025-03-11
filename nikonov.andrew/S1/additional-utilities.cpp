@@ -11,7 +11,7 @@ namespace
 nikonov::List< std::pair< std::string, nikonov::List< size_t > > > * nikonov::getPList(std::istream& in, bool& overflowFlag)
 {
   using pair_t = std::pair< std::string, List< size_t > >;
-  List< pair_t > * stdList = new List< pair_t >;
+  List< pair_t > * pList = new List< pair_t >;
   std::string data = "";
   std::string name = "";
   bool dataIsName = true;
@@ -44,9 +44,9 @@ nikonov::List< std::pair< std::string, nikonov::List< size_t > > > * nikonov::ge
       }
     }
     pair_t Pair{ name, vals };
-    stdList->push_back(Pair);
+    pList->push_back(Pair);
   }
-  return stdList;
+  return pList;
 }
 void nikonov::processPList(List< std::pair< std::string, List< size_t > > > * pList, bool& overflowFlag)
 {
@@ -64,14 +64,18 @@ void nikonov::processPList(List< std::pair< std::string, List< size_t > > > * pL
     maxValCnt = maxValCnt > (*pIter1).second.size() ? maxValCnt : (*pIter1).second.size();
   }
   std::cout << '\n';
-  if (!overflowFlag)
+  if (!overflowFlag && maxValCnt != 0)
   {
     ::printNumsNSums(pList, maxValCnt);
   }
-  else
+  else if (maxValCnt != 0)
   {
     ::printOnlyNums(pList, maxValCnt);
     throw std::overflow_error("overflow detected");
+  }
+  else
+  {
+    std::cout << 0 << '\n';
   }
 }
 namespace
