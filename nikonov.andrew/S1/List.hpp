@@ -67,8 +67,10 @@ namespace nikonov
     void splice(ConstListIterator< T > position, List< T > && x);
     void splice(ConstListIterator< T > position, List< T > & x, ConstListIterator< T > i);
     void splice(ConstListIterator< T > position, List< T > && x, ConstListIterator< T > i);
-    void splice(ConstListIterator< T > position, List< T > & x, ConstListIterator< T > first, ConstListIterator< T > last);
-    void splice(ConstListIterator< T > position, List< T > && x,ConstListIterator< T > first, ConstListIterator< T > last);
+    void splice(ConstListIterator< T > position, List< T > & x, ConstListIterator< T > first, \
+      ConstListIterator< T > last);
+    void splice(ConstListIterator< T > position, List< T > && x,ConstListIterator< T > first, \
+      ConstListIterator< T > last);
     void reverse() noexcept;
 
     void assign(size_t n, const T & val);
@@ -179,7 +181,7 @@ namespace nikonov
     }
     return compareList(*this, rhs, std::equal< T >);
   }
-  
+
   template< typename T >
   bool List< T >::operator!=(const List< T > & rhs)
   {
@@ -441,13 +443,15 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::splice(ConstListIterator< T > position, List< T > & x, ConstListIterator< T > first, ConstListIterator< T > last)
+  void List< T >::splice(ConstListIterator< T > position, List< T > & x, ConstListIterator< T > first, \
+    ConstListIterator< T > last)
   {
     splice(position, std::move(x), first, last);
   }
 
   template< typename T >
-  void List< T >::splice(ConstListIterator< T > position, List< T > && x, ConstListIterator< T > first, ConstListIterator< T > last)
+  void List< T >::splice(ConstListIterator< T > position, List< T > && x, ConstListIterator< T > first, \
+    ConstListIterator< T > last)
   {
     ListIterator< T > curr = begin();
     while (curr.node != position.node)
