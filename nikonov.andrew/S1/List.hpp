@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstdlib>
 #include <initializer_list>
-#include <type_traits>
 namespace
 {
   template< typename T >
@@ -15,6 +14,11 @@ namespace
 namespace nikonov
 {
   template< typename T >
+  using iter = ListIterator< T >;
+  template< typename T >
+  using citer = ConstListIterator< T >;
+
+  template< typename T >
   class List
   {
     ListNode< T > * fake;
@@ -24,9 +28,7 @@ namespace nikonov
     List(List && copy);
     List(size_t k, const T & value);
     List(std::initializer_list< T > il);
-    template < typename InputIterator, typename = typename std::enable_if< \
-      std::is_same< InputIterator, ConstListIterator< T > >::value || \
-        std::is_same< InputIterator, ListIterator< T > >::value >::type >
+    template < typename InputIterator >
     List(InputIterator begin, InputIterator end);
     ~List() noexcept;
 
@@ -38,10 +40,10 @@ namespace nikonov
     bool operator<=(const List< T > & rhs);
     bool operator>=(const List< T > & rhs);
 
-    ListIterator< T > begin() noexcept;
-    ConstListIterator< T > cbegin() const noexcept;
-    ListIterator< T > end() noexcept;
-    ConstListIterator< T > cend() const noexcept;
+    iter< T > begin() noexcept;
+    citer< T > cbegin() const noexcept;
+    iter< T > end() noexcept;
+    citer< T > cend() const noexcept;
 
     T & front();
     const T & front() const;
@@ -63,21 +65,19 @@ namespace nikonov
     void remove(const T & val);
     template < typename Predicate >
     void remove_if(Predicate pred);
-    void splice(ConstListIterator< T > position, List< T > & x);
-    void splice(ConstListIterator< T > position, List< T > && x);
-    void splice(ConstListIterator< T > position, List< T > & x, ConstListIterator< T > i);
-    void splice(ConstListIterator< T > position, List< T > && x, ConstListIterator< T > i);
-    void splice(ConstListIterator< T > position, List< T > & x, ConstListIterator< T > first, \
-      ConstListIterator< T > last);
-    void splice(ConstListIterator< T > position, List< T > && x,ConstListIterator< T > first, \
-      ConstListIterator< T > last);
+    void splice(citer< T > position, List< T > & x);
+    void splice(citer< T > position, List< T > && x);
+    void splice(citer< T > position, List< T > & x, citer< T > i);
+    void splice(citer< T > position, List< T > && x, citer< T > i);
+    void splice(citer< T > position, List< T > & x, citer< T > first, citer< T > last);
+    void splice(citer< T > position, List< T > && x,citer< T > first, citer< T > last);
     void reverse() noexcept;
 
     void assign(size_t n, const T & val);
-    void assign(ListIterator< T > begin, ListIterator< T > end);
+    void assign(iter< T > begin, iter< T > end);
     void assign(std::initializer_list< T > il);
-    ListIterator< T > insert(ConstListIterator< T > position, const T& val);
-    ListIterator< T > erase(ConstListIterator< T > position);
+    iter< T > insert(citer< T > position, const T& val);
+    iter< T > erase(citer< T > position);
   };
   template< typename T >
   List< T >::List():
@@ -91,7 +91,7 @@ namespace nikonov
     fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
   {
     fake->next = fake;
-    ConstListIterator< T > iter = copy.cbegin();
+    citer< T > iter = copy.cbegin();
     ListNode< T > * curr = fake;
     while (iter != copy.cend())
     {
@@ -143,7 +143,7 @@ namespace nikonov
   }
 
   template< typename T >
-  template< typename InputIterator, typename >
+  template< typename InputIterator >
   List< T >::List(InputIterator begin, InputIterator end):
     fake(static_cast< ListNode< T > * >(malloc(sizeof(ListNode< T >))))
   {
@@ -213,25 +213,25 @@ namespace nikonov
   }
 
   template< typename T >
-  ListIterator< T > List< T >::begin() noexcept
+  iter< T > List< T >::begin() noexcept
   {
     return { fake->next };
   }
 
   template< typename T >
-  ConstListIterator< T > List< T >::cbegin() const noexcept
+  citer< T > List< T >::cbegin() const noexcept
   {
     return { fake->next };
   }
 
   template< typename T >
-  ListIterator< T > List< T >::end() noexcept
+  iter< T > List< T >::end() noexcept
   {
     return { fake };
   }
 
   template< typename T >
-  ConstListIterator< T > List< T >::cend() const noexcept
+  citer< T > List< T >::cend() const noexcept
   {
     return { fake };
   }
@@ -274,7 +274,7 @@ namespace nikonov
   template< typename T >
   size_t List< T >::size() const noexcept
   {
-    ConstListIterator< T > iter = cbegin();
+    citer< T > iter = cbegin();
     size_t size = 0;
     while (iter != cend())
     {
@@ -392,15 +392,15 @@ namespace nikonov
     }
   }
   template< typename T >
-  void List< T >::splice(ConstListIterator< T > position, List< T > & x)
+  void List< T >::splice(citer< T > position, List< T > & x)
   {
     splice(position, std::move(x));
   }
 
   template< typename T >
-  void List< T >::splice(ConstListIterator< T > position, List< T > && x)
+  void List< T >::splice(citer< T > position, List< T > && x)
   {
-    ListIterator< T > curr = begin();
+    iter< T > curr = begin();
     while (curr.node != position.node)
     {
       ++curr;
@@ -417,21 +417,21 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::splice(ConstListIterator< T > position, List< T > & x, ConstListIterator< T > i)
+  void List< T >::splice(citer< T > position, List< T > & x, citer< T > i)
   {
     splice(position, std::move(x), i);
   }
 
   template< typename T >
-  void List< T >::splice(ConstListIterator< T > position, List< T > && x, ConstListIterator< T > i)
+  void List< T >::splice(citer< T > position, List< T > && x, citer< T > i)
   {
-    ListIterator< T > curr = begin();
+    iter< T > curr = begin();
     while (curr.node != position.node)
     {
       ++curr;
     }
     ListNode< T > * prevNext = curr.node->next;
-    ListIterator< T > subheadX = x.begin();
+    iter< T > subheadX = x.begin();
     while (subheadX.node->next != i->node)
     {
       ++subheadX;
@@ -443,30 +443,28 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::splice(ConstListIterator< T > position, List< T > & x, ConstListIterator< T > first, \
-    ConstListIterator< T > last)
+  void List< T >::splice(citer< T > position, List< T > & x, citer< T > first, citer< T > last)
   {
     splice(position, std::move(x), first, last);
   }
 
   template< typename T >
-  void List< T >::splice(ConstListIterator< T > position, List< T > && x, ConstListIterator< T > first, \
-    ConstListIterator< T > last)
+  void List< T >::splice(citer< T > position, List< T > && x, citer< T > first, citer< T > last)
   {
-    ListIterator< T > curr = begin();
+    iter< T > curr = begin();
     while (curr.node != position.node)
     {
       ++curr;
     }
     ListNode< T > * prevNext = curr.node->next;
-    ListIterator< T > subheadX = x.begin();
+    iter< T > subheadX = x.begin();
     while (subheadX.node->next != first->node)
     {
       ++subheadX;
     }
     curr.node->next = subheadX.node->next;
-    ListIterator< T > currTail = subheadX.node;
-    ListIterator< T > endX = subheadX.node->next;
+    iter< T > currTail = subheadX.node;
+    iter< T > endX = subheadX.node->next;
     while (currTail.node->next != last.node)
     {
       ++currTail;
@@ -499,7 +497,7 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::assign(ListIterator< T > begin, ListIterator< T > end)
+  void List< T >::assign(iter< T > begin, iter< T > end)
   {
     List< T > tempList(begin, end);
     swap(tempList);
@@ -513,7 +511,7 @@ namespace nikonov
   }
 
   template< typename T >
-  ListIterator< T > List< T >::insert(ConstListIterator< T > position, const T& val)
+  iter< T > List< T >::insert(citer< T > position, const T& val)
   {
     ListNode< T > * subhead = fake;
     ListNode< T > * next = fake->next;
@@ -524,11 +522,11 @@ namespace nikonov
     }
     ListNode< T > * newNode = new ListNode< T >{ val,  next };
     subhead->next = newNode;
-    return ListIterator< T >{ newNode };
+    return iter< T >{ newNode };
   }
 
   template< typename T >
-  ListIterator< T > List< T >::erase(ConstListIterator< T > position)
+  iter< T > List< T >::erase(citer< T > position)
   {
     ListNode< T > * subhead = fake;
     ListNode< T > * curr = fake->next;
@@ -541,7 +539,7 @@ namespace nikonov
     }
     delete curr;
     subhead->next = next;
-    return ListIterator< T >{ next };
+    return iter< T >{ next };
   }
 }
 namespace
@@ -549,8 +547,8 @@ namespace
   template< typename T, typename Compare >
   bool compareLists(const nikonov::List< T > & lhs, const nikonov::List< T > & rhs, Compare cmp)
   {
-    nikonov::ConstListIterator< T > thisIt = lhs.begin();
-    nikonov::ConstListIterator< T > anotherIt = rhs.begin();
+    nikonov::citer< T > thisIt = lhs.begin();
+    nikonov::citer< T > anotherIt = rhs.begin();
     while (thisIt != lhs.end())
     {
       if (anotherIt == rhs.end() || !cmp(*thisIt, *anotherIt))

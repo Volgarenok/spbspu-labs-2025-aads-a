@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(ListMoveConstructor_test)
 {
   constexpr size_t size = 10;
   constexpr int data = 100;
-  nikonov::List< int > list(10, 100);
+  nikonov::List< int > list(size, data);
   nikonov::List< int > copyList(std::move(list));
   BOOST_TEST(copyList.size() == size);
   for (auto el : copyList)
