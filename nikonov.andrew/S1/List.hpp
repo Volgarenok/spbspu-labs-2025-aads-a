@@ -42,12 +42,12 @@ namespace nikonov
     ~List() noexcept;
 
     List< T > & operator=(std::initializer_list< T > il);
-    bool operator==(const List< T > & rhs) const;
-    bool operator!=(const List< T > & rhs) const;
-    bool operator<(const List< T > & rhs) const;
-    bool operator>(const List< T > & rhs) const;
-    bool operator<=(const List< T > & rhs) const;
-    bool operator>=(const List< T > & rhs) const;
+    bool operator==(const List< T > & rhs) const noexcept;
+    bool operator!=(const List< T > & rhs) const noexcept;
+    bool operator<(const List< T > & rhs) const noexcept;
+    bool operator>(const List< T > & rhs) const noexcept;
+    bool operator<=(const List< T > & rhs) const noexcept;
+    bool operator>=(const List< T > & rhs) const noexcept;
 
     iter< T > begin() noexcept;
     citer< T > begin() const noexcept;
@@ -56,10 +56,10 @@ namespace nikonov
     citer< T > end() const noexcept;
     citer< T > cend() const noexcept;
 
-    T & front();
-    const T & front() const;
-    T & back();
-    const T & back() const;
+    T & front() noexcept;
+    const T & front() const noexcept;
+    T & back() noexcept;
+    const T & back() const noexcept;
 
     bool empty() const noexcept;
     size_t size() const noexcept;
@@ -68,27 +68,27 @@ namespace nikonov
     void push_front(T && value);
     void push_back(const T & value);
     void push_back(T && value);
-    void pop_front();
-    void pop_back();
+    void pop_front() noexcept;
+    void pop_back() noexcept;
 
     void swap(List< T > & rhs) noexcept;
     void clear() noexcept;
-    void remove(const T & val);
+    void remove(const T & val) noexcept;
     template < typename Predicate >
-    void remove_if(Predicate pred);
-    void splice(citer< T > position, List< T > & x);
-    void splice(citer< T > position, List< T > && x);
-    void splice(citer< T > position, List< T > & x, citer< T > i);
-    void splice(citer< T > position, List< T > && x, citer< T > i);
-    void splice(citer< T > position, List< T > & x, citer< T > first, citer< T > last);
-    void splice(citer< T > position, List< T > && x,citer< T > first, citer< T > last);
+    void remove_if(Predicate pred) noexcept;
+    void splice(citer< T > position, List< T > & x) noexcept;
+    void splice(citer< T > position, List< T > && x) noexcept;
+    void splice(citer< T > position, List< T > & x, citer< T > i) noexcept;
+    void splice(citer< T > position, List< T > && x, citer< T > i) noexcept;
+    void splice(citer< T > position, List< T > & x, citer< T > first, citer< T > last) noexcept;
+    void splice(citer< T > position, List< T > && x,citer< T > first, citer< T > last) noexcept;
     void reverse() noexcept;
 
-    void assign(size_t n, const T & val);
-    void assign(iter< T > begin, iter< T > end);
-    void assign(std::initializer_list< T > il);
+    void assign(size_t n, const T & val) noexcept;
+    void assign(iter< T > begin, iter< T > end) noexcept;
+    void assign(std::initializer_list< T > il) noexcept;
     iter< T > insert(citer< T > position, const T& val);
-    iter< T > erase(citer< T > position);
+    iter< T > erase(citer< T > position) noexcept;
   };
   template< typename T >
   List< T >::List():
@@ -184,7 +184,7 @@ namespace nikonov
   }
 
   template< typename T >
-  bool List< T >::operator==(const List< T > & rhs) const
+  bool List< T >::operator==(const List< T > & rhs) const noexcept
   {
     if (std::addressof(*this) == std::addressof(rhs))
     {
@@ -198,13 +198,13 @@ namespace nikonov
   }
 
   template< typename T >
-  bool List< T >::operator!=(const List< T > & rhs) const
+  bool List< T >::operator!=(const List< T > & rhs) const noexcept
   {
     return !(*this == rhs);
   }
 
   template< typename T >
-  bool List< T >::operator<(const List< T > & rhs) const
+  bool List< T >::operator<(const List< T > & rhs) const noexcept
   {
    if (size() < rhs.size())
     {
@@ -214,7 +214,7 @@ namespace nikonov
   }
 
   template< typename T >
-  bool List< T >::operator>(const List< T > & rhs) const
+  bool List< T >::operator>(const List< T > & rhs) const noexcept
   {
     if (size() > rhs.size())
     {
@@ -224,13 +224,13 @@ namespace nikonov
   }
 
   template< typename T >
-  bool List< T >::operator<=(const List< T > & rhs) const
+  bool List< T >::operator<=(const List< T > & rhs) const noexcept
   {
     return !(*this > rhs);
   }
 
   template< typename T >
-  bool List< T >::operator>=(const List< T > & rhs) const
+  bool List< T >::operator>=(const List< T > & rhs) const noexcept
   {
     return !(*this < rhs);
   }
@@ -238,54 +238,57 @@ namespace nikonov
   template< typename T >
   iter< T > List< T >::begin() noexcept
   {
-    return { fake->next };
+    return iter< T >(fake->next );
   }
 
   template< typename T >
   citer< T > List< T >::begin() const noexcept
   {
-    return { fake->next };
+    return citer< T >(fake->next);
   }
 
   template< typename T >
   citer< T > List< T >::cbegin() const noexcept
   {
-    return { fake->next };
+    return citer< T >(fake->next);
   }
 
   template< typename T >
   iter< T > List< T >::end() noexcept
   {
-    return { fake };
+    return iter< T >(fake);
   }
 
   template< typename T >
   citer< T > List< T >::end() const noexcept
   {
-    return { fake };
+    return citer< T >(fake);
   }
 
   template< typename T >
   citer< T > List< T >::cend() const noexcept
   {
-    return { fake };
+    return citer< T >(fake);
   }
 
   template< typename T >
-  T &  List< T >::front()
+  T &  List< T >::front() noexcept
   {
+    assert(!empty());
     return *begin();
   }
 
   template< typename T >
-  const T &  List< T >::front() const
+  const T &  List< T >::front() const noexcept
   {
+    assert(!empty());
     return *begin();
   }
 
   template< typename T >
-  const T & List< T >::back() const
+  const T & List< T >::back() const noexcept
   {
+    assert(!empty());
     ListNode< T > * iter = fake->next;
     while (iter->next != fake)
     {
@@ -295,8 +298,9 @@ namespace nikonov
   }
 
   template< typename T >
-  T & List< T >::back()
+  T & List< T >::back() noexcept
   {
+    assert(!empty());
     return const_cast< T & >(static_cast< const List & >(*this).back());
   }
 
@@ -354,8 +358,9 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::pop_front()
+  void List< T >::pop_front() noexcept
   {
+    assert(!empty());
     ListNode< T > * toDelete = fake->next;
     ListNode< T > * subhead = toDelete->next;
     fake->next = subhead;
@@ -363,8 +368,9 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::pop_back()
+  void List< T >::pop_back() noexcept
   {
+    assert(!empty());
     ListNode< T > * toDelete = fake;
     ListNode< T > * subhead = fake;
     while (toDelete->next != fake)
@@ -396,7 +402,7 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::remove(const T & val)
+  void List< T >::remove(const T & val) noexcept
   {
     auto equal = [& val](const T & data)
     {
@@ -407,7 +413,7 @@ namespace nikonov
 
   template< typename T >
   template < typename Predicate >
-  void List< T >::remove_if(Predicate pred)
+  void List< T >::remove_if(Predicate pred) noexcept
   {
     ListNode< T > * curr = fake->next;
     ListNode< T > * subhead = fake;
@@ -426,14 +432,15 @@ namespace nikonov
       curr = next;
     }
   }
+
   template< typename T >
-  void List< T >::splice(citer< T > position, List< T > & x)
+  void List< T >::splice(citer< T > position, List< T > & x) noexcept
   {
     splice(position, std::move(x));
   }
 
   template< typename T >
-  void List< T >::splice(citer< T > position, List< T > && x)
+  void List< T >::splice(citer< T > position, List< T > && x) noexcept
   {
     if (x.empty())
     {
@@ -456,13 +463,13 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::splice(citer< T > position, List< T > & x, citer< T > i)
+  void List< T >::splice(citer< T > position, List< T > & x, citer< T > i) noexcept
   {
     splice(position, std::move(x), i);
   }
 
   template< typename T >
-  void List< T >::splice(citer< T > position, List< T > && x, citer< T > i)
+  void List< T >::splice(citer< T > position, List< T > && x, citer< T > i) noexcept
   {
     if (x.empty())
     {
@@ -486,13 +493,13 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::splice(citer< T > position, List< T > & x, citer< T > first, citer< T > last)
+  void List< T >::splice(citer< T > position, List< T > & x, citer< T > first, citer< T > last) noexcept
   {
     splice(position, std::move(x), first, last);
   }
 
   template< typename T >
-  void List< T >::splice(citer< T > position, List< T > && x, citer< T > first, citer< T > last)
+  void List< T >::splice(citer< T > position, List< T > && x, citer< T > first, citer< T > last) noexcept
   {
     if (x.empty())
     {
@@ -510,8 +517,8 @@ namespace nikonov
       ++subheadX;
     }
     curr.node->next = subheadX.node->next;
-    iter< T > currTail = subheadX.node;
-    iter< T > endX = subheadX.node->next;
+    iter< T > currTail(subheadX.node);
+    iter< T > endX(subheadX.node->next);
     while (currTail.node->next != last.node)
     {
       ++currTail;
@@ -537,21 +544,21 @@ namespace nikonov
   }
 
   template< typename T >
-  void List< T >::assign(size_t n, const T & val)
+  void List< T >::assign(size_t n, const T & val) noexcept
   {
     List< T > tempList(n, val);
     swap(tempList);
   }
 
   template< typename T >
-  void List< T >::assign(iter< T > begin, iter< T > end)
+  void List< T >::assign(iter< T > begin, iter< T > end) noexcept
   {
     List< T > tempList(begin, end);
     swap(tempList);
   }
 
   template< typename T >
-  void List< T >::assign(std::initializer_list< T > il)
+  void List< T >::assign(std::initializer_list< T > il) noexcept
   {
     List< T > tempList(il);
     swap(tempList);
@@ -573,7 +580,7 @@ namespace nikonov
   }
 
   template< typename T >
-  iter< T > List< T >::erase(citer< T > position)
+  iter< T > List< T >::erase(citer< T > position) noexcept
   {
     ListNode< T > * subhead = fake;
     ListNode< T > * curr = fake->next;

@@ -13,18 +13,18 @@ namespace nikonov
     using this_t = ListIterator< T >;
 
     ListIterator();
-    ListIterator(ListNode< T > * ptr = nullptr);
+    explicit ListIterator(ListNode< T > * ptr = nullptr);
     ~ListIterator() = default;
     ListIterator(const this_t &) = default;
     this_t & operator=(const this_t &) = default;
-    this_t & operator++();
-    this_t operator++(int);
-    T & operator*();
-    const T & operator*() const;
-    T * operator->();
-    const T * operator->() const;
-    bool operator!=(const this_t & rhs) const;
-    bool operator==(const this_t & rhs) const;
+    this_t & operator++() noexcept;
+    this_t operator++(int) noexcept;
+    T & operator*() noexcept;
+    const T & operator*() const noexcept;
+    T * operator->() noexcept;
+    const T * operator->() const noexcept;
+    bool operator!=(const this_t & rhs) const noexcept;
+    bool operator==(const this_t & rhs) const noexcept;
   };
 
   template< typename T >
@@ -38,7 +38,7 @@ namespace nikonov
   {}
 
   template< typename T >
-  ListIterator< T > & ListIterator< T >::operator++()
+  ListIterator< T > & ListIterator< T >::operator++() noexcept
   {
     assert (node != nullptr);
     node = node->next;
@@ -46,7 +46,7 @@ namespace nikonov
   }
 
   template< typename T >
-  ListIterator< T > ListIterator< T >::operator++(int)
+  ListIterator< T > ListIterator< T >::operator++(int) noexcept
   {
     assert(node != nullptr);
     this_t tempCopy(*this);
@@ -55,38 +55,38 @@ namespace nikonov
   }
 
   template< typename T >
-  T & ListIterator< T >::operator*()
+  T & ListIterator< T >::operator*() noexcept
   {
     assert(node != nullptr);
     return node->data;
   }
   template< typename T >
-  const T & ListIterator< T >::operator*() const
+  const T & ListIterator< T >::operator*() const noexcept
   {
     assert(node != nullptr);
     return node->data;
   }
   template< typename T >
-  T * ListIterator< T >::operator->()
+  T * ListIterator< T >::operator->() noexcept
   {
     assert(node != nullptr);
     return std::addressof(node->data);
   }
   template< typename T >
-  const T * ListIterator< T >::operator->() const
+  const T * ListIterator< T >::operator->() const noexcept
   {
     assert(node != nullptr);
     return std::addressof(node->data);
   }
 
   template< typename T >
-  bool ListIterator< T >::operator!=(const this_t & rhs) const
+  bool ListIterator< T >::operator!=(const this_t & rhs) const noexcept
   {
     return !(*this == rhs);
   }
 
   template< typename T >
-  bool ListIterator< T >::operator==(const this_t & rhs) const
+  bool ListIterator< T >::operator==(const this_t & rhs) const noexcept
   {
     return node == rhs.node;
   }
@@ -96,17 +96,18 @@ namespace nikonov
   {
     const ListNode< T > * node;
     using this_t = ConstListIterator< T >;
-    ConstListIterator(ListNode< T > * ptr = nullptr);
+  
+    explicit ConstListIterator(ListNode< T > * ptr = nullptr);
     ConstListIterator();
     ~ConstListIterator() = default;
     ConstListIterator(const this_t &) = default;
     this_t & operator=(const this_t &) = default;
-    this_t & operator++();
-    this_t operator++(int);
-    const T & operator*() const;
-    const T * operator->() const;
-    bool operator!=(const this_t & rhs) const;
-    bool operator==(const this_t & rhs) const;
+    this_t & operator++() noexcept;
+    this_t operator++(int) noexcept;
+    const T & operator*() const noexcept;
+    const T * operator->() const noexcept;
+    bool operator!=(const this_t & rhs) const noexcept;
+    bool operator==(const this_t & rhs) const noexcept;
   };
 
   template< typename T >
@@ -120,7 +121,7 @@ namespace nikonov
   {}
 
   template< typename T >
-  ConstListIterator< T > & ConstListIterator< T >::operator++()
+  ConstListIterator< T > & ConstListIterator< T >::operator++() noexcept
   {
     assert(node != nullptr);
     node = node->next;
@@ -128,7 +129,7 @@ namespace nikonov
   }
 
   template< typename T >
-  ConstListIterator< T > ConstListIterator< T >::operator++(int)
+  ConstListIterator< T > ConstListIterator< T >::operator++(int) noexcept
   {
     assert(node != nullptr);
     this_t tempCopy(*this);
@@ -137,27 +138,27 @@ namespace nikonov
   }
 
   template< typename T >
-  const T & ConstListIterator< T >::operator*() const
+  const T & ConstListIterator< T >::operator*() const noexcept
   {
     assert(node != nullptr);
     return node->data;
   }
 
   template< typename T >
-  const T * ConstListIterator< T >::operator->() const
+  const T * ConstListIterator< T >::operator->() const noexcept
   {
     assert(node != nullptr);
     return std::addressof(node->data);
   }
 
   template< typename T >
-  bool ConstListIterator< T >::operator!=(const this_t & rhs) const
+  bool ConstListIterator< T >::operator!=(const this_t & rhs) const noexcept
   {
     return !(*this == rhs);
   }
 
   template< typename T >
-  bool ConstListIterator< T >::operator==(const this_t & rhs) const
+  bool ConstListIterator< T >::operator==(const this_t & rhs) const noexcept
   {
     return node == rhs.node;
   }

@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(ListEnd_test)
   BOOST_TEST(list.end().node != data2It.node);
 }
 BOOST_AUTO_TEST_CASE(ListFront_test)
-{
+{ 
   constexpr int data1 = 10;
   constexpr int data2 = 100;
   nikonov::List< int > list{ data1, data2 };
@@ -195,11 +195,13 @@ BOOST_AUTO_TEST_CASE(ListClear_test)
 BOOST_AUTO_TEST_CASE(ListRemove_test)
 {
   constexpr int data1 = 10;
+  constexpr size_t size = 20;
   constexpr int data2 = 20;
-  constexpr int data3 = 30;
-  nikonov::List< int > list{ data3, data1, data2, data3 };
-  list.remove(data3);
-  BOOST_TEST(list.front() == data1);
+  nikonov::List< int > list(size, data1);
+  list.push_back(data2);
+  list.remove(data1);
+  BOOST_TEST(list.size() == 1);
+  BOOST_TEST(list.front() == data2);
   BOOST_TEST(list.back() == data2);
 }
 BOOST_AUTO_TEST_CASE(ListRemoveIf_test)
