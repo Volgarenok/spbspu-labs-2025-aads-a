@@ -435,8 +435,12 @@ namespace nikonov
   template< typename T >
   void List< T >::splice(citer< T > position, List< T > && x)
   {
+    if (x.empty())
+    {
+      return;
+    }
     iter< T > curr = begin();
-    while (curr.node != position.node)
+    while (curr.node->next != position.node)
     {
       ++curr;
     }
@@ -445,7 +449,7 @@ namespace nikonov
     ListNode< T > * listIter = x.fake;
     while (listIter->next != x.fake)
     {
-      ++listIter;
+      listIter = listIter->next;
     }
     listIter->next = prevNext;
     x.fake->next = x.fake;
@@ -460,14 +464,18 @@ namespace nikonov
   template< typename T >
   void List< T >::splice(citer< T > position, List< T > && x, citer< T > i)
   {
+    if (x.empty())
+    {
+      return;
+    }
     iter< T > curr = begin();
-    while (curr.node != position.node)
+    while (curr.node->next != position.node)
     {
       ++curr;
     }
     ListNode< T > * prevNext = curr.node->next;
     iter< T > subheadX = x.begin();
-    while (subheadX.node->next != i->node)
+    while (subheadX.node->next != i.node)
     {
       ++subheadX;
     }
@@ -486,14 +494,18 @@ namespace nikonov
   template< typename T >
   void List< T >::splice(citer< T > position, List< T > && x, citer< T > first, citer< T > last)
   {
+    if (x.empty())
+    {
+      return;
+    }
     iter< T > curr = begin();
-    while (curr.node != position.node)
+    while (curr.node->next != position.node)
     {
       ++curr;
     }
     ListNode< T > * prevNext = curr.node->next;
     iter< T > subheadX = x.begin();
-    while (subheadX.node->next != first->node)
+    while (subheadX.node->next != first.node)
     {
       ++subheadX;
     }
@@ -506,7 +518,7 @@ namespace nikonov
       ++endX;
     }
     currTail.node->next = prevNext;
-    subheadX.node->next = endX;
+    subheadX.node->next = endX.node;
   }
 
   template< typename T >

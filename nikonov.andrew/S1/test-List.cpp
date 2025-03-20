@@ -220,6 +220,66 @@ BOOST_AUTO_TEST_CASE(ListRemoveIf_test)
   BOOST_TEST(list.front() == data1);
   BOOST_TEST(list.back() == data1);
 }
+BOOST_AUTO_TEST_CASE(ListSpliceEntireList_test)
+{
+  nikonov::List< int > list1{ 10, 20, 30 };
+  nikonov::List< int > list2{ 40, 50, 60 };
+  auto iter1 = list1.cbegin();
+  auto iter2 = list2.cbegin();
+  *iter1++;
+  *iter1++;
+  *iter1++;
+  list1.splice(iter1, list2);
+  iter1 = list1.cbegin();
+  *iter1++;
+  *iter1++;
+  *iter1++;
+  BOOST_TEST(list2.empty());
+  BOOST_TEST(*(iter1++) == *(iter2++));
+  BOOST_TEST(*(iter1++) == *(iter2++));
+  BOOST_TEST(*iter1 == *iter2);
+}
+BOOST_AUTO_TEST_CASE(ListSpliceSingleEl_test)
+{
+  nikonov::List< int > list1{ 10, 20, 30 };
+  nikonov::List< int > list2{ 40, 50, 60 };
+  size_t size2BeforeSplice = list2.size();
+  const int first2ListElem = *(list2.cbegin());
+  auto iter1 = list1.cbegin();
+  auto iter2 = list2.cbegin();
+  list1.splice(iter1, list2, iter2);
+  iter1 = list1.cbegin();
+  BOOST_TEST(list2.size() == --size2BeforeSplice);
+  BOOST_TEST(*(iter1) == first2ListElem);
+}
+BOOST_AUTO_TEST_CASE(ListSpliceElRange_test)
+{
+  nikonov::List< int > list1{ 10, 20, 30 };
+  nikonov::List< int > list2{ 40, 50, 60 };
+  auto iter1 = list1.cbegin();
+  auto iter2First = list2.cbegin();
+  auto iter2End = list2.cend();
+  ++iter2First;
+  list1.splice(iter1, list2, iter2First, iter2End);
+  iter1 = list1.cbegin();
+  BOOST_TEST(*(iter1++) == 50);
+  BOOST_TEST(*(iter1) == 60);
+}
+BOOST_AUTO_TEST_CASE(ListReverse_test)
+{
+  nikonov::List< int > list1{ 10, 20, 30, 40 };
+  list1.reverse();
+  auto iter = list1.cbegin();
+  BOOST_TEST(*(iter++) == 40);
+  BOOST_TEST(*(iter++) == 30);
+  BOOST_TEST(*(iter++) == 20);
+  BOOST_TEST(*(iter) == 10);
+  nikonov::List< int > list2{ 50 };
+  list2.reverse();
+  auto iter2 = list2.cbegin();
+  BOOST_TEST(*(iter2++) == 50);
+  BOOST_TEST(iter2.node == list2.cend().node);
+}
 BOOST_AUTO_TEST_CASE(ListAssignFill_test)
 {
   constexpr int data1 = 10;
