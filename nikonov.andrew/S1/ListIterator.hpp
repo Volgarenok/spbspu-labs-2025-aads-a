@@ -96,7 +96,7 @@ namespace nikonov
   {
     const ListNode< T > * node;
     using this_t = ConstListIterator< T >;
-  
+
     explicit ConstListIterator(ListNode< T > * ptr = nullptr);
     ConstListIterator();
     ~ConstListIterator() = default;
