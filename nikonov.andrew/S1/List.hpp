@@ -4,8 +4,17 @@
 #include <cstddef>
 #include <cstdlib>
 #include <initializer_list>
+namespace nikonov
+{
+  template< typename T >
+  class List;
+}
 namespace
 {
+  template< typename T, typename Compare >
+  bool compareLists(const nikonov::List< T > & lhs, const nikonov::List< T > & rhs, Compare cmp);
+  template< typename T >
+  bool tEqual(const T & a, const T & b);
   template< typename T >
   bool tLess(const T & a, const T & b);
   template< typename T >
@@ -33,16 +42,18 @@ namespace nikonov
     ~List() noexcept;
 
     List< T > & operator=(std::initializer_list< T > il);
-    bool operator==(const List< T > & rhs);
-    bool operator!=(const List< T > & rhs);
-    bool operator<(const List< T > & rhs);
-    bool operator>(const List< T > & rhs);
-    bool operator<=(const List< T > & rhs);
-    bool operator>=(const List< T > & rhs);
+    bool operator==(const List< T > & rhs) const;
+    bool operator!=(const List< T > & rhs) const;
+    bool operator<(const List< T > & rhs) const;
+    bool operator>(const List< T > & rhs) const;
+    bool operator<=(const List< T > & rhs) const;
+    bool operator>=(const List< T > & rhs) const;
 
     iter< T > begin() noexcept;
+    citer< T > begin() const noexcept;
     citer< T > cbegin() const noexcept;
     iter< T > end() noexcept;
+    citer< T > end() const noexcept;
     citer< T > cend() const noexcept;
 
     T & front();
@@ -173,47 +184,65 @@ namespace nikonov
   }
 
   template< typename T >
-  bool List< T >::operator==(const List< T > & rhs)
+  bool List< T >::operator==(const List< T > & rhs) const
   {
     if (std::addressof(*this) == std::addressof(rhs))
     {
       return true;
     }
-    return compareList(*this, rhs, std::equal< T >);
+    else if (size() != rhs.size())
+    {
+      return false;
+    }
+    return compareLists(*this, rhs, tEqual< T >);
   }
 
   template< typename T >
-  bool List< T >::operator!=(const List< T > & rhs)
+  bool List< T >::operator!=(const List< T > & rhs) const
   {
     return !(*this == rhs);
   }
 
   template< typename T >
-  bool List< T >::operator<(const List< T > & rhs)
+  bool List< T >::operator<(const List< T > & rhs) const
   {
+   if (size() < rhs.size())
+    {
+      return true;
+    }
     return compareLists(*this, rhs, tLess< T >);
   }
 
   template< typename T >
-  bool List< T >::operator>(const List< T > & rhs)
+  bool List< T >::operator>(const List< T > & rhs) const
   {
+    if (size() > rhs.size())
+    {
+      return true;
+    }
     return compareLists(*this, rhs, tGreater< T >);
   }
 
   template< typename T >
-  bool List< T >::operator<=(const List< T > & rhs)
+  bool List< T >::operator<=(const List< T > & rhs) const
   {
     return !(*this > rhs);
   }
 
   template< typename T >
-  bool List< T >::operator>=(const List< T > & rhs)
+  bool List< T >::operator>=(const List< T > & rhs) const
   {
     return !(*this < rhs);
   }
 
   template< typename T >
   iter< T > List< T >::begin() noexcept
+  {
+    return { fake->next };
+  }
+
+  template< typename T >
+  citer< T > List< T >::begin() const noexcept
   {
     return { fake->next };
   }
@@ -226,6 +255,12 @@ namespace nikonov
 
   template< typename T >
   iter< T > List< T >::end() noexcept
+  {
+    return { fake };
+  }
+
+  template< typename T >
+  citer< T > List< T >::end() const noexcept
   {
     return { fake };
   }
@@ -413,7 +448,7 @@ namespace nikonov
       ++listIter;
     }
     listIter->next = prevNext;
-    x.fake->next == x.fake;
+    x.fake->next = x.fake;
   }
 
   template< typename T >
@@ -547,11 +582,12 @@ namespace
   template< typename T, typename Compare >
   bool compareLists(const nikonov::List< T > & lhs, const nikonov::List< T > & rhs, Compare cmp)
   {
-    nikonov::citer< T > thisIt = lhs.begin();
-    nikonov::citer< T > anotherIt = rhs.begin();
+    assert(lhs.size() == rhs.size());
+    nikonov::citer< T > thisIt = lhs.cbegin();
+    nikonov::citer< T > anotherIt = rhs.cbegin();
     while (thisIt != lhs.end())
     {
-      if (anotherIt == rhs.end() || !cmp(*thisIt, *anotherIt))
+      if (!cmp(*thisIt, *anotherIt))
       {
         return false;
       }
@@ -559,6 +595,11 @@ namespace
       ++anotherIt;
     }
     return true;
+  }
+  template< typename T >
+  bool tEqual(const T & a, const T & b)
+  {
+    return a == b;
   }
   template< typename T >
   bool tLess(const T & a, const T & b)

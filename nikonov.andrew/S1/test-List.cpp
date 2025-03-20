@@ -1,21 +1,10 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include "List.hpp"
-BOOST_AUTO_TEST_CASE(ListStandardConstructor_test)
+BOOST_AUTO_TEST_CASE(ListDefaultConstructor_test)
 {
   nikonov::List< int > list;
   BOOST_TEST(list.size() == 0);
-}
-BOOST_AUTO_TEST_CASE(ListVariableConstructor_test)
-{
-  constexpr size_t size = 10;
-  constexpr int data = 100;
-  nikonov::List< int > list(size, data);
-  BOOST_TEST(list.size() == size);
-  for (auto el : list)
-  {
-   BOOST_TEST(el == data);
-  }
 }
 BOOST_AUTO_TEST_CASE(ListCopyConstructor_test)
 {
@@ -41,6 +30,17 @@ BOOST_AUTO_TEST_CASE(ListMoveConstructor_test)
   for (auto el : copyList)
   {
     BOOST_TEST(el == data);
+  }
+}
+BOOST_AUTO_TEST_CASE(ListFillConstructor_test)
+{
+  constexpr size_t size = 10;
+  constexpr int data = 100;
+  nikonov::List< int > list(size, data);
+  BOOST_TEST(list.size() == size);
+  for (auto el : list)
+  {
+   BOOST_TEST(el == data);
   }
 }
 BOOST_AUTO_TEST_CASE(ListInitLConstructor_test)
@@ -74,6 +74,28 @@ BOOST_AUTO_TEST_CASE(ListAssignmentOp_test)
   list = { };
   BOOST_TEST(list.empty());
 }
+BOOST_AUTO_TEST_CASE(ListEqualityOp_test)
+{
+  nikonov::List< int > list1{ 10, 20, 30 };
+  nikonov::List< int > list2{ 20, 20, 30 };
+  nikonov::List< int > list3{ 10, 20, 30 };
+  BOOST_TEST(list1 == list3);
+  BOOST_TEST(list1 != list2);
+  BOOST_TEST(list3 == list3);
+}
+BOOST_AUTO_TEST_CASE(ListGreaterLessOp_test)
+{
+  nikonov::List< int > list1{ 10, 10 };
+  nikonov::List< int > list2{ 30, 30 };
+  nikonov::List< int > list3;
+  BOOST_TEST(list2 > list1);
+  BOOST_TEST(list1 > list3);
+  BOOST_TEST(list1 < list2);
+  BOOST_TEST(list3 < list1);
+  nikonov::List< int > list4{ 30, 30 };
+  BOOST_TEST(list2 <= list4);
+  BOOST_TEST(list2 >= list1);
+}
 BOOST_AUTO_TEST_CASE(ListBegin_test)
 {
   constexpr int data1 = 10;
@@ -81,15 +103,16 @@ BOOST_AUTO_TEST_CASE(ListBegin_test)
   nikonov::List< int > list{ data1, data2 };
   BOOST_TEST(*list.begin() == data1);
 }
-/*
 BOOST_AUTO_TEST_CASE(ListEnd_test)
 {
   constexpr int data1 = 10;
   constexpr int data2 = 100;
   nikonov::List< int > list{ data1, data2 };
-  BOOST_TEST(list.end() != list.begin());
+  nikonov::ListIterator< int > data1It = list.begin();
+  nikonov::ListIterator< int > data2It = data1It++;
+  BOOST_TEST(list.end().node != data1It.node);
+  BOOST_TEST(list.end().node != data2It.node);
 }
-*/
 BOOST_AUTO_TEST_CASE(ListFront_test)
 {
   constexpr int data1 = 10;

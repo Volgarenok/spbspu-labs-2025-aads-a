@@ -5,7 +5,7 @@
 #include "List.hpp"
 namespace nikonov
 {
-  nikonov::List< std::pair< std::string, List< size_t > > > * getPList(std::istream& input, bool& overflowFlag);
+  List< std::pair< std::string, List< size_t > > > * getPList(std::istream& input, bool& overflowFlag);
   void processPList(List< std::pair< std::string, List< size_t > > > * pList, bool& overflowFlag);
 }
 #endif
