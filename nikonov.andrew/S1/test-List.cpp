@@ -53,14 +53,13 @@ BOOST_AUTO_TEST_CASE(ListInitLConstructor_test)
 }
 BOOST_AUTO_TEST_CASE(ListRangeConstructor_test)
 {
-  using iter = nikonov::ListIterator< int >;
   constexpr size_t size = 10;
   constexpr int data = 100;
   nikonov::List< int > list(size, data);
-  iter begin = list.begin();
-  iter end = list.end();
+  nikonov::ListIterator< int > begin = list.begin();
+  nikonov::ListIterator< int > end = list.end();
   nikonov::List< int > newList(begin, end);
-  iter newBegin = newList.begin();
+  nikonov::ListIterator< int > newBegin = newList.begin();
   for (; newBegin != newList.end(); ++newBegin, ++begin)
   {
     BOOST_TEST(*begin == *newBegin);
@@ -340,7 +339,13 @@ BOOST_AUTO_TEST_CASE(ListErase_test)
   nikonov::List< int > list{ data1, data2, data3 };
   nikonov::ConstListIterator< int > iter = list.cbegin();
   ++iter;
-  nikonov::ConstListIterator< int > prev = iter++;
   list.erase(iter);
-  BOOST_TEST(*prev == data2);
+  BOOST_TEST(list.size() == 2);
+  BOOST_TEST(list.front() == data1);
+  BOOST_TEST(list.back() == data3);
+  nikonov::ConstListIterator< int > first = list.cbegin();
+  nikonov::ConstListIterator< int > last = list.cend();
+  nikonov::ListIterator< int > lastAfterErase = list.erase(first, last);
+  BOOST_TEST(list.size() == 0);
+  BOOST_TEST(list.end().node == lastAfterErase.node);
 }
