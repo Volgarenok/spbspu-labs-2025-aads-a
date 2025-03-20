@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(ListEnd_test)
   BOOST_TEST(list.end().node != data2It.node);
 }
 BOOST_AUTO_TEST_CASE(ListFront_test)
-{ 
+{
   constexpr int data1 = 10;
   constexpr int data2 = 100;
   nikonov::List< int > list{ data1, data2 };
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(ListBack_test)
 }
 BOOST_AUTO_TEST_CASE(ListEmpty_test)
 {
-  nikonov::List< int > list{ };
+  nikonov::List< int > list{};
   BOOST_TEST(list.empty());
 }
 BOOST_AUTO_TEST_CASE(ListSize_test)
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE(ListAssignInitL_test)
     BOOST_TEST(el == data4);
   }
 }
-BOOST_AUTO_TEST_CASE(ListIsert_test)
+BOOST_AUTO_TEST_CASE(ListIsertSingleEl_test)
 {
   constexpr int data1 = 10;
   constexpr int data2 = 20;
@@ -330,6 +330,65 @@ BOOST_AUTO_TEST_CASE(ListIsert_test)
   nikonov::List< int > list{ data1, data2, data3 };
   list.insert(++list.cbegin(), newVal);
   BOOST_TEST(*(++list.cbegin()) == newVal);
+}
+BOOST_AUTO_TEST_CASE(ListInsertFill_test)
+{
+  constexpr int data1 = 10;
+  constexpr int data2 = 20;
+  constexpr int newVal = 30;
+  constexpr size_t size = 3;
+  nikonov::List< int > list{ data1, data2 };
+  auto iter1 = list.cbegin();
+  ++iter1;
+  list.insert(iter1, size, newVal);
+  BOOST_TEST(list.size() == 5);
+  auto iter2 = list.cbegin();
+  BOOST_TEST(*(iter2++) == data1);
+  BOOST_TEST(*(iter2++) == newVal);
+  BOOST_TEST(*(iter2++) == newVal);
+  BOOST_TEST(*(iter2++) == newVal);
+  BOOST_TEST(*iter2 == data2);
+}
+BOOST_AUTO_TEST_CASE(ListInsertRange_test)
+{
+  constexpr int data1 = 10;
+  constexpr int data2 = 20;
+  nikonov::List<int> list{ data1, data2 };
+  nikonov::List<int> list2{ 30, 40, 50 };
+  auto iter1 = list.cbegin();
+  ++iter1;
+  list.insert(iter1, list2.begin(), list2.end());
+  BOOST_TEST(list.size() == 5);
+  auto iter2 = list.cbegin();
+  BOOST_TEST(*(iter2++) == data1);
+  BOOST_TEST(*(iter2++) == 30);
+  BOOST_TEST(*(iter2++) == 40);
+  BOOST_TEST(*(iter2++) == 50);
+  BOOST_TEST(*(iter2++) == data2);
+}
+BOOST_AUTO_TEST_CASE(ListRValue_test)
+{
+  nikonov::List< int > list;
+  list.insert(list.cbegin(), 52);
+  BOOST_TEST(list.size() == 1);
+  BOOST_TEST(*list.begin() == 52);
+}
+BOOST_AUTO_TEST_CASE(ListInsertInitializerList_AdditionalTest)
+{
+  constexpr int data1 = 1;
+  constexpr int data2 = 2;
+  constexpr int data3 = 3;
+  constexpr int data4 = 4;
+  nikonov::List< int > list{ data1, data4 };
+  auto iter1 = list.cbegin();
+  ++iter1;
+  list.insert(iter1, { data2, data3 });
+  BOOST_TEST(list.size() == 4);
+  auto iter2 = list.cbegin();
+  BOOST_TEST(*(iter2++) == data1);
+  BOOST_TEST(*(iter2++) == data2);
+  BOOST_TEST(*(iter2++) == data3);
+  BOOST_TEST(*(iter2++) == data4);
 }
 BOOST_AUTO_TEST_CASE(ListErase_test)
 {

@@ -9,7 +9,7 @@ namespace nikonov
   template< typename T >
   class List;
 }
-namespace
+namespace detail
 {
   template< typename T, typename Compare >
   bool compareLists(const nikonov::List< T > & lhs, const nikonov::List< T > & rhs, Compare cmp);
@@ -37,7 +37,7 @@ namespace nikonov
     List(List && copy);
     List(size_t k, const T & value);
     List(std::initializer_list< T > il);
-    template < typename InputIterator >
+    template< typename InputIterator >
     List(InputIterator begin, InputIterator end);
     ~List() noexcept;
 
@@ -74,7 +74,7 @@ namespace nikonov
     void swap(List< T > & rhs) noexcept;
     void clear() noexcept;
     void remove(const T & val) noexcept;
-    template < typename Predicate >
+    template< typename Predicate >
     void remove_if(Predicate pred) noexcept;
     void splice(const_iterator< T > pos, List< T > & x) noexcept;
     void splice(const_iterator< T > pos, List< T > && x) noexcept;
@@ -88,6 +88,11 @@ namespace nikonov
     void assign(iterator< T > begin, iterator< T > end) noexcept;
     void assign(std::initializer_list< T > il) noexcept;
     iterator< T > insert(const_iterator< T > position, const T& val);
+    iterator< T > insert(const_iterator< T > position, size_t n, const T & val);
+    template < typename InputIterator >
+    iterator< T > insert(const_iterator< T > position, InputIterator first, InputIterator last);
+    iterator< T > insert(const_iterator< T > position, T && val);
+    iterator< T > insert(const_iterator< T > position, std::initializer_list< T > il);
     iterator< T > erase(const_iterator< T > position) noexcept;
     iterator< T > erase(const_iterator< T > first, const_iterator< T > last) noexcept;
   };
@@ -195,7 +200,7 @@ namespace nikonov
     {
       return false;
     }
-    return compareLists(*this, rhs, tEqual< T >);
+    return detail::compareLists(*this, rhs, detail::tEqual< T >);
   }
 
   template< typename T >
@@ -211,7 +216,7 @@ namespace nikonov
     {
       return true;
     }
-    return compareLists(*this, rhs, tLess< T >);
+    return detail::compareLists(*this, rhs, detail::tLess< T >);
   }
 
   template< typename T >
@@ -221,7 +226,7 @@ namespace nikonov
     {
       return true;
     }
-    return compareLists(*this, rhs, tGreater< T >);
+    return detail::compareLists(*this, rhs, detail::tGreater< T >);
   }
 
   template< typename T >
@@ -239,7 +244,7 @@ namespace nikonov
   template< typename T >
   iterator< T > List< T >::begin() noexcept
   {
-    return iterator< T >(fake->next );
+    return iterator< T >(fake->next);
   }
 
   template< typename T >
@@ -273,14 +278,14 @@ namespace nikonov
   }
 
   template< typename T >
-  T &  List< T >::front() noexcept
+  T & List< T >::front() noexcept
   {
     assert(!empty());
     return *begin();
   }
 
   template< typename T >
-  const T &  List< T >::front() const noexcept
+  const T & List< T >::front() const noexcept
   {
     assert(!empty());
     return *begin();
@@ -413,7 +418,7 @@ namespace nikonov
   }
 
   template< typename T >
-  template < typename Predicate >
+  template< typename Predicate >
   void List< T >::remove_if(Predicate pred) noexcept
   {
     ListNode< T > * curr = fake->next;
@@ -575,9 +580,77 @@ namespace nikonov
       subhead = next;
       next = next->next;
     }
-    ListNode< T > * newNode = new ListNode< T >{ val,  next };
+    ListNode< T > * newNode = new ListNode< T >{ val, next };
     subhead->next = newNode;
     return iterator< T >{ newNode };
+  }
+
+  template< typename T >
+  iterator< T > List< T >::insert(const_iterator< T > position, size_t n, const T & val)
+  {
+    iterator< T > curr = begin();
+    while (curr.node != position.node)
+    {
+      ++curr;
+    }
+    if (!n)
+    {
+      return curr;
+    }
+    List< T > tempObj(n, val);
+    iterator< T > retVal(tempObj.begin());
+    splice(position, tempObj);
+    return ++curr;
+  }
+
+  template < typename T >
+  template < typename InputIterator >
+  iterator< T > List< T >::insert(const_iterator< T > position, InputIterator first, InputIterator last)
+  {
+    iterator< T > curr = begin();
+    while (curr.node != position.node)
+    {
+      ++curr;
+    }
+    if (first == last)
+    {
+      return curr;
+    }
+    List< T > tempObj(first, last);
+    iterator< T > retVal(tempObj.begin());
+    splice(position, tempObj);
+    return ++curr;
+  }
+
+  template< typename T >
+  iterator< T > List< T >::insert(const_iterator< T > position, T && val)
+  {
+    iterator< T > curr = begin();
+    while (curr.node != position.node)
+    {
+      ++curr;
+    }
+    T tempObj(val);
+    insert(position, tempObj);
+    return ++curr;
+  }
+
+  template< typename T >
+  iterator< T > List< T >::insert(const_iterator< T > position, std::initializer_list< T > il)
+  {
+    iterator< T > curr = begin();
+    while (curr.node != position.node)
+    {
+      ++curr;
+    }
+    if (!il.size())
+    {
+      return curr;
+    }
+    List< T > tempObj(il);
+    iterator< T > retVal(tempObj.begin());
+    splice(position, tempObj);
+    return ++curr;
   }
 
   template< typename T >
@@ -596,18 +669,20 @@ namespace nikonov
     subhead->next = next;
     return iterator< T >{ next };
   }
+
   template< typename T >
   iterator< T > List< T >::erase(const_iterator< T > first, const_iterator< T > last) noexcept
   {
-    iterator< T > returnVal(fake);
-    while(first != last)
+    iterator< T > returnIter(fake);
+    while (first != last)
     {
-      returnVal = erase(first++);
+      returnIter = erase(first++);
     }
-    return returnVal;
+    return returnIter;
   }
 }
-namespace
+
+namespace detail
 {
   template< typename T, typename Compare >
   bool compareLists(const nikonov::List< T > & lhs, const nikonov::List< T > & rhs, Compare cmp)

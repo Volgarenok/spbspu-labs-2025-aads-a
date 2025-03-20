@@ -40,7 +40,7 @@ namespace nikonov
   template< typename T >
   ListIterator< T > & ListIterator< T >::operator++() noexcept
   {
-    assert (node != nullptr);
+    assert(node != nullptr);
     node = node->next;
     return *this;
   }
