@@ -410,11 +410,16 @@ namespace nikonov
   template< typename T >
   void List< T >::remove(const T & val) noexcept
   {
-    auto equal = [& val](const T & data)
+    struct equal
     {
-      return val == data;
+      const T & value;
+      bool operator()(const T & rhs)
+      {
+        return value == rhs;
+      }
     };
-    remove_if(equal);
+    equal functor{ val };
+    remove_if(functor);
   }
 
   template< typename T >
@@ -603,8 +608,8 @@ namespace nikonov
     return ++curr;
   }
 
-  template < typename T >
-  template < typename InputIterator >
+  template< typename T >
+  template< typename InputIterator >
   iterator< T > List< T >::insert(const_iterator< T > position, InputIterator first, InputIterator last)
   {
     iterator< T > curr = begin();
@@ -632,7 +637,7 @@ namespace nikonov
     }
     T tempObj(val);
     insert(position, tempObj);
-    return ++curr;
+    return curr;
   }
 
   template< typename T >

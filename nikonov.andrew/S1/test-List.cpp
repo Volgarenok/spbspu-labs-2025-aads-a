@@ -353,8 +353,8 @@ BOOST_AUTO_TEST_CASE(ListInsertRange_test)
 {
   constexpr int data1 = 10;
   constexpr int data2 = 20;
-  nikonov::List<int> list{ data1, data2 };
-  nikonov::List<int> list2{ 30, 40, 50 };
+  nikonov::List< int > list{ data1, data2 };
+  nikonov::List< int > list2{ 30, 40, 50 };
   auto iter1 = list.cbegin();
   ++iter1;
   list.insert(iter1, list2.begin(), list2.end());
