@@ -28,7 +28,7 @@ namespace nikonov
   using const_iterator = ConstListIterator< T >;
   template< typename T >
   using node_t = detail::ListNode< T >;
-  
+
   template< typename T >
   class List
   {
