@@ -9,11 +9,11 @@ namespace nikonov
   template< typename T >
   struct ListIterator: public std::iterator< std::forward_iterator_tag, T >
   {
-    ListNode< T > * node;
+    detail::ListNode< T > * node;
     using this_t = ListIterator< T >;
 
     ListIterator();
-    explicit ListIterator(ListNode< T > * ptr = nullptr);
+    explicit ListIterator(detail::ListNode< T > * ptr = nullptr);
     ~ListIterator() = default;
     ListIterator(const this_t &) = default;
     this_t & operator=(const this_t &) = default;
@@ -33,7 +33,7 @@ namespace nikonov
   {}
 
   template< typename T >
-  ListIterator< T >::ListIterator(ListNode< T > * ptr):
+  ListIterator< T >::ListIterator(detail::ListNode< T > * ptr):
     node(ptr)
   {}
 
@@ -94,10 +94,10 @@ namespace nikonov
   template< typename T >
   struct ConstListIterator: public std::iterator< std::forward_iterator_tag, T >
   {
-    const ListNode< T > * node;
+    const detail::ListNode< T > * node;
     using this_t = ConstListIterator< T >;
 
-    explicit ConstListIterator(ListNode< T > * ptr = nullptr);
+    explicit ConstListIterator(detail::ListNode< T > * ptr = nullptr);
     ConstListIterator();
     ~ConstListIterator() = default;
     ConstListIterator(const this_t &) = default;
@@ -116,7 +116,7 @@ namespace nikonov
   {}
 
   template< typename T >
-  ConstListIterator< T >::ConstListIterator(ListNode< T > * ptr):
+  ConstListIterator< T >::ConstListIterator(detail::ListNode< T > * ptr):
     node(ptr)
   {}
 
