@@ -2,9 +2,9 @@
 #include <fstream>
 #include "expression.hpp"
 #include "stack.hpp"
-#include "queue.hpp"
 int main(int argc, char* argv[])
 {
+  using namespace hismatova;
   Stack< int > results;
   std::istream* input = &std::cin;
   std::ifstream f;
