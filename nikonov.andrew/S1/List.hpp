@@ -123,7 +123,7 @@ namespace nikonov
   List< T >::List(List && copy):
     fake(copy.fake)
   {
-    copy.fake = static_cast< node_t< T > * >(malloc(sizeof(node_t< T >)));;
+    copy.fake = static_cast< node_t< T > * >(malloc(sizeof(node_t< T >)));
     copy.fake->next = copy.fake;
   }
 
