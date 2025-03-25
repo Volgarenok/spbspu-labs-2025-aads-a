@@ -1,12 +1,8 @@
 #ifndef STACK_HPP
 #define STACK_HPP
-#include <cstddef>
-#include <stdexcept>
-#include <cassert>
+#include "queue.hpp"
 namespace nikonov
 {
-  constexpr size_t defaultCapacity = 10;
-  constexpr double reallocScale = 1.5; 
 
   template< typename T >
   class Stack
