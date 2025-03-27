@@ -5,10 +5,10 @@
 #include <initializer_list>
 #include <memory>
 #include <utility>
-#include "enable-if-input-iterator.hpp"
 #include "forward-list-comparison.hpp"
 #include "forward-list-iterator.hpp"
 #include "forward-list-swap.hpp"
+#include "type-utils.hpp"
 
 namespace kizhin {
   template < typename T >
@@ -26,7 +26,7 @@ namespace kizhin {
     ForwardList(const ForwardList&);
     ForwardList(ForwardList&&) noexcept;
     explicit ForwardList(size_type, const_reference = value_type());
-    template < typename InputIt, detail::enable_if_input_iterator< InputIt > = 0 >
+    template < typename InputIt, enable_if_input_iterator< InputIt > = 0 >
     ForwardList(InputIt, InputIt);
     ForwardList(std::initializer_list< value_type >);
     ~ForwardList();
@@ -66,13 +66,13 @@ namespace kizhin {
     iterator eraseAfter(const_iterator, const_iterator);
 
     void assign(size_type, const_reference);
-    template < typename InputIt, detail::enable_if_input_iterator< InputIt > = 0 >
+    template < typename InputIt, enable_if_input_iterator< InputIt > = 0 >
     void assign(InputIt, InputIt);
     void assign(std::initializer_list< value_type >);
 
     iterator insertAfter(const_iterator, value_type);
     iterator insertAfter(const_iterator, size_type, const_reference);
-    template < typename InputIt, detail::enable_if_input_iterator< InputIt > = 0 >
+    template < typename InputIt, enable_if_input_iterator< InputIt > = 0 >
     iterator insertAfter(const_iterator, InputIt, InputIt);
     iterator insertAfter(const_iterator, std::initializer_list< value_type >);
 
@@ -139,7 +139,7 @@ namespace kizhin {
   }
 
   template < typename T >
-  template < typename InputIt, detail::enable_if_input_iterator< InputIt > >
+  template < typename InputIt, enable_if_input_iterator< InputIt > >
   ForwardList< T >::ForwardList(InputIt first, InputIt last):
     ForwardList()
   {
@@ -394,7 +394,7 @@ namespace kizhin {
   }
 
   template < typename T >
-  template < typename InputIt, detail::enable_if_input_iterator< InputIt > >
+  template < typename InputIt, enable_if_input_iterator< InputIt > >
   void ForwardList< T >::assign(InputIt first, InputIt last)
   {
     ForwardList tmp(first, last);
@@ -433,7 +433,7 @@ namespace kizhin {
   }
 
   template < typename T >
-  template < typename InputIt, detail::enable_if_input_iterator< InputIt > >
+  template < typename InputIt, enable_if_input_iterator< InputIt > >
   typename ForwardList< T >::iterator ForwardList< T >::insertAfter(
       const_iterator position, InputIt first, InputIt last)
   {
