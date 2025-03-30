@@ -27,7 +27,7 @@ namespace nikonov
     T & front() noexcept;
     const T & front() const noexcept;
     T & back() noexcept;
-    const T & back() const noexcept noexcept;
+    const T & back() const noexcept;
     void push_back(const T & value);
     void push_back(T && value);
     template< typename... Args >
@@ -161,7 +161,7 @@ void nikonov::Array< T >::pop_front()
   assert(size_ != 0);
   for (size_t i = 0; i < size_ - 1; ++i)
   {
-    arr_[i] = arr[i + i];
+    arr_[i] = arr_[i + i];
   }
   --size_;
 }

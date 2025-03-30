@@ -11,7 +11,7 @@ namespace nikonov
     Stack();
     Stack(const Stack & copy);
     Stack(Stack && copy);
-    ~Stack();
+    ~Stack() = default;
 
     bool empty() const noexcept;
     size_t size() const noexcept;
@@ -73,11 +73,12 @@ template< typename T >
 template< typename... Args >
 void nikonov::Stack< T >::emplace(Args &&... args)
 {
-  arr_.emplace(args);
+  arr_.emplace(args...);
 }
 template< typename T >
 void nikonov::Stack< T >::pop() noexcept
 {
+  assert(arr_.size() > 0);
   arr_.pop_back();
 }
 template< typename T >

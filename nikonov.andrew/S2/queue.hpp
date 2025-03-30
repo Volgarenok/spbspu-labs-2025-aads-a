@@ -87,7 +87,7 @@ template< typename T >
 template< typename... Args >
 void nikonov::Queue< T >::emplace(Args &&...args)
 {
-  arr_.emplace(args);
+  arr_.emplace(args...);
 }
 template< typename T >
 void nikonov::Queue< T >::pop()
