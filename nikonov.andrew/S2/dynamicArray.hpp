@@ -57,7 +57,7 @@ void nikonov::Array< T >::reallocate(size_t newCap)
 
 template< typename T >
 nikonov::Array< T >::Array():
-  arr_(nullptr),
+  arr_(new T[defaultCapacity]),
   size_(0),
   capacity_(defaultCapacity)
 {}
