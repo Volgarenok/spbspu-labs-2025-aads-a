@@ -130,9 +130,9 @@ bool nikonov::isOperator(const std::string & el)
 }
 bool nikonov::isLoverPrecedence(const std::string & a, const std::string & b)
 {
-  if ((a.back() == '/' || a.back() == '*' || a.back() == '&') && (b.back() == '-' || b.back() == '+'))
+  if ((a.back() == '-' || a.back() == '+') && (b.back() == '/' || b.back() == '*' || b.back() == '&'))
   {
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }

@@ -23,8 +23,6 @@ namespace nikonov
     const T & back() const noexcept;
     void push(const T & val);
     void push(T && val);
-    template< typename... Args >
-    void emplace(Args &&... args);
     void pop();
     void swap(Queue & x) noexcept;
   };
@@ -82,12 +80,6 @@ template< typename T >
 void nikonov::Queue< T >::push(T && val)
 {
   arr_.push_back(val);
-}
-template< typename T >
-template< typename... Args >
-void nikonov::Queue< T >::emplace(Args &&...args)
-{
-  arr_.emplace(args...);
 }
 template< typename T >
 void nikonov::Queue< T >::pop()

@@ -19,8 +19,6 @@ namespace nikonov
     const T & top() const noexcept;
     void push(const T & val);
     void push(T && val);
-    template< typename... Args >
-    void emplace(Args &&... args);
     void pop() noexcept;
     void swap(Stack & x) noexcept;
   };
@@ -68,12 +66,6 @@ template< typename T >
 void nikonov::Stack< T >::push(T && val)
 {
   arr_.push_back(val);
-}
-template< typename T >
-template< typename... Args >
-void nikonov::Stack< T >::emplace(Args &&... args)
-{
-  arr_.emplace(args...);
 }
 template< typename T >
 void nikonov::Stack< T >::pop() noexcept

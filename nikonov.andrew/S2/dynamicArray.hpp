@@ -6,7 +6,7 @@
 namespace nikonov
 {
   constexpr size_t defaultCapacity = 10;
-  constexpr double reallocScale = 1.5; 
+  constexpr size_t reallocScale = 2; 
 
   template< typename T >
   class Array
@@ -125,13 +125,13 @@ template< typename T >
 T & nikonov::Array< T >::back() noexcept
 {
   assert(size_ != 0);
-  return *arr_;
+  return arr_[size_ - 1];
 }
 template< typename T >
 const T & nikonov::Array< T >::back() const noexcept
 {
   assert(size_ != 0);
-  return *arr_;
+  return arr_[size_ - 1];
 }
 template< typename T >
 void nikonov::Array< T >::push_back(const T & value)
@@ -141,7 +141,7 @@ void nikonov::Array< T >::push_back(const T & value)
 template< typename T >
 void nikonov::Array< T >::push_back(T && value)
 {
-  emplace(std::forward(value));
+  emplace(std::forward< T >(value));
 }
 template< typename T >
 template< typename... Args >
@@ -161,7 +161,7 @@ void nikonov::Array< T >::pop_front()
   assert(size_ != 0);
   for (size_t i = 0; i < size_ - 1; ++i)
   {
-    arr_[i] = arr_[i + i];
+    arr_[i] = arr_[i + 1];
   }
   --size_;
 }
