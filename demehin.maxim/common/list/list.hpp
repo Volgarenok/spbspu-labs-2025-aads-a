@@ -227,7 +227,7 @@ namespace demehin
     List()
   {
     Node* current = rhs.fake_->next;
-    while (current != nullptr && current != rhs.fake_)
+    while (current != rhs.fake_)
     {
       push_back(current->data);
       current = current->next;
