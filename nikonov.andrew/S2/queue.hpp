@@ -38,7 +38,7 @@ nikonov::Queue< T >::Queue(const Queue & copy):
 {}
 template< typename T >
 nikonov::Queue< T >::Queue(Queue && copy):
-  arr_(copy.arr_)
+  arr_(std::move(copy.arr_))
 {}
 
 template< typename T >

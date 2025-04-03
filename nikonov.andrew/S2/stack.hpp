@@ -34,7 +34,7 @@ nikonov::Stack< T >::Stack(const Stack & copy):
 {}
 template< typename T >
 nikonov::Stack< T >::Stack(Stack && copy):
-  arr_(copy.arr_)
+  arr_(std::move(copy.arr_))
 {}
 
 template< typename T >

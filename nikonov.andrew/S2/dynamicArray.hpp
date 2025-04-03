@@ -6,7 +6,7 @@
 namespace nikonov
 {
   constexpr size_t defaultCapacity = 10;
-  constexpr size_t reallocScale = 2; 
+  constexpr size_t reallocScale = 2;
 
   template< typename T >
   class Array
@@ -22,8 +22,7 @@ namespace nikonov
     ~Array();
     bool empty() const noexcept;
     size_t size() const noexcept;
-    T & operator[](size_t id) noexcept;
-    const T & operator[](size_t id) const noexcept;
+    size_t capacity() const noexcept;//временная ф-я для тестирования
     T & front() noexcept;
     const T & front() const noexcept;
     T & back() noexcept;
@@ -45,7 +44,7 @@ void nikonov::Array< T >::reallocate(size_t newCap)
   {
     return;
   }
-  auto tempArr = new T[newCap];
+  T * tempArr = new T[newCap];
   for (size_t i = 0; i < size_; ++i)
   {
     tempArr[i] = arr_[i];
@@ -98,16 +97,9 @@ size_t nikonov::Array< T >::size() const noexcept
   return size_;
 }
 template< typename T >
-T & nikonov::Array< T >::operator[](size_t id) noexcept
+size_t nikonov::Array< T >::capacity() const noexcept
 {
-  assert(id < size_);
-  return arr_[id];
-}
-template< typename T >
-const T & nikonov::Array< T >::operator[](size_t id) const noexcept
-{
-  assert(id < size_);
-  return arr_[id];
+  return capacity_;
 }
 template< typename T >
 T & nikonov::Array< T >::front() noexcept

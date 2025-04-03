@@ -11,7 +11,7 @@ int main()
   // if (argc)
   // {
   //   return (argv != nullptr);
-  //   //read standard input 
+  //   //read standard input
   // }
   // //doing some file magic "Wshhhhh..Shhh..""
   nikonov::Queue< std::string > infixQueue = nikonov::readInfixExpressions(std::cin);
