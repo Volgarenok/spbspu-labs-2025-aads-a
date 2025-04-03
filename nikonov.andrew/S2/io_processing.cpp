@@ -26,16 +26,6 @@ void nikonov::printResults(Stack< std::string > toOut, std::ostream & out)
     toOut.pop();
   }
 }
-nikonov::Stack< std::string > nikonov::convertToPostfix(Queue< std::string > infixQueue)
-{
-  Stack< std::string > postfixStack;
-  for(size_t i = 0; i < infixQueue.size(); ++i)
-  {
-    postfixStack.push(convertToPostfix(infixQueue.back()));
-    infixQueue.pop();
-  }
-  return postfixStack;
-}
 std::string nikonov::convertToPostfix(const std::string & infix)
 {
   std::string postfix;

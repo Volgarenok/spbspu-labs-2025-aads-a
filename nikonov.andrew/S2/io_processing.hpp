@@ -7,7 +7,6 @@
 namespace nikonov
 {
   Queue< std::string > readInfixExpressions(std::istream & in);
-  Stack< std::string > convertToPostfix(Queue< std::string > queue);
   std::string convertToPostfix(const std::string & infix);
   void printResults(Stack< std::string > toOut, std::ostream & out);
   bool isOperand(const std::string & el);

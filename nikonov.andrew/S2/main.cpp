@@ -15,6 +15,11 @@ int main()
   // }
   // //doing some file magic "Wshhhhh..Shhh..""
   nikonov::Queue< std::string > infixQueue = nikonov::readInfixExpressions(std::cin);
-  nikonov::Stack< std::string > postfixStack = nikonov::convertToPostfix(infixQueue);
+  nikonov::Stack< std::string > postfixStack;
+  for(size_t i = 0; i < infixQueue.size(); ++i)
+  {
+    postfixStack.push(nikonov::convertToPostfix(infixQueue.back()));
+    infixQueue.pop();
+  }
   nikonov::printResults(postfixStack, std::cout);
 }

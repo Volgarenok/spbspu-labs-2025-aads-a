@@ -17,6 +17,7 @@ namespace nikonov
 
     bool empty() const noexcept;
     size_t size() const noexcept;
+    size_t capacity() const noexcept;//временный метод для тестов
     T & front() noexcept;
     const T & front() const noexcept;
     T & back() noexcept;
@@ -50,6 +51,11 @@ template< typename T >
 size_t nikonov::Queue< T >::size() const noexcept
 {
   return arr_.size();
+}
+template< typename T >
+size_t nikonov::Queue< T >::capacity() const noexcept
+{
+  return arr_.capacity();
 }
 template< typename T >
 T & nikonov::Queue< T >::front() noexcept
