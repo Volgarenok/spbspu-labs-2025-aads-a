@@ -1,5 +1,4 @@
 #include "io_processing.hpp"
-#include <iostream>
 namespace
 {
   bool isLoverPrecedence(const std::string & a, const std::string & b);
@@ -123,7 +122,7 @@ bool nikonov::isOperator(const std::string & el)
     return false;
   }
   bool flag = false;
-  char ops[] = {'-', '+', '*', '/', '&', '(', ')'};
+  char ops[] = {'-', '+', '*', '/', '%', '(', ')'};
   for (auto op : ops)
   {
     if (el.back() == op)
@@ -139,7 +138,7 @@ int nikonov::getPrecedence(char el)
   {
     return 2;
   }
-  else if (el == '*'|| el == '/'|| el == '&')
+  else if (el == '*'|| el == '/'|| el == '%')
   {
     return 3;
   }

@@ -4,7 +4,6 @@ BOOST_AUTO_TEST_CASE(queueDefaultConstrunct_test)
 {
   nikonov::Queue< std::string > que;
   BOOST_TEST(que.empty());
-  BOOST_TEST(que.capacity() == 10);
 }
 BOOST_AUTO_TEST_CASE(queueLCopyConstrunct_test)
 {
@@ -67,7 +66,6 @@ BOOST_AUTO_TEST_CASE(queuePush_test)
   nikonov::Queue< std::string > que;
   que.push("a");
   BOOST_TEST(que.size() == 1);
-  BOOST_TEST(que.capacity() == 10);
   BOOST_TEST(que.front() == "a");
   que.push("a");
   que.push("a");
@@ -80,7 +78,6 @@ BOOST_AUTO_TEST_CASE(queuePush_test)
   que.push("a");
   que.push("a");
   BOOST_TEST(que.size() == 11);
-  BOOST_TEST(que.capacity() == 20);
 }
 BOOST_AUTO_TEST_CASE(queuePop_test)
 {

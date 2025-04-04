@@ -4,7 +4,6 @@ BOOST_AUTO_TEST_CASE(arrayDefaultConstrunct_test)
 {
   nikonov::Array< std::string > arr;
   BOOST_TEST(arr.size() == 0);
-  BOOST_TEST(arr.capacity() == 10);
 }
 BOOST_AUTO_TEST_CASE(arrayLCopyConstrunct_test)
 {
@@ -67,7 +66,6 @@ BOOST_AUTO_TEST_CASE(arrayPushBack_test)
   nikonov::Array< std::string > arr;
   arr.push_back("aboba");
   BOOST_TEST(arr.size() == 1);
-  BOOST_TEST(arr.capacity() == 10);
 }
 BOOST_AUTO_TEST_CASE(arrayPushBackAndRealloc_test)
 {
@@ -85,7 +83,6 @@ BOOST_AUTO_TEST_CASE(arrayPushBackAndRealloc_test)
   arr.push_back(str);
   arr.push_back(str);
   BOOST_TEST(arr.size() == 11);
-  BOOST_TEST(arr.capacity() == 20);
 }
 BOOST_AUTO_TEST_CASE(arrayEmplace_test)
 {
@@ -93,7 +90,6 @@ BOOST_AUTO_TEST_CASE(arrayEmplace_test)
   arr.emplace("aboba");
   BOOST_TEST(arr.back() == "aboba");
   BOOST_TEST(arr.size() == 1);
-  BOOST_TEST(arr.capacity() == 10);
 }
 BOOST_AUTO_TEST_CASE(arrayPopFront_test)
 {

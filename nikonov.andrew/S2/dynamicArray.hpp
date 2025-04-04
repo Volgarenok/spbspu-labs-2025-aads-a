@@ -23,7 +23,6 @@ namespace nikonov
     ~Array();
     bool empty() const noexcept;
     size_t size() const noexcept;
-    size_t capacity() const noexcept;//временная ф-я для тестирования
     T & front() noexcept;
     const T & front() const noexcept;
     T & back() noexcept;
@@ -96,11 +95,6 @@ template< typename T >
 size_t nikonov::Array< T >::size() const noexcept
 {
   return size_;
-}
-template< typename T >
-size_t nikonov::Array< T >::capacity() const noexcept
-{
-  return capacity_;
 }
 template< typename T >
 T & nikonov::Array< T >::front() noexcept
