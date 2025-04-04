@@ -1,18 +1,21 @@
 #include "io_processing.hpp"
+#include <iostream>
+namespace
+{
+  bool isLoverPrecedence(const std::string & a, const std::string & b);
+  bool isGreaterOrEqualPrecedence(const std::string & a, const std::string & b);
+}
 nikonov::Queue< std::string > nikonov::readInfixExpressions(std::istream & in)
 {
   Queue< std::string > que;
   std::string infix;
-  std::noskipws(in);
-  while (!in.eof())
+  while (std::getline(in, infix))
   {
-    std::getline(in, infix);
     if (!infix.empty())
     {
       que.push(infix);
     }
   }
-  std::skipws(in);
   return que;
 }
 void nikonov::printResults(Stack< std::string > toOut, std::ostream & out)
@@ -21,13 +24,14 @@ void nikonov::printResults(Stack< std::string > toOut, std::ostream & out)
   {
     return;
   }
-  out << toOut.top() << ' ';
+  out << toOut.top();
   toOut.pop();
-  for (size_t i = 0; i < toOut.size(); ++i)
+  while (!toOut.empty())
   {
-    out << toOut.top() << ' ';
+    out << ' ' << toOut.top();
     toOut.pop();
   }
+  out << '\n';
 }
 std::string nikonov::convertToPostfix(const std::string & infix)
 {
@@ -43,10 +47,13 @@ std::string nikonov::convertToPostfix(const std::string & infix)
     }
     if (isOperand(tempstr))
     {
+      if (!postfix.empty())
+      {
+        postfix += ' ';
+      }
       postfix += tempstr;
-      postfix += ' ';
     }
-    else if (isOperator(tempstr))
+    else if ((tempstr.size() == 1) && isOperator(tempstr))
     {
       if (stack.empty() || (tempstr.back() == '('))
       {
@@ -60,12 +67,12 @@ std::string nikonov::convertToPostfix(const std::string & infix)
       {
         if (!cntOfOpenBrackets)
         {
-          throw std::logic_error("non-correct infix expression");
+          throw std::logic_error("non-correct infix expression, (!cntOfOpenBrackets)");
         }
         while (stack.top().back() != '(')
         {
-          postfix += stack.top();
           postfix += ' ';
+          postfix += stack.top();
           stack.pop();
         }
         stack.pop();
@@ -73,13 +80,13 @@ std::string nikonov::convertToPostfix(const std::string & infix)
       }
       else if (isLoverPrecedence(stack.top(), tempstr))
       {
-        postfix += stack.top();
-        postfix += ' ';
-        stack.pop();
         stack.push(tempstr);
       }
-      else if (!isLoverPrecedence(stack.top(), tempstr))
+      else if (isGreaterOrEqualPrecedence(stack.top(), tempstr))
       {
+        postfix += ' ';
+        postfix += stack.top();
+        stack.pop();
         stack.push(tempstr);
       }
     }
@@ -90,19 +97,19 @@ std::string nikonov::convertToPostfix(const std::string & infix)
   }
   while (!stack.empty())
   {
-    postfix += stack.top();
     postfix += ' ';
+    postfix += stack.top();
     stack.pop();
   }
-  postfix.pop_back(); //пока костыль
   return postfix;
 }
 bool nikonov::isOperand(const std::string & el)
 {
   try
   {
-    std::stold(el);
-    return true;
+    size_t pos;
+    std::stold(el, &pos);
+    return (pos == el.size());
   }
   catch (const std::exception & e)
   {
@@ -115,17 +122,46 @@ bool nikonov::isOperator(const std::string & el)
   {
     return false;
   }
-  else if (el.back() == '+' || el.back() == '-' || el.back() == '*' || el.back() == '/' || el.back() == '&')
+  bool flag = false;
+  char ops[] = {'-', '+', '*', '/', '&', '(', ')'};
+  for (auto op : ops)
   {
-    return true;
+    if (el.back() == op)
+    {
+      flag = true;
+    }
   }
-  return false;
+  return flag;
 }
-bool nikonov::isLoverPrecedence(const std::string & a, const std::string & b)
+int nikonov::getPrecedence(char el)
 {
-  if ((a.back() == '-' || a.back() == '+') && (b.back() == '/' || b.back() == '*' || b.back() == '&'))
+  if (el == '+' || el == '-')
   {
-    return true;
+    return 2;
   }
-  return false;
+  else if (el == '*'|| el == '/'|| el == '&')
+  {
+    return 3;
+  }
+  else if (el == '(' || el == ')')
+  {
+    return 0;
+  }
+  throw std::logic_error("ERROR: this op doesn't supported");
 }
+namespace
+{
+  bool isLoverPrecedence(const std::string & a, const std::string & b)
+  {
+   return !isGreaterOrEqualPrecedence(a, b);
+  }
+  bool isGreaterOrEqualPrecedence(const std::string & a, const std::string & b)
+  {
+    if (nikonov::getPrecedence(a.back()) >= nikonov::getPrecedence(b.back()))
+    {
+      return true;
+    }
+    return false;
+  }
+}
+

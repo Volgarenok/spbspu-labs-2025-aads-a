@@ -11,6 +11,6 @@ namespace nikonov
   void printResults(Stack< std::string > toOut, std::ostream & out);
   bool isOperand(const std::string & el);
   bool isOperator(const std::string & el);
-  bool isLoverPrecedence(const std::string & a, const std::string & b);
+  int getPrecedence(char el);
 }
 #endif

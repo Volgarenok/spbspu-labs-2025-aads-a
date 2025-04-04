@@ -16,11 +16,18 @@ int main()
   // //doing some file magic "Wshhhhh..Shhh..""
   nikonov::Queue< std::string > infixQueue = nikonov::readInfixExpressions(std::cin);
   nikonov::Stack< std::string > postfixStack;
-  for(size_t i = 0; i < infixQueue.size(); ++i)
+  try
   {
-    auto postfix = nikonov::convertToPostfix(infixQueue.back());
-    postfixStack.push(postfix);
-    infixQueue.pop();
+    while (!infixQueue.empty())
+    {
+      auto postfix = nikonov::convertToPostfix(infixQueue.front());
+      postfixStack.push(postfix);
+      infixQueue.pop();
+    }
+  }
+  catch(const std::exception & e)
+  {
+    std::cerr << e.what() << '\n';
   }
   nikonov::printResults(postfixStack, std::cout);
 }
