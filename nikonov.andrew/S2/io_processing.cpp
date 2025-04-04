@@ -7,7 +7,10 @@ nikonov::Queue< std::string > nikonov::readInfixExpressions(std::istream & in)
   while (!in.eof())
   {
     std::getline(in, infix);
-    que.push(infix);
+    if (!infix.empty())
+    {
+      que.push(infix);
+    }
   }
   std::skipws(in);
   return que;

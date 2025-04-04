@@ -85,7 +85,7 @@ void nikonov::Queue< T >::push(const T & val)
 template< typename T >
 void nikonov::Queue< T >::push(T && val)
 {
-  arr_.push_back(val);
+  arr_.push_back(std::move(val));
 }
 template< typename T >
 void nikonov::Queue< T >::pop()

@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <cassert>
+#include <iostream>
 namespace nikonov
 {
   constexpr size_t defaultCapacity = 10;
@@ -40,9 +41,9 @@ namespace nikonov
 template< typename T >
 void nikonov::Array< T >::reallocate(size_t newCap)
 {
-  if (capacity_ >= newCap)
+  if (newCap < size_)
   {
-    return;
+    throw std::runtime_error("ERROR: non-correct new capacity size");
   }
   T * tempArr = new T[newCap];
   for (size_t i = 0; i < size_; ++i)
@@ -143,8 +144,7 @@ void nikonov::Array< T >::emplace(Args &&...args)
   {
     reallocate(capacity_ * reallocScale);
   }
-  T data = T(std::forward< Args >(args)...);
-  arr_[size_] = data;
+  new (&arr_[size_]) T(std::forward< Args >(args)...);
   ++size_;
 }
 template< typename T >

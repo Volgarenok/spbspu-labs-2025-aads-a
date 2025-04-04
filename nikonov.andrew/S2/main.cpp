@@ -18,7 +18,8 @@ int main()
   nikonov::Stack< std::string > postfixStack;
   for(size_t i = 0; i < infixQueue.size(); ++i)
   {
-    postfixStack.push(nikonov::convertToPostfix(infixQueue.back()));
+    auto postfix = nikonov::convertToPostfix(infixQueue.back());
+    postfixStack.push(postfix);
     infixQueue.pop();
   }
   nikonov::printResults(postfixStack, std::cout);
