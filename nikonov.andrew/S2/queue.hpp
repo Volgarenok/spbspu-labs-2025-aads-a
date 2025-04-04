@@ -15,6 +15,8 @@ namespace nikonov
     Queue(Queue && copy);
     ~Queue() = default;
 
+    Queue & operator=(const Queue & rhs);
+
     bool empty() const noexcept;
     size_t size() const noexcept;
     T & front() noexcept;
@@ -40,6 +42,13 @@ template< typename T >
 nikonov::Queue< T >::Queue(Queue && copy):
   arr_(std::move(copy.arr_))
 {}
+template< typename T >
+nikonov::Queue< T > & nikonov::Queue< T >::operator=(const Queue & rhs)
+{
+  auto tempArr(rhs);
+  swap(tempArr);
+  return *this;
+}
 template< typename T >
 bool nikonov::Queue< T >::empty() const noexcept
 {

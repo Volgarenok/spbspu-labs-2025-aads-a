@@ -12,7 +12,7 @@ int main(int argc, char ** argv)
   }
   else if (argc == 1)
   {
-    nikonov::Queue< std::string > infixQueue = nikonov::readInfixExpressions(std::cin);
+    infixQueue = nikonov::readInfixExpressions(std::cin);
   }
   else if (argc == 2)
   {
@@ -22,7 +22,7 @@ int main(int argc, char ** argv)
       std::cerr << "Can't access the file\n";
       return 1;
     }
-    nikonov::Queue< std::string > infixQueue = nikonov::readInfixExpressions(in);
+    infixQueue = nikonov::readInfixExpressions(in);
     in.close();
   }
   nikonov::Stack< std::string > postfixStack;
