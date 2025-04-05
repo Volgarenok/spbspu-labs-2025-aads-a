@@ -5,6 +5,27 @@ namespace nikonov
 {
   class Postfix
   {
+    std::string expression;
+  public:
+    Postfix() = default;
+    Postfix(const std::string & infix);
+
+    Postfix operator+(const Postfix & rhs);
+    Postfix & operator+=(const Postfix & rhs);
+    Postfix operator-(const Postfix & rhs);
+    Postfix & operator-=(const Postfix & rhs);
+    Postfix operator*(const Postfix & rhs);
+    Postfix & operator*=(const Postfix & rhs);
+    Postfix operator/(const Postfix & rhs);
+    Postfix & operator/=(const Postfix & rhs);
+    Postfix operator%(const Postfix & rhs);
+    Postfix & operator%=(const Postfix & rhs);
+  
+    friend std::ostream & operator<<(std::ostream & out, const Postfix & toOut)
+    {
+      out << toOut.expression;
+      return out;
+    }
   };
 }
 #endif

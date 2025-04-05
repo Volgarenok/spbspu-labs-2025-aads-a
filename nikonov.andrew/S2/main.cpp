@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "io_processing.hpp"
-
+#include "postfix.hpp"
 int main(int argc, char ** argv)
 {
   nikonov::Queue< std::string > infixQueue;
@@ -25,13 +25,12 @@ int main(int argc, char ** argv)
     infixQueue = nikonov::readInfixExpressions(in);
     in.close();
   }
-  nikonov::Stack< std::string > postfixStack;
+  nikonov::Stack< nikonov::Postfix > postfixStack;
   try
   {
     while (!infixQueue.empty())
     {
-      auto postfix = nikonov::convertToPostfix(infixQueue.front());
-      postfixStack.push(postfix);
+      postfixStack.push(nikonov::Postfix(infixQueue.front()));
       infixQueue.pop();
     }
   }

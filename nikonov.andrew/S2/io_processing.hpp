@@ -3,14 +3,10 @@
 #include <string>
 #include <istream>
 #include <ostream>
-#include "stack.hpp"
+#include "postfix.hpp"
 namespace nikonov
 {
   Queue< std::string > readInfixExpressions(std::istream & in);
-  std::string convertToPostfix(const std::string & infix);
-  void printResults(Stack< std::string > toOut, std::ostream & out);
-  bool isOperand(const std::string & el);
-  bool isOperator(const std::string & el);
-  int getPrecedence(char el);
+  void printResults(Stack< Postfix > toOut, std::ostream & out);
 }
 #endif
