@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <stdexcept>
 #include <cassert>
-#include <iostream>
 namespace nikonov
 {
   constexpr size_t defaultCapacity = 10;

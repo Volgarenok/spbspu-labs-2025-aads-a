@@ -8,7 +8,7 @@ namespace nikonov
     std::string expression;
   public:
     Postfix() = default;
-    Postfix(const std::string & infix);
+    Postfix(const std::string & infix, bool mode);
 
     Postfix operator+(const Postfix & rhs);
     Postfix & operator+=(const Postfix & rhs);

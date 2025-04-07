@@ -8,17 +8,22 @@ namespace
   bool isGreaterOrEqualPrecedence(const std::string & a, const std::string & b);
 }
 
-nikonov::Postfix::Postfix(const std::string & infix)
+nikonov::Postfix::Postfix(const std::string & expr, bool mode)
 {
+  if (mode)
+  {
+    expression = expr;
+    return;
+  }
   std::string postfix;
   Stack< std::string > stack;
   size_t cntOfOpenBrackets = 0;
-  for (size_t i = 0; i < infix.size(); ++i)
+  for (size_t i = 0; i < expr.size(); ++i)
   {
     std::string tempstr;
-    while (infix[i] != ' ' && i < infix.size())
+    while (expr[i] != ' ' && i < expr.size())
     {
-      tempstr += infix[i++];
+      tempstr += expr[i++];
     }
     if (isOperand(tempstr))
     {
@@ -81,7 +86,7 @@ nikonov::Postfix::Postfix(const std::string & infix)
 nikonov::Postfix nikonov::Postfix::operator+(const Postfix & rhs)
 {
   std::string newexpression = expression + ' ' + rhs.expression + " +";
-  return { newexpression };
+  return { newexpression, 1 };
 }
 nikonov::Postfix & nikonov::Postfix::operator+=(const Postfix & rhs)
 {
@@ -91,7 +96,7 @@ nikonov::Postfix & nikonov::Postfix::operator+=(const Postfix & rhs)
 nikonov::Postfix nikonov::Postfix::operator-(const Postfix & rhs)
 {
   std::string newexpression = expression + ' ' + rhs.expression + " -";
-  return { newexpression };
+  return { newexpression, 1 };
 }
 nikonov::Postfix & nikonov::Postfix::operator-=(const Postfix & rhs)
 {
@@ -101,7 +106,7 @@ nikonov::Postfix & nikonov::Postfix::operator-=(const Postfix & rhs)
 nikonov::Postfix nikonov::Postfix::operator*(const Postfix & rhs)
 {
   std::string newexpression = expression + ' ' + rhs.expression + " *";
-  return { newexpression };
+  return { newexpression, 1 };
 }
 nikonov::Postfix & nikonov::Postfix::operator*=(const Postfix & rhs)
 {
@@ -111,7 +116,7 @@ nikonov::Postfix & nikonov::Postfix::operator*=(const Postfix & rhs)
 nikonov::Postfix nikonov::Postfix::operator/(const Postfix & rhs)
 {
   std::string newexpression = expression + ' ' + rhs.expression + " /";
-  return { newexpression };
+  return { newexpression, 1 };
 }
 nikonov::Postfix & nikonov::Postfix::operator/=(const Postfix & rhs)
 {
@@ -121,7 +126,7 @@ nikonov::Postfix & nikonov::Postfix::operator/=(const Postfix & rhs)
 nikonov::Postfix nikonov::Postfix::operator%(const Postfix & rhs)
 {
   std::string newexpression = expression + ' ' + rhs.expression + " %";
-  return { newexpression };
+  return { newexpression, 1 };
 }
 nikonov::Postfix & nikonov::Postfix::operator%=(const Postfix & rhs)
 {

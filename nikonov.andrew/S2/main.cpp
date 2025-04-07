@@ -30,7 +30,7 @@ int main(int argc, char ** argv)
   {
     while (!infixQueue.empty())
     {
-      postfixStack.push(nikonov::Postfix(infixQueue.front()));
+      postfixStack.push(nikonov::Postfix(infixQueue.front(), 0));
       infixQueue.pop();
     }
   }
