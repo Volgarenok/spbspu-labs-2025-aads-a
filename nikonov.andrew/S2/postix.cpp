@@ -1,4 +1,5 @@
 #include "postfix.hpp"
+#include <iostream>
 namespace
 {
   bool isOperand(const std::string & el);
@@ -10,6 +11,10 @@ namespace
 
 nikonov::Postfix::Postfix(const std::string & expr, bool mode)
 {
+  if (!std::isdigit(expr.back()))
+  {
+    throw std::logic_error("non-correct infix expression");
+  }
   if (mode)
   {
     expression = expr;
@@ -18,6 +23,8 @@ nikonov::Postfix::Postfix(const std::string & expr, bool mode)
   std::string postfix;
   Stack< std::string > stack;
   size_t cntOfOpenBrackets = 0;
+  int cntOfOperands = 0;
+  int cntOfOperators = 0;
   for (size_t i = 0; i < expr.size(); ++i)
   {
     std::string tempstr;
@@ -27,6 +34,7 @@ nikonov::Postfix::Postfix(const std::string & expr, bool mode)
     }
     if (isOperand(tempstr))
     {
+      cntOfOperands++;
       if (!postfix.empty())
       {
         postfix += ' ';
@@ -35,6 +43,7 @@ nikonov::Postfix::Postfix(const std::string & expr, bool mode)
     }
     else if ((tempstr.size() == 1) && isOperator(tempstr))
     {
+      cntOfOperators++;
       if (stack.empty() || (tempstr.back() == '('))
       {
         if (tempstr.back() == '(')
@@ -71,6 +80,10 @@ nikonov::Postfix::Postfix(const std::string & expr, bool mode)
       }
     }
     else
+    {
+      throw std::logic_error("non-correct infix expression");
+    }
+    if (std::abs((cntOfOperands - cntOfOperators)) > 1)
     {
       throw std::logic_error("non-correct infix expression");
     }
