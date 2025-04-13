@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(ListMoveConstructor_test)
   nikonov::List< int > list(size, data);
   nikonov::List< int > copyList(std::move(list));
   BOOST_TEST(copyList.size() == size);
-  for (auto el : copyList)
+  for (auto el: copyList)
   {
     BOOST_TEST(el == data);
   }
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(ListFillConstructor_test)
   constexpr int data = 100;
   nikonov::List< int > list(size, data);
   BOOST_TEST(list.size() == size);
-  for (auto el : list)
+  for (auto el: list)
   {
    BOOST_TEST(el == data);
   }
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(ListAssignFill_test)
   nikonov::List< int > list{ data1, data2, data3 };
   list.assign(data2, data3);
   BOOST_TEST(list.size() == data2);
-  for (auto el : list)
+  for (auto el: list)
   {
     BOOST_TEST(el == data3);
   }
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE(ListAssignRange_test)
   nikonov::List< int > diffList{ data2, data2, data2 };
   list.assign(diffList.begin(), diffList.end());
   BOOST_TEST(list.size() == 3);
-  for (auto el : list)
+  for (auto el: list)
   {
     BOOST_TEST(el == data2);
   }
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE(ListAssignInitL_test)
   nikonov::List< int > list{ data1, data2, data3 };
   list.assign({ data4, data4 });
   BOOST_TEST(list.size() == 2);
-  for (auto el : list)
+  for (auto el: list)
   {
     BOOST_TEST(el == data4);
   }

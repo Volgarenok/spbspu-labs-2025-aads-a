@@ -4,7 +4,7 @@
 int main()
 {
   using pair_t = std::pair< std::string, nikonov::List< size_t > >;
-  nikonov::List< pair_t > * pList = nullptr;
+  nikonov::List< pair_t > pList;
   try
   {
     bool overflowFlag = false;
@@ -18,8 +18,6 @@ int main()
   catch (const std::overflow_error & e)
   {
     std::cerr << e.what() << '\n';
-    delete pList;
     return 1;
   }
-  delete pList;
 }

@@ -5,13 +5,13 @@
 namespace
 {
   nikonov::ListIterator< size_t > getIterAt(nikonov::List< size_t > & list, size_t id);
-  void printNumsNSums(nikonov::List< std::pair< std::string, nikonov::List< size_t > > > * pList, size_t maxValCnt);
-  void printOnlyNums(nikonov::List< std::pair< std::string, nikonov::List< size_t > > > * pList, size_t maxValCnt);
+  void printNumsNSums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt);
+  void printOnlyNums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt);
 }
-nikonov::List< std::pair< std::string, nikonov::List< size_t > > > * nikonov::getPList(std::istream& in, bool& overflowFlag)
+nikonov::List< std::pair< std::string, nikonov::List< size_t > > > nikonov::getPList(std::istream& in, bool& overflowFlag)
 {
   using pair_t = std::pair< std::string, List< size_t > >;
-  List< pair_t > * pList = new List< pair_t >;
+  List< pair_t > pList;
   std::string data = "";
   std::string name = "";
   bool dataIsName = true;
@@ -44,21 +44,21 @@ nikonov::List< std::pair< std::string, nikonov::List< size_t > > > * nikonov::ge
       }
     }
     pair_t Pair{ name, vals };
-    pList->push_back(Pair);
+    pList.push_back(Pair);
   }
   return pList;
 }
-void nikonov::processPList(List< std::pair< std::string, List< size_t > > > * pList, bool& overflowFlag)
+void nikonov::processPList(List< std::pair< std::string, List< size_t > > > pList, bool& overflowFlag)
 {
-  if (pList->size() == 0)
+  if (pList.size() == 0)
   {
     std::cout << 0 << '\n';
     return;
   }
-  auto pIter1 = pList->begin();
+  auto pIter1 = pList.begin();
   size_t maxValCnt = (*pIter1).second.size();
   std::cout << (*pIter1).first;
-  while (++pIter1 != pList->end())
+  while (++pIter1 != pList.end())
   {
     std::cout << " " << (*pIter1).first;
     maxValCnt = maxValCnt > (*pIter1).second.size() ? maxValCnt : (*pIter1).second.size();
@@ -86,24 +86,24 @@ namespace
     for (size_t i = 0; i < id; ++i, ++iter);
     return iter;
   }
-  void printNumsNSums(nikonov::List< std::pair< std::string, nikonov::List< size_t > > > * pList, size_t maxValCnt)
+  void printNumsNSums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt)
   {
     nikonov::List< size_t > strSum;
     for (size_t valId = 0; valId < maxValCnt; ++valId)
     {
-      auto pIter = pList->begin();
-      while (pIter != pList->end() && valId >= (*pIter).second.size())
+      auto pIter = pList.begin();
+      while (pIter != pList.end() && valId >= (*pIter).second.size())
       {
         ++pIter;
       }
-      if (pIter == pList->end())
+      if (pIter == pList.end())
       {
         return;
       }
       size_t currElem = *getIterAt((*(pIter++)).second, valId);
       std::cout << currElem;
       size_t currSum = currElem;
-      for (; pIter != pList->end(); ++pIter)
+      for (; pIter != pList.end(); ++pIter)
       {
         if (valId < (*pIter).second.size())
         {
@@ -123,22 +123,22 @@ namespace
     }
     std::cout << '\n';
   }
-  void printOnlyNums(nikonov::List< std::pair< std::string, nikonov::List< size_t > > > * pList, size_t maxValCnt)
+  void printOnlyNums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt)
   {
     for (size_t valId = 0; valId < maxValCnt; ++valId)
     {
-      auto pIter = pList->begin();
-      while (pIter != pList->end() && valId >= (*pIter).second.size())
+      auto pIter = pList.begin();
+      while (pIter != pList.end() && valId >= (*pIter).second.size())
       {
         ++pIter;
       }
-      if (pIter == pList->end())
+      if (pIter == pList.end())
       {
         return;
       }
       size_t currElem = *getIterAt((*(pIter++)).second, valId);
       std::cout << currElem;
-      for (; pIter != pList->end(); ++pIter)
+      for (; pIter != pList.end(); ++pIter)
       {
         if (valId < (*pIter).second.size())
         {

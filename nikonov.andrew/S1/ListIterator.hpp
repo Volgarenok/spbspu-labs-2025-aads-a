@@ -1,9 +1,9 @@
 #ifndef LISTITERATOR_HPP
 #define LISTITERATOR_HPP
-#include "ListNode.hpp"
 #include <iterator>
 #include <memory>
 #include <cassert>
+#include "ListNode.hpp"
 namespace nikonov
 {
   template< typename T >

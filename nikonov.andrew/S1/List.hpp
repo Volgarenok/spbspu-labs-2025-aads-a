@@ -1,38 +1,30 @@
 #ifndef LIST_HPP
 #define LIST_HPP
-#include "ListIterator.hpp"
 #include <cstddef>
-#include <cstdlib>
 #include <initializer_list>
+#include <functional>
+#include "ListIterator.hpp"
 namespace nikonov
 {
   template< typename T >
   class List;
 }
-namespace detail
-{
-  template< typename T, typename Compare >
-  bool compareLists(const nikonov::List< T > & lhs, const nikonov::List< T > & rhs, Compare cmp);
-  template< typename T >
-  bool tEqual(const T & a, const T & b);
-  template< typename T >
-  bool tLess(const T & a, const T & b);
-  template< typename T >
-  bool tGreater(const T & a, const T & b);
-}
 namespace nikonov
 {
+  namespace detail
+  {
+    template< typename T, typename Compare >
+    bool compareLists(const List< T > & lhs, const List< T > & rhs, Compare cmp);
+  }
   template< typename T >
   using iterator = ListIterator< T >;
   template< typename T >
   using const_iterator = ConstListIterator< T >;
-  template< typename T >
-  using node_t = detail::ListNode< T >;
 
   template< typename T >
   class List
   {
-    node_t< T > * fake;
+    detail::ListNode< T > * fake;
   public:
     List();
     List(const List & copy);
@@ -100,21 +92,21 @@ namespace nikonov
   };
   template< typename T >
   List< T >::List():
-  fake(static_cast< node_t< T > * >(malloc(sizeof(node_t< T >))))
+  fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
   {
     fake->next = fake;
   }
 
   template< typename T >
   List< T >::List(const List< T > & copy):
-    fake(static_cast< node_t< T > * >(malloc(sizeof(node_t< T >))))
+    fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
   {
     fake->next = fake;
     const_iterator< T > iter = copy.cbegin();
-    node_t< T > * curr = fake;
+    detail::ListNode< T > * curr = fake;
     while (iter != copy.cend())
     {
-      node_t< T > * newNode = new node_t< T >{ *(iter++), fake };
+      detail::ListNode< T > * newNode = new detail::ListNode< T >{ *(iter++), fake };
       curr->next = newNode;
       curr = newNode;
     }
@@ -123,19 +115,19 @@ namespace nikonov
   List< T >::List(List && copy):
     fake(copy.fake)
   {
-    copy.fake = static_cast< node_t< T > * >(malloc(sizeof(node_t< T >)));
+    copy.fake = static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >)));
     copy.fake->next = copy.fake;
   }
 
   template< typename T >
   List< T >::List(size_t k, const T & value):
-    fake(static_cast< node_t< T > * >(malloc(sizeof(node_t< T >))))
+    fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
   {
     fake->next = fake;
-    node_t< T > * tailNode = nullptr;
+    detail::ListNode< T > * tailNode = nullptr;
     for (size_t i = 0; i < k; ++i)
     {
-      node_t< T > * newNode = new node_t< T >{ value, fake };
+      detail::ListNode< T > * newNode = new detail::ListNode< T >{ value, fake };
       if (fake->next == fake)
       {
         fake->next = newNode;
@@ -149,13 +141,13 @@ namespace nikonov
 
   template< typename T >
   List< T >::List(std::initializer_list< T > il):
-    fake(static_cast< node_t< T > * >(malloc(sizeof(node_t< T >))))
+    fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
   {
     fake->next = fake;
-    node_t< T > * curr = fake;
-    for (auto el : il)
+    detail::ListNode< T > * curr = fake;
+    for (auto el: il)
     {
-      node_t< T > * newNode = new node_t< T >{ el, fake };
+      detail::ListNode< T > * newNode = new detail::ListNode< T >{ el, fake };
       curr->next = newNode;
       curr = newNode;
     }
@@ -164,13 +156,13 @@ namespace nikonov
   template< typename T >
   template< typename InputIterator >
   List< T >::List(InputIterator begin, InputIterator end):
-    fake(static_cast< node_t< T > * >(malloc(sizeof(node_t< T >))))
+    fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
   {
     fake->next = fake;
-    node_t< T > * curr = fake;
+    detail::ListNode< T > * curr = fake;
     for (; begin != end; ++begin)
     {
-      node_t< T > * newNode = new node_t< T >{ *begin, fake };
+      detail::ListNode< T > * newNode = new detail::ListNode< T >{ *begin, fake };
       curr->next = newNode;
       curr = newNode;
     }
@@ -202,7 +194,8 @@ namespace nikonov
     {
       return false;
     }
-    return detail::compareLists(*this, rhs, detail::tEqual< T >);
+    std::equal_to< T > cmp;
+    return detail::compareLists(*this, rhs, cmp);
   }
 
   template< typename T >
@@ -218,7 +211,8 @@ namespace nikonov
     {
       return true;
     }
-    return detail::compareLists(*this, rhs, detail::tLess< T >);
+    std::less< T > cmp;
+    return detail::compareLists(*this, rhs, cmp);
   }
 
   template< typename T >
@@ -228,7 +222,8 @@ namespace nikonov
     {
       return true;
     }
-    return detail::compareLists(*this, rhs, detail::tGreater< T >);
+    std::greater< T > cmp;
+    return detail::compareLists(*this, rhs, cmp);
   }
 
   template< typename T >
@@ -297,7 +292,7 @@ namespace nikonov
   const T & List< T >::back() const noexcept
   {
     assert(!empty());
-    node_t< T > * iter = fake->next;
+    detail::ListNode< T > * iter = fake->next;
     while (iter->next != fake)
     {
       iter = iter->next;
@@ -334,8 +329,8 @@ namespace nikonov
   template< typename T >
   void List< T >::push_front(const T & value)
   {
-    node_t< T > * next = fake->next;
-    node_t< T > * newNode = new node_t< T >{ value, next };
+    detail::ListNode< T > * next = fake->next;
+    detail::ListNode< T > * newNode = new detail::ListNode< T >{ value, next };
     fake->next = newNode;
   }
 
@@ -349,8 +344,8 @@ namespace nikonov
   template< typename T >
   void List< T >::push_back(const T & value)
   {
-    node_t< T > * newNode = new node_t< T >{ value, fake };
-    node_t< T > * iter = fake;
+    detail::ListNode< T > * newNode = new detail::ListNode< T >{ value, fake };
+    detail::ListNode< T > * iter = fake;
     while (iter->next != fake)
     {
       iter = iter->next;
@@ -369,8 +364,8 @@ namespace nikonov
   void List< T >::pop_front() noexcept
   {
     assert(!empty());
-    node_t< T > * toDelete = fake->next;
-    node_t< T > * subhead = toDelete->next;
+    detail::ListNode< T > * toDelete = fake->next;
+    detail::ListNode< T > * subhead = toDelete->next;
     fake->next = subhead;
     delete toDelete;
   }
@@ -379,8 +374,8 @@ namespace nikonov
   void List< T >::pop_back() noexcept
   {
     assert(!empty());
-    node_t< T > * toDelete = fake;
-    node_t< T > * subhead = fake;
+    detail::ListNode< T > * toDelete = fake;
+    detail::ListNode< T > * subhead = fake;
     while (toDelete->next != fake)
     {
       subhead = toDelete;
@@ -399,10 +394,10 @@ namespace nikonov
   template< typename T >
   void List< T >::clear() noexcept
   {
-    node_t< T > * toDelite = fake->next;
+    detail::ListNode< T > * toDelite = fake->next;
     while (toDelite != fake)
     {
-      node_t< T > * next = toDelite->next;
+      detail::ListNode< T > * next = toDelite->next;
       delete toDelite;
       toDelite = next;
     }
@@ -428,11 +423,11 @@ namespace nikonov
   template< typename Predicate >
   void List< T >::remove_if(Predicate pred) noexcept
   {
-    node_t< T > * curr = fake->next;
-    node_t< T > * subhead = fake;
+    detail::ListNode< T > * curr = fake->next;
+    detail::ListNode< T > * subhead = fake;
     while (curr != fake)
     {
-      node_t< T > * next = curr->next;
+      detail::ListNode< T > * next = curr->next;
       if (pred(curr->data))
       {
         delete curr;
@@ -464,9 +459,9 @@ namespace nikonov
     {
       ++curr;
     }
-    node_t< T > * prevNext = curr.node->next;
+    detail::ListNode< T > * prevNext = curr.node->next;
     curr.node->next = x.fake->next;
-    node_t< T > * listIter = x.fake;
+    detail::ListNode< T > * listIter = x.fake;
     while (listIter->next != x.fake)
     {
       listIter = listIter->next;
@@ -493,13 +488,13 @@ namespace nikonov
     {
       ++curr;
     }
-    node_t< T > * prevNext = curr.node->next;
+    detail::ListNode< T > * prevNext = curr.node->next;
     iterator< T > subheadX = x.begin();
     while (subheadX.node->next != i.node)
     {
       ++subheadX;
     }
-    node_t< T > * toMove = subheadX.node->next;
+    detail::ListNode< T > * toMove = subheadX.node->next;
     subheadX.node->next = toMove->next;
     curr.node->next = toMove;
     toMove->next = prevNext;
@@ -523,7 +518,7 @@ namespace nikonov
     {
       ++curr;
     }
-    node_t< T > * prevNext = curr.node->next;
+    detail::ListNode< T > * prevNext = curr.node->next;
     iterator< T > subheadX = x.begin();
     while (subheadX.node->next != first.node)
     {
@@ -544,11 +539,11 @@ namespace nikonov
   template< typename T >
   void List< T >::reverse() noexcept
   {
-    node_t< T > * prevPtr = fake;
-    node_t< T > * iter = prevPtr->next;
+    detail::ListNode< T > * prevPtr = fake;
+    detail::ListNode< T > * iter = prevPtr->next;
     while (iter != fake)
     {
-      node_t< T > * next = iter->next;
+      detail::ListNode< T > * next = iter->next;
       iter->next = prevPtr;
       prevPtr = iter;
       iter = next;
@@ -580,14 +575,14 @@ namespace nikonov
   template< typename T >
   iterator< T > List< T >::insert(const_iterator< T > position, const T& val)
   {
-    node_t< T > * subhead = fake;
-    node_t< T > * next = fake->next;
+    detail::ListNode< T > * subhead = fake;
+    detail::ListNode< T > * next = fake->next;
     while (next != position.node)
     {
       subhead = next;
       next = next->next;
     }
-    node_t< T > * newNode = new node_t< T >{ val, next };
+    detail::ListNode< T > * newNode = new detail::ListNode< T >{ val, next };
     subhead->next = newNode;
     return iterator< T >{ newNode };
   }
@@ -663,9 +658,9 @@ namespace nikonov
   template< typename T >
   iterator< T > List< T >::erase(const_iterator< T > position) noexcept
   {
-    node_t< T > * subhead = fake;
-    node_t< T > * curr = fake->next;
-    node_t< T > * next = curr->next;
+    detail::ListNode< T > * subhead = fake;
+    detail::ListNode< T > * curr = fake->next;
+    detail::ListNode< T > * next = curr->next;
     while (curr != position.node)
     {
       subhead = curr;
@@ -687,12 +682,9 @@ namespace nikonov
     }
     return returnIter;
   }
-}
 
-namespace detail
-{
   template< typename T, typename Compare >
-  bool compareLists(const nikonov::List< T > & lhs, const nikonov::List< T > & rhs, Compare cmp)
+  bool detail::compareLists(const nikonov::List< T > & lhs, const nikonov::List< T > & rhs, Compare cmp)
   {
     assert(lhs.size() == rhs.size());
     nikonov::const_iterator< T > thisIt = lhs.cbegin();
@@ -707,21 +699,6 @@ namespace detail
       ++anotherIt;
     }
     return true;
-  }
-  template< typename T >
-  bool tEqual(const T & a, const T & b)
-  {
-    return a == b;
-  }
-  template< typename T >
-  bool tLess(const T & a, const T & b)
-  {
-    return a < b;
-  }
-  template< typename T >
-  bool tGreater(const T & a, const T & b)
-  {
-    return a > b;
   }
 }
 #endif
