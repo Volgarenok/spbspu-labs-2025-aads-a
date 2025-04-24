@@ -10,8 +10,8 @@ namespace evstyunichev
       T data_;
       ListNode< T > *prev_;
       ListNode< T > *next_;
-
       ListNode(const T &data);
+      ListNode(T &&data);
   };
 
   template< class T >
@@ -20,5 +20,13 @@ namespace evstyunichev
     prev_(nullptr),
     next_(nullptr)
   {};
+
+  template< class T >
+  ListNode< T >::ListNode(T &&data):
+    data_(data),
+    prev_(nullptr),
+    next_(nullptr)
+  {};
+
 }
 #endif

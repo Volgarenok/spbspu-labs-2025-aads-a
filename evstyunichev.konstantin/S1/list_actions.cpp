@@ -19,38 +19,19 @@ namespace
   }
 }
 
-evstyunichev::List< pair_t > * evstyunichev::form_list(std::istream &in)
-{
-  evstyunichev::List< pair_t > *sequences = new evstyunichev::List< pair_t >{};
-  std::string str = "";
-  while (in >> str)
-  {
-    if (isalpha(str[0]))
-    {
-      sequences->push_back({str, {} });
-    }
-    else
-    {
-      size_t n = std::stoull(str);
-      sequences->back().second.push_back(n);
-    }
-  }
-  return sequences;
-}
-
-std::ostream & evstyunichev::list_out(evstyunichev::List< pair_t > *sequences, std::ostream &out)
+std::ostream & evstyunichev::list_out(evstyunichev::List< pair_t > &sequences, std::ostream &out)
 {
   bool overflow_flag = false;
-  if (sequences->empty())
+  if (sequences.empty())
   {
     out << "0";
     return out;
   }
   evstyunichev::List< size_t > summ{};
-  auto iter_seq = sequences->begin();
+  auto iter_seq = sequences.begin();
   size_t mx = iter_seq->second.size();
   out << (iter_seq++)->first;
-  for (; iter_seq != sequences->end(); ++iter_seq)
+  for (; iter_seq != sequences.end(); ++iter_seq)
   {
     out << ' ' << iter_seq->first;
     mx = std::max(mx, iter_seq->second.size());
@@ -62,9 +43,9 @@ std::ostream & evstyunichev::list_out(evstyunichev::List< pair_t > *sequences, s
   }
   for (size_t i = 0; i < mx; i++)
   {
-    auto iter_seq = sequences->begin();
+    auto iter_seq = sequences.begin();
     out << '\n';
-    for (iter_seq = sequences->begin(); iter_seq->second.empty(); ++iter_seq);
+    for (; iter_seq->second.empty(); ++iter_seq);
     size_t num = iter_seq->second.front();
     iter_seq->second.pop_front();
     out << num;
@@ -73,7 +54,7 @@ std::ostream & evstyunichev::list_out(evstyunichev::List< pair_t > *sequences, s
       summ.push_back(num);
     }
     ++iter_seq;
-    for (; iter_seq != sequences->end(); ++iter_seq)
+    for (; iter_seq != sequences.end(); ++iter_seq)
     {
       if (iter_seq->second.empty())
       {

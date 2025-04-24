@@ -7,17 +7,30 @@
 
 int main()
 {
-  evstyunichev::List< pair_t > *sequences = nullptr;
+  evstyunichev::List< int > list{};
+  list.release();
+  /*
   try
   {
-    sequences = evstyunichev::form_list(std::cin);
-    evstyunichev::list_out(sequences, std::cout) << '\n';
-    delete sequences;
+    evstyunichev::List< pair_t > sequences{};
+    std::string str = "";
+    while (std::cin >> str)
+    {
+      if (isalpha(str[0]))
+      {
+        sequences.push_back({str, evstyunichev::List< size_t >{} });
+      }
+      else
+      {
+        size_t n = std::stoull(str);
+        sequences.back().second.push_back(n);
+      }
+    }
   }
   catch (const std::exception &e)
   {
     std::cerr << e.what() << '\n';
-    delete sequences;
     return 1;
   }
+  */
 }

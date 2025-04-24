@@ -14,16 +14,16 @@ namespace evstyunichev
       ListIterator(const ListIterator< T > &) = default;
       ListIterator(ListNode< T > *node);
       ~ListIterator() = default;
-      ListIterator< T > &operator=(const ListIterator< T > &) = default;
+      ListIterator< T > & operator=(const ListIterator< T > &) = default;
 
-      ListIterator< T > &operator++() noexcept;
+      ListIterator< T > & operator++() noexcept;
       ListIterator< T > operator++(int);
 
-      ListIterator< T > &operator--() noexcept;
+      ListIterator< T > & operator--() noexcept;
       ListIterator< T > operator--(int);
 
-      T &operator*();
-      T *operator->();
+      T & operator*();
+      T * operator->();
 
       bool operator!=(const ListIterator< T > &) const;
       bool operator==(const ListIterator< T > &) const;
