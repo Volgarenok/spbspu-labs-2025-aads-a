@@ -198,18 +198,22 @@ namespace evstyunichev
   template< class T >
   void List< T >::push_back(const T &data)
   {
-    ListNode< T > *cur = new ListNode< T >{ data, fake_, fake->prev };
+    ListNode< T > *cur = new ListNode< T >{ data };
     fake_->prev_->next_ = cur;
+    cur->prev_ = fake_->prev_;
     fake_->prev_ = cur;
+    cur->next_ = fake_;
     size_++;
   }
 
   template< class T >
   void List< T >::push_back(T &&data)
   {
-    ListNode< T > *cur = new ListNode< T >{ data, fake_, fake->prev };
+    ListNode< T > *cur = new ListNode< T >{ data };
     fake_->prev_->next_ = cur;
+    cur->prev_ = fake_->prev_;
     fake_->prev_ = cur;
+    cur->next_ = fake_;
     size_++;
   }
 

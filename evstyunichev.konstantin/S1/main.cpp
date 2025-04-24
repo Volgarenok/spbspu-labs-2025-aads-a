@@ -8,7 +8,6 @@
 int main()
 {
   evstyunichev::List< int > list{};
-  list.release();
   /*
   try
   {
