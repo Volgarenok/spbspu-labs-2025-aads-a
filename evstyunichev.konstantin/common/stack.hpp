@@ -3,27 +3,50 @@
 #include <cassert>
 #include <cmath>
 #include <cstddef>
+#include <stdexcept>
 namespace evstyunichev
 {
+  namespace
+  {
+    template< class T >
+    void copy_arr(const T *prev, T *cur, size_t sz);
+
+    template< class T >
+    void copy_arr(const T *prev, T *cur, size_t sz)
+    {
+      for (size_t i = 0; i < sz; i++)
+      {
+        cur[i] = prev[i];
+      }
+    }
+  }
+
   template< class T >
   class Stack
   {
+      template< class U >
+      friend void swap(Stack< U > &a, Stack< U > &b);
     public:
       Stack();
+      Stack(const Stack< T > &lhs);
+      Stack(Stack< T > &&rhs) noexcept;
       ~Stack();
+      Stack< T > & operator=(const Stack< T > &lhs);
+      Stack< T > & operator=(Stack< T > &&rhs);
       T & top() const;
       bool empty() const;
       void push(const T &value);
       void push(T &&value);
       void pop();
       size_t size();
+
     private:
       T *data_;
       size_t size_;
       size_t capasity_;
       void clear();
       void resize(size_t);
-
+      void release();
   };
 
   template< class T >
@@ -54,14 +77,20 @@ namespace evstyunichev
   template< class T >
   void Stack< T >::resize(size_t new_sz)
   {
-    T *temp = new T[new_sz];
-    for (size_t i = 0; i < std::min(size_, new_sz); i++)
+    T *temp = nullptr;
+    try
     {
-      temp[i] = data_[i];
+      T *temp = new T[new_sz];
+      copy_arr(data_, temp, std::min(new_sz, capasity_));
+      delete[] data_;
+      data_ = temp;
+      capasity_ = new_sz;
     }
-    delete[] data_;
-    data_ = temp;
-    capasity_ = new_sz;
+    catch (const std::exception &e)
+    {
+      delete[] temp;
+      throw;
+    }
   }
 
   template< class T >
@@ -102,6 +131,81 @@ namespace evstyunichev
   size_t Stack< T >::size()
   {
     return size_;
+  }
+
+  template< class T >
+  void Stack< T >::release()
+  {
+    data_ = nullptr;
+    size_ = 0;
+    capasity_ = 0;
+  }
+
+  template< class T >
+  Stack< T >::Stack(const Stack< T > &lhs):
+    data_(nullptr),
+    size_(lhs.size_),
+    capasity_(lhs.capasity_)
+  {
+    T *temp = nullptr;
+    try
+    {
+      T *temp = new T[lhs.capasity_];
+      copy_arr(lhs.data_, temp, lhs.size_);
+      data_ = temp;
+    }
+    catch (const std::exception &e)
+    {
+      delete[] temp;
+      throw;
+    }
+  }
+
+  template< class T >
+  Stack< T >::Stack(Stack< T > &&rhs) noexcept:
+    data_(rhs.data_),
+    size_(rhs.size_),
+    capasity_(rhs.capasity_)
+  {
+    rhs.release();
+  }
+
+  template< class T >
+  Stack< T > & Stack< T >::operator=(const Stack < T > &lhs)
+  {
+    clear();
+    T *temp = nullptr;
+    try
+    {
+      temp = new T[lhs.capasity_];
+      copy_arr(lhs.data_, temp, lhs.size_);
+      size_ = lhs.size_;
+      capasity_ = lhs.capasity_;
+      data_ = temp;
+    }
+    catch(const std::exception& e)
+    {
+      delete[] temp;
+      throw;
+    }
+    return *this;
+  }
+
+  template< class T >
+  Stack< T > & Stack< T >::operator=(Stack < T > &&rhs)
+  {
+    clear();
+    release();
+    swap(*this, rhs);
+    return *this;
+  }
+
+  template< class T, class U >
+  void swap(Stack< U > &a, Stack< U > &b)
+  {
+    swap(a.data_, b.data_);
+    swap(a.size_, b.size_);
+    swap(a.capasity_, b.capasity_);
   }
 
 }
