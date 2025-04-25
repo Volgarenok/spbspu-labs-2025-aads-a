@@ -1,7 +1,6 @@
 #ifndef STACK_HPP
 #define STACK_HPP
 #include <cassert>
-#include <cmath>
 #include <cstddef>
 #include <stdexcept>
 namespace evstyunichev
@@ -43,7 +42,7 @@ namespace evstyunichev
     private:
       T *data_;
       size_t size_;
-      size_t capasity_;
+      size_t capacity;
       void clear();
       void resize(size_t);
       void release();
@@ -65,6 +64,7 @@ namespace evstyunichev
   template< class T >
   void Stack< T >::pop()
   {
+    assert(!empty());
     --size_;
   }
 
@@ -81,10 +81,10 @@ namespace evstyunichev
     try
     {
       T *temp = new T[new_sz];
-      copy_arr(data_, temp, std::min(new_sz, capasity_));
+      copy_arr(data_, temp, size_);
       delete[] data_;
       data_ = temp;
-      capasity_ = new_sz;
+      capacity = new_sz;
     }
     catch (const std::exception &e)
     {
@@ -96,9 +96,9 @@ namespace evstyunichev
   template< class T >
   void Stack< T >::push(const T &value)
   {
-    if (size_ == capasity_)
+    if (size_ == capacity)
     {
-      resize(capasity_ * 2);
+      resize(capacity * 2);
     }
     data_[size_++] = value;
   }
@@ -106,9 +106,9 @@ namespace evstyunichev
   template< class T >
   void Stack< T >::push(T &&value)
   {
-    if (size_ >= capasity_)
+    if (size_ >= capacity)
     {
-      resize(capasity_ * 2);
+      resize(capacity * 2);
     }
     data_[size_++] = value;
   }
@@ -117,7 +117,7 @@ namespace evstyunichev
   Stack< T >::Stack():
     data_(new T[4]),
     size_(0),
-    capasity_(4)
+    capacity(4)
   {
   }
 
@@ -138,19 +138,19 @@ namespace evstyunichev
   {
     data_ = nullptr;
     size_ = 0;
-    capasity_ = 0;
+    capacity = 0;
   }
 
   template< class T >
   Stack< T >::Stack(const Stack< T > &lhs):
     data_(nullptr),
     size_(lhs.size_),
-    capasity_(lhs.capasity_)
+    capacity(lhs.capacity)
   {
     T *temp = nullptr;
     try
     {
-      T *temp = new T[lhs.capasity_];
+      T *temp = new T[lhs.capacity];
       copy_arr(lhs.data_, temp, lhs.size_);
       data_ = temp;
     }
@@ -165,7 +165,7 @@ namespace evstyunichev
   Stack< T >::Stack(Stack< T > &&rhs) noexcept:
     data_(rhs.data_),
     size_(rhs.size_),
-    capasity_(rhs.capasity_)
+    capacity(rhs.capacity)
   {
     rhs.release();
   }
@@ -177,13 +177,13 @@ namespace evstyunichev
     T *temp = nullptr;
     try
     {
-      temp = new T[lhs.capasity_];
+      temp = new T[lhs.capacity];
       copy_arr(lhs.data_, temp, lhs.size_);
       size_ = lhs.size_;
-      capasity_ = lhs.capasity_;
+      capacity = lhs.capacity;
       data_ = temp;
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
       delete[] temp;
       throw;
@@ -205,7 +205,7 @@ namespace evstyunichev
   {
     swap(a.data_, b.data_);
     swap(a.size_, b.size_);
-    swap(a.capasity_, b.capasity_);
+    swap(a.capacity, b.capacity);
   }
 
 }
