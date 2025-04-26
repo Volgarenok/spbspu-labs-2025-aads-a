@@ -24,7 +24,7 @@ namespace aleksandrov
 
     ConstIterator< Key, Value, Compare > begin() const noexcept;
     ConstIterator< Key, Value, Compare > end() const noexcept;
-    
+
     void clear(detail::Node< Key, Value >*) noexcept;
     void swap(Tree< Key, Value, Compare >&) noexcept;
 
@@ -89,7 +89,7 @@ namespace aleksandrov
     }
     return newNode;
   }
-  
+
   template< typename Key, typename Value, typename Compare >
   Tree< Key, Value, Compare >::Tree(Tree< Key, Value, Compare >&& rhs) noexcept:
     root_(std::move(rhs.root_)),
@@ -99,7 +99,7 @@ namespace aleksandrov
     rhs.root_ = nullptr;
     rhs.size_ = 0;
   }
-  
+
   template< typename Key, typename Value, typename Compare >
   Tree< Key, Value, Compare >::~Tree()
   {
@@ -181,7 +181,7 @@ namespace aleksandrov
       throw std::out_of_range("There is no such key!");
     }
   }
-    
+
   template< typename Key, typename Value, typename Compare >
   Value& Tree< Key, Value, Compare >::operator[](const Key& key)
   {
@@ -210,19 +210,19 @@ namespace aleksandrov
       else if (node->isTriple())
       {
         if (cmp_(key, node->data[1].first))
-	{
+        {
           node = node->middle;
-	}
-	else if (!cmp_(node->data[1].first, key) && !cmp_(key, node->data[1].first))
-	{
-	  Node* tmp = node;
-	  tmp->pos_ = ConstIterator< Key, Value, Compare >::PointsTo::Right;
+        }
+        else if (!cmp_(node->data[1].first, key) && !cmp_(key, node->data[1].first))
+        {
+          Node* tmp = node;
+          tmp->pos_ = ConstIterator< Key, Value, Compare >::PointsTo::Right;
           return ConstIterator< Key, Value, Compare >(tmp);
-	}
-	else
-	{
+        }
+        else
+        {
           node = node->right;
-	}
+        }
       }
       else
       {
