@@ -1,5 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
+#include <queue>
+#include "expression_transform.hpp"
 #include "../common/stack.hpp"
 #include "../common/queue.hpp"
 
@@ -127,6 +129,17 @@ BOOST_AUTO_TEST_CASE(advanced_stack_in_stack)
   BOOST_CHECK(ss.str() == "3 10 3 11");
 }
 
+BOOST_AUTO_TEST_CASE(stack_of_Unit)
+{
+  using evstyunichev::Unit;
+  using my_stack_u = evstyunichev::Stack< Unit >;
+  std::stringstream ss;
+  my_stack_u su{};
+  Unit u{ 12, 1 };
+  su.push(u);
+  BOOST_TEST(su.top().value == 12);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(queue_tests)
@@ -223,6 +236,17 @@ BOOST_AUTO_TEST_CASE(advanced_queue_in_queue)
     out_queue(q1.front(), ss);
   }
   BOOST_CHECK(ss.str() == "11 3 10 3");
+}
+
+BOOST_AUTO_TEST_CASE(queue_of_Unit)
+{
+  using evstyunichev::Unit;
+  using my_queue_u = evstyunichev::Queue< Unit >;
+  std::stringstream ss;
+  my_queue_u qu{};
+  Unit u{ 12, 1 };
+  qu.push(u);
+  BOOST_TEST(qu.front().value == 12);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

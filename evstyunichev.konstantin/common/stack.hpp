@@ -42,7 +42,7 @@ namespace evstyunichev
     private:
       T *data_;
       size_t size_;
-      size_t capacity;
+      size_t capacity_;
       void clear();
       void resize(size_t);
       void release();
@@ -84,7 +84,7 @@ namespace evstyunichev
       copy_arr(data_, temp, size_);
       delete[] data_;
       data_ = temp;
-      capacity = new_sz;
+      capacity_ = new_sz;
     }
     catch (const std::exception &e)
     {
@@ -96,9 +96,9 @@ namespace evstyunichev
   template< class T >
   void Stack< T >::push(const T &value)
   {
-    if (size_ == capacity)
+    if (size_ == capacity_)
     {
-      resize(capacity * 2);
+      resize(capacity_ * 2);
     }
     data_[size_++] = value;
   }
@@ -106,9 +106,9 @@ namespace evstyunichev
   template< class T >
   void Stack< T >::push(T &&value)
   {
-    if (size_ >= capacity)
+    if (size_ == capacity_)
     {
-      resize(capacity * 2);
+      resize(capacity_ * 2);
     }
     data_[size_++] = value;
   }
@@ -117,7 +117,7 @@ namespace evstyunichev
   Stack< T >::Stack():
     data_(new T[4]),
     size_(0),
-    capacity(4)
+    capacity_(4)
   {
   }
 
@@ -138,19 +138,19 @@ namespace evstyunichev
   {
     data_ = nullptr;
     size_ = 0;
-    capacity = 0;
+    capacity_ = 0;
   }
 
   template< class T >
   Stack< T >::Stack(const Stack< T > &lhs):
     data_(nullptr),
     size_(lhs.size_),
-    capacity(lhs.capacity)
+    capacity_(lhs.capacity_)
   {
     T *temp = nullptr;
     try
     {
-      T *temp = new T[lhs.capacity];
+      T *temp = new T[lhs.capacity_];
       copy_arr(lhs.data_, temp, lhs.size_);
       data_ = temp;
     }
@@ -165,7 +165,7 @@ namespace evstyunichev
   Stack< T >::Stack(Stack< T > &&rhs) noexcept:
     data_(rhs.data_),
     size_(rhs.size_),
-    capacity(rhs.capacity)
+    capacity_(rhs.capacity_)
   {
     rhs.release();
   }
@@ -177,10 +177,10 @@ namespace evstyunichev
     T *temp = nullptr;
     try
     {
-      temp = new T[lhs.capacity];
+      temp = new T[lhs.capacity_];
       copy_arr(lhs.data_, temp, lhs.size_);
       size_ = lhs.size_;
-      capacity = lhs.capacity;
+      capacity_ = lhs.capacity_;
       data_ = temp;
     }
     catch (const std::exception &e)
@@ -205,7 +205,7 @@ namespace evstyunichev
   {
     swap(a.data_, b.data_);
     swap(a.size_, b.size_);
-    swap(a.capacity, b.capacity);
+    swap(a.capacity_, b.capacity_);
   }
 
 }

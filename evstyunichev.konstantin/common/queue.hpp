@@ -46,7 +46,7 @@ namespace evstyunichev
       size_t begin_;
       size_t capacity_;
       void clear();
-      void resize(size_t);
+      void resize(size_t new_sz);
       void release();
   };
 
@@ -82,6 +82,7 @@ namespace evstyunichev
   void Queue< T >::clear()
   {
     delete[] data_;
+    release();
   }
 
   template< class T >
@@ -111,23 +112,24 @@ namespace evstyunichev
     {
       resize(capacity_ * 2);
     }
-    data_[(size_++ + begin_) % capacity_] = value;
+    data_[(begin_ + size_++) % capacity_] = value;
   }
 
   template< class T >
   void Queue< T >::push(T &&value)
   {
-    if (size_ >= capacity_)
+    if (size_ == capacity_)
     {
       resize(capacity_ * 2);
     }
-    data_[(size_++ + begin_) % capacity_] = value;
+    data_[(begin_ + size_++) % capacity_] = value;
   }
 
   template< class T >
   Queue< T >::Queue():
     data_(new T[4]),
     size_(0),
+    begin_(0),
     capacity_(4)
   {
   }
@@ -149,6 +151,7 @@ namespace evstyunichev
   {
     data_ = nullptr;
     size_ = 0;
+    begin_ = 0;
     capacity_ = 0;
   }
 
