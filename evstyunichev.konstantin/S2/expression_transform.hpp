@@ -7,16 +7,16 @@ namespace evstyunichev
 {
   struct Unit
   {
-    int value;
+    long long value;
     bool is_num;
   };
 
   int operand_priory(Unit &a);
   bool comp_operand(Unit &a, Unit &b);
-  int result(std::string &s);
+  long long result(std::string &s);
   Unit cast_to_unit(std::string &&s);
   void proceed(Unit &&a, Stack< Unit > &st, Queue< Unit > &qq);
   char utoc(Unit &a);
-  int calculate(Unit &a, Unit &b, Unit &op);
+  long long calculate(Unit &a, Unit &b, Unit &op);
 }
 #endif

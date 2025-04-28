@@ -39,6 +39,11 @@ void evstyunichev::proceed(Unit &&a, Stack< Unit > &st, Queue< Unit > &qq)
     st.pop();
     return;
   }
+  else if (a.value == '(')
+  {
+    st.push(a);
+    return;
+  }
   while (!st.empty() && !comp_operand(st.top(), a))
   {
     qq.push(st.top());
@@ -94,10 +99,10 @@ evstyunichev::Unit evstyunichev::cast_to_unit(std::string &&s)
       return Unit{ c, 0 };
     }
   }
-  return Unit{ std::stoi(s), 1 };
+  return Unit{ std::stoll(s), 1 };
 }
 
-int evstyunichev::result(std::string &str)
+long long evstyunichev::result(std::string &str)
 {
   using my_stack = evstyunichev::Stack< Unit >;
   using my_queue = evstyunichev::Queue< Unit >;
@@ -151,7 +156,7 @@ int evstyunichev::result(std::string &str)
   return 0;
 }
 
-int evstyunichev::calculate(Unit &a, Unit &b, Unit &op)
+long long evstyunichev::calculate(Unit &a, Unit &b, Unit &op)
 {
   if (!a.is_num || !b.is_num)
   {
@@ -166,6 +171,8 @@ int evstyunichev::calculate(Unit &a, Unit &b, Unit &op)
   case ('*'):
     return a.value * b.value;
   case ('/'):
+    return a.value / b.value;
+  case ('%'):
     return a.value / b.value;
   case ('|'):
     return a.value | b.value;
