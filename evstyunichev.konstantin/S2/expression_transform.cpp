@@ -114,7 +114,7 @@ long long evstyunichev::result(std::string &str)
     proceed(cast_to_unit(str.substr(start, end - start)), st, qq);
     start = end + 1;
   }
-  if (start)
+  if (end)
   {
     proceed(cast_to_unit(str.substr(start, end - start)), st, qq);
   }
@@ -148,7 +148,7 @@ long long evstyunichev::result(std::string &str)
     }
     qq.pop();
   }
-  if (st.size() > 1)
+  if (st.size() > 1 || st.empty())
   {
     throw std::logic_error("bad expr");
   }
@@ -173,7 +173,7 @@ long long evstyunichev::calculate(Unit &a, Unit &b, Unit &op)
   case ('/'):
     return a.value / b.value;
   case ('%'):
-    return a.value / b.value;
+    return a.value % b.value;
   case ('|'):
     return a.value | b.value;
   default:

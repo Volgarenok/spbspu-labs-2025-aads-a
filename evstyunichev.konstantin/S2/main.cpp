@@ -1,21 +1,22 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include "expression_transform.hpp"
 
-int main()
+int main(int argc, char *argv[])
 {
   std::string str;
-  while (std::getline(std::cin, str, '\n'))
+  evstyunichev::Queue< long long > result{};
+  std::ifstream fin{};
+  if (argc == 2)
+  {
+    fin = std::ifstream{ argv[1] };
+  }
+  while (((argc == 2) ? std::getline(fin, str, '\n') : std::getline(std::cin, str, '\n')))
   {
     try
     {
-      int res = evstyunichev::result(str);
-      std::cout << res << '\n';
-    }
-    catch (const std::logic_error &e)
-    {
-      std::cerr << e.what() << '\n';
-      continue;
+      result.push(evstyunichev::result(str));
     }
     catch (const std::exception &e)
     {
@@ -23,5 +24,17 @@ int main()
       return 2;
     }
   }
+  if (result.empty())
+  {
+    std::cerr << "!empty\n";
+    return 1;
+  }
+  std::cout << result.front();
+  while (result.size() > 1)
+  {
+    result.pop();
+    std::cout << ' ' << result.front();
+  }
+  std::cout << '\n';
   return 0;
 }
