@@ -6,7 +6,8 @@ BOOST_AUTO_TEST_SUITE(main_tests)
 
 BOOST_AUTO_TEST_CASE(construct_test)
 {
-  evstyunichev::List< int > list1{};
+  using list_ull = evstyunichev::List< size_t >;
+  list_ull list1{}, list2{ list1 };
 }
 
 BOOST_AUTO_TEST_CASE(push_back_test)

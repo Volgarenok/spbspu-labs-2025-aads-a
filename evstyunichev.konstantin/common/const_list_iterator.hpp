@@ -6,7 +6,7 @@
 
 namespace evstyunichev
 {
-  template< typename T >
+  template< class T >
   class ConstListIterator
   {
     public:
@@ -14,16 +14,16 @@ namespace evstyunichev
       ConstListIterator(const ConstListIterator< T > &) = default;
       ConstListIterator(const ListNode< T > *node);
       ~ConstListIterator() = default;
-      ConstListIterator< T > &operator=(const ConstListIterator< T > &) = default;
+      ConstListIterator< T > & operator=(const ConstListIterator< T > &) = default;
 
-      ConstListIterator< T > &operator++() noexcept;
+      ConstListIterator< T > & operator++() noexcept;
       ConstListIterator< T > operator++(int);
 
-      ConstListIterator< T > &operator--() noexcept;
+      ConstListIterator< T > & operator--() noexcept;
       ConstListIterator< T > operator--(int);
 
-      const T &operator*();
-      const T *operator->();
+      const T & operator*();
+      const T * operator->();
 
       bool operator!=(const ConstListIterator< T > &) const;
       bool operator==(const ConstListIterator< T > &) const;

@@ -69,14 +69,17 @@ namespace evstyunichev
   }
 
   template< class T >
-  List< T >::List(const List< T > &rhs):
-    fake_(T{}),
+  List< T >::List(const List< T > &lhs):
+    fake_(new ListNode< T >{}),
     size_(0)
   {
-    for (auto cur = rhs.cbegin(); cur != rhs.cend(); ++cur)
+    if (!lhs.empty())
     {
-      push_back(*cur);
-      size_++;
+      for (auto cur = lhs.cbegin(); cur != lhs.cend(); ++cur)
+      {
+        push_back(*cur);
+        size_++;
+      }
     }
   }
 
@@ -89,12 +92,12 @@ namespace evstyunichev
   }
 
   template< class T >
-  List< T > & List<T>::operator=(const List< T > &rhs)
+  List< T > & List<T>::operator=(const List< T > &lhs)
   {
     clear();
     size_ = 0;
-    fake_ = ListNode< T >(T{});
-    for (auto cur = rhs.cbegin(); cur != rhs.cend(); ++cur)
+    fake_ = new ListNode< T >{};
+    for (auto cur = lhs.cbegin(); cur != lhs.cend(); ++cur)
     {
       push_back(*cur);
       size_++;
@@ -127,20 +130,12 @@ namespace evstyunichev
   template< class T >
   ListNode< T > * List< T >::head() const
   {
-    if (empty())
-    {
-      throw std::out_of_range("list is empty");
-    }
     return fake_->next_;
   }
 
   template< class T >
   ListNode< T > * List< T >::tail() const
   {
-    if (empty())
-    {
-      throw std::out_of_range("list is empty");
-    }
     return fake_->prev_;
   }
 
@@ -149,7 +144,7 @@ namespace evstyunichev
   {
     if (empty())
     {
-      throw std::out_of_range("list is empty");
+      throw std::out_of_range("list is empty front");
     }
     return head()->data_;
   }
@@ -159,19 +154,16 @@ namespace evstyunichev
   {
     if (empty())
     {
-      throw std::out_of_range("list is empty");
+      throw std::out_of_range("list is empty back");
     }
     return tail()->data_;
   }
 
   template< class T >
   List< T >::List():
-    fake_(T{}),
+    fake_(new ListNode< T >{}),
     size_(0)
-  {
-    fake_->next_ = fake_;
-    fake_->prev_ = fake_;
-  }
+  {}
 
   template< class T >
   void List< T >::push_front(const T &data)
@@ -222,7 +214,7 @@ namespace evstyunichev
   {
     if (empty())
     {
-      throw std::logic_error("list is empty");
+      throw std::logic_error("list is empty pop_back");
     }
     ListNode< T > *cur = tail();
     cur->prev_->next_ = fake_;
@@ -236,7 +228,7 @@ namespace evstyunichev
   {
     if (empty())
     {
-      throw std::logic_error("list is empty");
+      throw std::logic_error("list is empty pop_front");
     }
     ListNode< T > *cur = head();
     cur->next_->prev_ = fake_;
@@ -250,7 +242,7 @@ namespace evstyunichev
   {
     if (empty())
     {
-      throw std::logic_error("list is empty");
+      throw std::logic_error("list is empty out");
     }
     ListNode< T > *cur = fake_->next_;
     out << cur->data_;
@@ -274,7 +266,6 @@ namespace evstyunichev
   {
     return ListIterator< T >{ fake_ };
   }
-
 
   template< class T >
   ConstListIterator< T > List< T >::cbegin() const
