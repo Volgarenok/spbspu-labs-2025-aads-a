@@ -1,4 +1,4 @@
-#include "math_opserations.hpp"
+#include "math_operations.hpp"
 #include <cmath>
 #include <stdexcept>
 

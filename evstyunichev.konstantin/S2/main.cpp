@@ -28,16 +28,14 @@ int main(int argc, char *argv[])
       return 2;
     }
   }
-  if (result.empty())
+  if (!result.empty())
   {
-    std::cerr << "!empty\n";
-    return 1;
-  }
-  std::cout << result.top();
-  while (result.size() > 1)
-  {
-    result.pop();
-    std::cout << ' ' << result.top();
+    std::cout << result.top();
+    while (result.size() > 1)
+    {
+      result.pop();
+      std::cout << ' ' << result.top();
+    }
   }
   std::cout << '\n';
   return 0;

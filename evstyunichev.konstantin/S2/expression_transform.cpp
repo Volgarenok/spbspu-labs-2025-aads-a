@@ -4,7 +4,7 @@
 #include <utility>
 #include "../common/stack.hpp"
 #include "../common/queue.hpp"
-#include "math_opserations.hpp"
+#include "math_operations.hpp"
 
 char evstyunichev::utoc(Unit &a)
 {
