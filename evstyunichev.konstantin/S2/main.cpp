@@ -6,7 +6,7 @@
 int main(int argc, char *argv[])
 {
   std::string str;
-  evstyunichev::Queue< long long > result{};
+  evstyunichev::Stack< long long > result{};
   std::ifstream fin{};
   if (argc == 2)
   {
@@ -16,6 +16,10 @@ int main(int argc, char *argv[])
   {
     try
     {
+      if (str == "")
+      {
+        continue;
+      }
       result.push(evstyunichev::result(str));
     }
     catch (const std::exception &e)
@@ -29,11 +33,11 @@ int main(int argc, char *argv[])
     std::cerr << "!empty\n";
     return 1;
   }
-  std::cout << result.front();
+  std::cout << result.top();
   while (result.size() > 1)
   {
     result.pop();
-    std::cout << ' ' << result.front();
+    std::cout << ' ' << result.top();
   }
   std::cout << '\n';
   return 0;

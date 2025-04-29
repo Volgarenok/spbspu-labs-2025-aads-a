@@ -1,8 +1,10 @@
 #include "expression_transform.hpp"
 #include <iostream>
 #include <string>
+#include <utility>
 #include "../common/stack.hpp"
 #include "../common/queue.hpp"
+#include "math_opserations.hpp"
 
 char evstyunichev::utoc(Unit &a)
 {
@@ -114,9 +116,9 @@ long long evstyunichev::result(std::string &str)
     proceed(cast_to_unit(str.substr(start, end - start)), st, qq);
     start = end + 1;
   }
-  if (end)
+  if (str != "")
   {
-    proceed(cast_to_unit(str.substr(start, end - start)), st, qq);
+    proceed(cast_to_unit(str.substr(start, str.size() - start)), st, qq);
   }
   while (!st.empty())
   {
@@ -165,17 +167,17 @@ long long evstyunichev::calculate(Unit &a, Unit &b, Unit &op)
   switch (op.value)
   {
   case ('-'):
-    return a.value - b.value;
+    return summ(a.value, b.value, 1);
   case ('+'):
-    return a.value + b.value;
+    return summ(a.value, b.value);
   case ('*'):
-    return a.value * b.value;
+    return multipling(a.value, b.value);
   case ('/'):
-    return a.value / b.value;
+    return division(a.value, b.value);
   case ('%'):
-    return a.value % b.value;
+    return modul(a.value, b.value);;
   case ('|'):
-    return a.value | b.value;
+    return concatinate(a.value, b.value);
   default:
     throw std::logic_error("hm");
   }
