@@ -1,5 +1,6 @@
 #include "math_operations.hpp"
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 
 long long evstyunichev::summ(long long a, long long b, bool is_negative)
@@ -46,7 +47,7 @@ long long evstyunichev::multipling(long long a, long long b)
   {
     std::swap(a, b);
   }
-  if (((a / b < 0) && (Minll / b < a)) || ((a / b > 0) && (std::abs(Maxll / a) < b)))
+  if (((a / b <= 0) && (Minll / b < a)) || ((a / b >= 0) && (std::abs(Maxll / a) < b)))
   {
     throw std::logic_error("mul");
   }
@@ -55,6 +56,10 @@ long long evstyunichev::multipling(long long a, long long b)
 
 long long evstyunichev::modul(long long a, long long b)
 {
+  if (b == 0)
+  {
+    throw std::logic_error("by mod 0");
+  }
   long long ans = a % b;
   if (ans < 0)
   {
