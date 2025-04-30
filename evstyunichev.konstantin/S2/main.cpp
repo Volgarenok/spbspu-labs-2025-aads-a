@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include "expression_transform.hpp"
+#include "../common/stack.hpp"
 
 int main(int argc, char *argv[])
 {

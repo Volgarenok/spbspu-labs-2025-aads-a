@@ -49,7 +49,7 @@ long long evstyunichev::multipling(long long a, long long b)
   }
   if (((a / b <= 0) && (Minll / b < a)) || ((a / b >= 0) && (std::abs(Maxll / a) < b)))
   {
-    throw std::logic_error("mul");
+    throw std::overflow_error("mul");
   }
   return a * b;
 }
@@ -83,6 +83,6 @@ long long evstyunichev::concatinate(long long a, long long b)
   {
     k *= 10;
   }
-  while (b < k);
+  while (b >= k);
   return summ(multipling(a, k), b);
 }
