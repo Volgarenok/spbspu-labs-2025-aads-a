@@ -8,6 +8,7 @@
 
 int main()
 {
+  using pair_t = std::pair< std::string, evstyunichev::List< size_t> >;
   evstyunichev::List< int > list{};
   try
   {

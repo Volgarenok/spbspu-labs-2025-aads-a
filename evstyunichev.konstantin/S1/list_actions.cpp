@@ -11,15 +11,11 @@ namespace
   bool summ_overflow(size_t a, size_t b)
   {
     size_t n = std::numeric_limits< size_t >::max();
-    if (n - a < b)
-    {
-      return 1;
-    }
-    return 0;
+    return (n - a < b);
   }
 }
 
-std::ostream & evstyunichev::list_out(evstyunichev::List< pair_t > &sequences, std::ostream &out)
+std::ostream & evstyunichev::list_out(const List< pair_t > &sequences, std::ostream &out)
 {
   bool overflow_flag = false;
   if (sequences.empty())
@@ -27,40 +23,46 @@ std::ostream & evstyunichev::list_out(evstyunichev::List< pair_t > &sequences, s
     out << "0";
     return out;
   }
-  evstyunichev::List< size_t > summ{};
-  auto iter_seq = sequences.begin();
+  List< size_t > summ{};
+  List< ConstListIterator< size_t > > iters{};
+  auto iter_seq = sequences.cbegin();
+  iters.push_back(iter_seq->second.cbegin());
   size_t mx = iter_seq->second.size();
   out << (iter_seq++)->first;
-  for (; iter_seq != sequences.end(); ++iter_seq)
+  for (; iter_seq != sequences.cend(); ++iter_seq)
   {
     out << ' ' << iter_seq->first;
     mx = std::max(mx, iter_seq->second.size());
+    iters.push_back(iter_seq->second.cbegin());
   }
-  if (!mx && !overflow_flag)
+  if (!mx)
   {
     out << '\n';
     summ.push_back(0);
   }
   for (size_t i = 0; i < mx; i++)
   {
-    auto iter_seq = sequences.begin();
+    auto iter_seq = sequences.cbegin();
+    auto it_iters = iters.begin();
     out << '\n';
-    for (; iter_seq->second.empty(); ++iter_seq);
-    size_t num = iter_seq->second.front();
-    iter_seq->second.pop_front();
+    for (; *it_iters == iter_seq->second.cend(); ++it_iters, ++iter_seq);
+    size_t num = **it_iters;
     out << num;
     if (!overflow_flag)
     {
       summ.push_back(num);
     }
     ++iter_seq;
-    for (; iter_seq != sequences.end(); ++iter_seq)
+    ++(*it_iters);
+    ++it_iters;
+    for (; iter_seq != sequences.cend(); ++iter_seq, ++it_iters)
     {
-      if (iter_seq->second.empty())
+      if (*it_iters == iter_seq->second.cend())
       {
         continue;
       }
-      size_t num = iter_seq->second.front();
+      size_t num = **it_iters;
+      ++(*it_iters);
       out << ' ' << num;
       if (!overflow_flag)
       {
@@ -73,7 +75,6 @@ std::ostream & evstyunichev::list_out(evstyunichev::List< pair_t > &sequences, s
           overflow_flag = 1;
         }
       }
-      iter_seq->second.pop_front();
     }
   }
   if (!overflow_flag)

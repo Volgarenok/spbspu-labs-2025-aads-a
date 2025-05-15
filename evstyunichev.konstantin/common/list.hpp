@@ -5,44 +5,72 @@
 #include <sstream>
 #include <utility>
 #include "const_list_iterator.hpp"
-#include "list_node.hpp"
 #include "list_iterator.hpp"
+#include "list_node.hpp"
 namespace evstyunichev
 {
+  template< class T >
+  using cIter = ConstListIterator< T >;
+  template< class T >
+  using Iter = ListIterator< T >;
+  template< class T >
+  using Node = ListNode< T >;
   template< class T >
   class List
   {
     public:
       List();
       ~List();
-      List(const List< T > &);
-      List(List< T > &&);
-      List< T > & operator=(const List< T > &);
-      List< T > & operator=(List< T > &&);
-      void clear();
-      ListNode< T > * head() const;
-      ListNode< T > * tail() const;
-      void push_back(const T &);
-      void push_back(T &&);
-      void push_front(const T &);
-      void push_front(T &&);
-      size_t size();
-      bool empty() const noexcept;
-      T & front();
-      T & back();
-      void pop_back();
-      void pop_front();
+      List(const List< T > &lhs);
+      List(List< T > &&rhs);
+      List(size_t size, const T &value);
+      List(size_t size, T &&value);
 
       ListIterator< T > begin();
       ListIterator< T > end();
-      ConstListIterator< T > cbegin() const;
-      ConstListIterator< T > cend() const;
+      cIter< T > cbegin() const;
+      cIter< T > cend() const;
+
+      T & front();
+      T & back();
+
+      const T & front() const;
+      const T & back() const;
+
+      void clear();
+      void swap(List< T > &list2);
+      void push_back(const T &value);
+      void push_back(T &&value);
+      void push_front(const T &value);
+      void push_front(T &&value);
+      void pop_back();
+      void pop_front();
+
+      size_t size() const noexcept;
+      bool empty() const noexcept;
+
+      void splice(Iter< T > pos, List< T > &l_list);
+      void splice(Iter< T > pos, List< T > &&r_list);
+      void splice(Iter< T > pos, List< T > &l_list, Iter< T > it);
+      void splice(Iter< T > pos, List< T > &&r_list, Iter< T > it);
+      void splice(Iter< T > pos, List< T > &l_list, Iter< T > first, Iter< T > last);
+      void splice(Iter< T > pos, List< T > &&r_list, Iter< T > first, Iter< T > last);
+
+      void remove(const T &value);
+      template < class Predicate >
+      void remove_if(Predicate pred) noexcept;
+      void assign(size_t size, const T &value);
+
       std::stringstream & out(std::stringstream &out);
 
     private:
       ListNode< T > *fake_;
       size_t size_;
+      ListNode< T > * head() const;
+      ListNode< T > * tail() const;
       void release();
+      void my_splice(Iter< T > pos, Iter< T > first, Iter< T > last);
+      Iter< T > erase(Iter< T > pos); 
   };
 
   template< class T >
@@ -59,18 +87,18 @@ namespace evstyunichev
     {
       pop_back();
     }
-    delete fake_;
   }
 
   template< class T >
   List< T >::~List()
   {
     clear();
+    delete fake_;
   }
 
   template< class T >
   List< T >::List(const List< T > &lhs):
-    fake_(new ListNode< T >{}),
+    fake_(new Node< T >{}),
     size_(0)
   {
     if (!lhs.empty())
@@ -92,31 +120,36 @@ namespace evstyunichev
   }
 
   template< class T >
-  List< T > & List<T>::operator=(const List< T > &lhs)
+  List< T >::List(size_t size, const T &value):
+    fake_(new Node< T >{}),
+    size_(0)
   {
-    clear();
-    size_ = 0;
-    fake_ = new ListNode< T >{};
-    for (auto cur = lhs.cbegin(); cur != lhs.cend(); ++cur)
+    for (; size; size--)
     {
-      push_back(*cur);
-      size_++;
+      push_back(value);
     }
-    return *this;
   }
 
   template< class T >
-  List< T > & List<T>::operator=(List< T > &&rhs)
+  List< T >::List(size_t size, T &&value):
+    fake_(new Node< T >{}),
+    size_(0)
   {
-    clear();
-    fake_ = rhs.fake_;
-    size_ = rhs.size();
-    rhs.release();
-    return *this;
+    for (; size; size--)
+    {
+      push_back(value);
+    }
   }
 
   template< class T >
-  size_t List< T >::size()
+  void List<T>::swap(List< T > &list2)
+  {
+    std::swap(fake_, list2.fake_);
+    std::swap(size_, list2.size_);
+  }
+
+  template< class T >
+  size_t List< T >::size() const noexcept
   {
     return size_;
   }
@@ -151,6 +184,26 @@ namespace evstyunichev
 
   template< class T >
   T & List< T >::back()
+  {
+    if (empty())
+    {
+      throw std::out_of_range("list is empty back");
+    }
+    return tail()->data_;
+  }
+
+  template< class T >
+  const T & List< T >::front() const
+  {
+    if (empty())
+    {
+      throw std::out_of_range("list is empty front");
+    }
+    return head()->data_;
+  }
+
+  template< class T >
+  const T & List< T >::back() const
   {
     if (empty())
     {
@@ -277,6 +330,154 @@ namespace evstyunichev
   ConstListIterator< T > List< T >::cend() const
   {
     return ConstListIterator< T >{ fake_ };
+  }
+
+  template< class T >
+  void List< T >::splice(Iter< T > pos, List< T > &l_list)
+  {
+    if (l_list.empty())
+    {
+      return;
+    }
+    my_splice(pos, l_list.begin(), l_list.end());
+    size_ += l_list.size();
+    l_list.size_ = 0;
+    return;
+  }
+
+  template< class T >
+  void List< T >::splice(Iter< T > pos, List< T > &&r_list)
+  {
+    if (r_list.empty())
+    {
+      return;
+    }
+    my_splice(pos, r_list.begin(), r_list.end());
+    size_ += r_list.size();
+    r_list.size_ = 0;
+    return;
+  }
+
+  template< class T >
+  void List< T >::splice(Iter< T > pos, List< T > &l_list, Iter< T > it)
+  {
+    if (it == l_list.cend())
+    {
+      throw std::out_of_range("iter to fake!");
+    }
+    Node< T > *it_node = it.getNode();
+    my_splice(pos, it, cIter< T >{ it_node->next_ });
+    size_++;
+    l_list.size_--;
+    return;
+  }
+
+  template< class T >
+  void List< T >::splice(Iter< T > pos, List< T > &&r_list, Iter< T > it)
+  {
+    if (it == r_list.cend())
+    {
+      throw std::out_of_range("iter to fake!");
+    }
+    Node< T > *it_node = it.getNode();
+    my_splice(pos, it, cIter< T >{ it_node->next_ });
+    size_++;
+    r_list.size_--;
+    return;
+  }
+
+  template< class T >
+  void List< T >::splice(Iter< T > pos, List< T > &l_list, Iter< T > first, Iter< T > last)
+  {
+    long long dist = std::distance(first, last);
+    if (dist < 0)
+    {
+      throw std::logic_error("not right order for iters");
+    }
+    if (dist > 0)
+    {
+      my_splice(pos, first, last);
+      size_ += dist;
+      l_list.size_ -= dist;
+    }
+    return;
+  }
+
+  template< class T >
+  void List< T >::splice(Iter< T > pos, List< T > &&r_list, Iter< T > first, Iter< T > last)
+  {
+    long long dist = std::distance(first, last);
+    if (dist < 0)
+    {
+      throw std::logic_error("not right order for iters");
+    }
+    if (dist > 0)
+    {
+      size_ += dist;
+      my_splice(pos, first, last);
+      r_list.size_ -= dist;
+    }
+    return;
+  }
+
+  template< class T >
+  void List< T >::my_splice(Iter< T > pos, Iter< T > first, Iter< T > last)
+  {
+    Node< T > *first_node = first.getNode(), *last_node = last.getNode();
+    Node< T > *pos_node = pos.getNode(), *prelast_node = last_node->prev_;
+    last_node->prev_ = first_node->prev_;
+    first_node->prev_ = pos_node->prev_;
+    prelast_node->next_ = pos_node;
+    pos_node->prev_->next_ = first_node;
+    pos_node->prev_ = prelast_node;
+    last_node->prev_->next_ = last_node;
+    return;
+  }
+
+  template< class T >
+  void List< T >::remove(const T &value)
+  {
+    for (Iter< T > it = begin(); it != end(); ++it)
+    {
+      if (*it == value)
+      {
+        Iter< T > prev{ it.getNode()->prev_ };
+        prev.getNode().next_ = it.getNode()->next_;
+        it.getNode()->next_->prev_ = prev.getNode();
+        delete it.getNode();
+        it = prev;
+      }
+    }
+    return;
+  }
+
+  template< class T >
+  template< class Predicate >
+  void List< T >::remove_if(Predicate pred) noexcept
+  {
+    for (Iter< T > it = begin(); it != end(); ++it)
+    {
+      if (pred(*it))
+      {
+        Iter< T > prev{ it.getNode()->prev_ };
+        prev.getNode().next_ = it.getNode()->next_;
+        it.getNode()->next_->prev_ = prev.getNode();
+        delete it.getNode();
+        it = prev;
+      }
+    }
+    return;
+  }
+
+  template< class T >
+  void List< T >::assign(size_t size, const T &value)
+  {
+    clear();
+    for (; size_ < size; size_++)
+    {
+      push_back(value);
+    }
+    return;
   }
 }
 #endif

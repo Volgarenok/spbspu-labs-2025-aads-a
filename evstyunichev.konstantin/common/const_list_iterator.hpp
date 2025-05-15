@@ -2,17 +2,21 @@
 #define CONST_ITERATOR_HPP
 #include <memory>
 #include <cassert>
+#include <iterator>
 #include "list_node.hpp"
 
 namespace evstyunichev
 {
   template< class T >
-  class ConstListIterator
+  class List;
+  
+  template< class T >
+  class ConstListIterator: public std::iterator< std::bidirectional_iterator_tag, T >
   {
+    friend class List< T >;
     public:
       ConstListIterator();
       ConstListIterator(const ConstListIterator< T > &) = default;
-      ConstListIterator(const ListNode< T > *node);
       ~ConstListIterator() = default;
       ConstListIterator< T > & operator=(const ConstListIterator< T > &) = default;
 
@@ -22,16 +26,17 @@ namespace evstyunichev
       ConstListIterator< T > & operator--() noexcept;
       ConstListIterator< T > operator--(int);
 
-      const T & operator*();
-      const T * operator->();
+      const T & operator*() const;
+      const T * operator->() const;
 
       bool operator!=(const ConstListIterator< T > &) const;
       bool operator==(const ConstListIterator< T > &) const;
 
       ListNode< T > * getNode() const;
 
-  private:
-    const ListNode< T > *node_;
+    private:
+      const ListNode< T > *node_;
+      ConstListIterator(const ListNode< T > *node);
   };
 
   template< class T >
@@ -79,13 +84,13 @@ namespace evstyunichev
   }
 
   template< class T >
-  const T & ConstListIterator< T >::operator*()
+  const T & ConstListIterator< T >::operator*() const
   {
     return node_->data_;
   }
 
   template< class T >
-  const T * ConstListIterator< T >::operator->()
+  const T * ConstListIterator< T >::operator->() const
   {
     return std::addressof(node_->data_);
   }

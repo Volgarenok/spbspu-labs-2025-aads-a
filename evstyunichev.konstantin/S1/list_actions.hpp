@@ -3,10 +3,9 @@
 #include <iostream>
 #include "../common/list.hpp"
 
-using pair_t = std::pair< std::string, evstyunichev::List< size_t> >;
-
 namespace evstyunichev
 {
-  std::ostream &list_out(evstyunichev::List< pair_t > &, std::ostream &);
+  using pair_t = std::pair< std::string, List< size_t > >;
+  std::ostream &list_out(const List< pair_t > &seqences, std::ostream &out);
 }
 #endif
