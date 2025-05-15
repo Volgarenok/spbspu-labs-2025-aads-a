@@ -70,7 +70,7 @@ namespace evstyunichev
       ListNode< T > * tail() const;
       void release();
       void my_splice(Iter< T > pos, Iter< T > first, Iter< T > last);
-      Iter< T > erase(Iter< T > pos); 
+      Iter< T > erase(Iter< T > pos);
   };
 
   template< class T >

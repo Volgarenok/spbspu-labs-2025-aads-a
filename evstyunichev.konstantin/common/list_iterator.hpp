@@ -9,14 +9,13 @@ namespace evstyunichev
   template< class T >
   class List;
 
-  template< typename T >
+  template< class T >
   class ListIterator: public std::iterator< std::bidirectional_iterator_tag, T >
   {
     friend class List< T >;
     public:
       ListIterator();
       ListIterator(const ListIterator< T > &) = default;
-      ListIterator(ListNode< T > *node);
       ~ListIterator() = default;
       ListIterator< T > & operator=(const ListIterator< T > &) = default;
 
@@ -34,6 +33,7 @@ namespace evstyunichev
 
   private:
     ListNode< T > *node_;
+    ListIterator(ListNode< T > *node);
     ListNode< T > * getNode();
   };
 

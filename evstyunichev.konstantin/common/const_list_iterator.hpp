@@ -9,7 +9,7 @@ namespace evstyunichev
 {
   template< class T >
   class List;
-  
+
   template< class T >
   class ConstListIterator: public std::iterator< std::bidirectional_iterator_tag, T >
   {
@@ -32,11 +32,10 @@ namespace evstyunichev
       bool operator!=(const ConstListIterator< T > &) const;
       bool operator==(const ConstListIterator< T > &) const;
 
-      ListNode< T > * getNode() const;
-
     private:
       const ListNode< T > *node_;
       ConstListIterator(const ListNode< T > *node);
+      ListNode< T > * getNode() const;
   };
 
   template< class T >
@@ -112,7 +111,6 @@ namespace evstyunichev
   {
     return node_;
   }
-
 }
 
 #endif
