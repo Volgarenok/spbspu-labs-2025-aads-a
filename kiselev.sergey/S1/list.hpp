@@ -20,8 +20,8 @@ namespace kiselev
     List(List< T >&&) noexcept;
     List(size_t, const T&);
     template< typename InputIterator >
-    List< T >(InputIterator first, InputIterator last);
-    List< T >(std::initializer_list< T >);
+    List(InputIterator first, InputIterator last);
+    List(std::initializer_list< T >);
     ~List();
 
     List< T >& operator=(const List< T >&);
