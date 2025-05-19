@@ -3,233 +3,197 @@
 
 #include <cstddef>
 #include <stdexcept>
-#include "const-iterator.hpp"
+#include <stack>
+#include <queue>
+#include "iterator.hpp"
 
 namespace aleksandrov
 {
-  template< typename Key, typename Value, typename Compare >
-  class ConstIterator;
+  template< typename K, typename V, typename C, bool isConst >
+  class Iterator;
 
-  template< typename Key, typename Value, typename Compare = std::less< Key > >
+  template< typename K, typename V, typename C = std::less< K > >
   class Tree
   {
   public:
     Tree();
-    Tree(const Tree< Key, Value, Compare >&);
-    Tree(Tree< Key, Value, Compare >&&) noexcept;
+    Tree(const Tree&);
+    Tree(Tree&&) noexcept;
     ~Tree();
 
     size_t size() const noexcept;
     bool empty() const noexcept;
 
-    ConstIterator< Key, Value, Compare > begin() const noexcept;
-    ConstIterator< Key, Value, Compare > end() const noexcept;
+    template< bool isConst >
+    Iterator< K, V, C, false > begin() const noexcept;
+    template< bool isConst >
+    Iterator< K, V, C, false > end() const noexcept;
 
-    void clear(detail::Node< Key, Value >*) noexcept;
-    void swap(Tree< Key, Value, Compare >&) noexcept;
+    void clear() noexcept;
+    void swap(Tree&) noexcept;
 
-    const Value& at(const Key&) const;
-    Value& operator[](const Key&);
+    const V& at(const K&) const;
+    V& operator[](const K&);
 
-    ConstIterator< Key, Value, Compare > find(const Key& key) const;
+    bool insert(const K&, const V&);
   private:
-    friend ConstIterator< Key, Value, Compare >;
-    using Node = detail::Node< Key, Value >;
+    template< bool isConst >
+    friend class Iterator;
+    using Node = detail::Node< K, V >;
     Node* root_;
     size_t size_;
-    Compare cmp_;
+    C comp_;
 
-    Node* copy(Node* node);
+    Node* copy(Node*);
   };
 
-  template< typename Key, typename Value, typename Compare >
-  Tree< Key, Value, Compare >::Tree():
+  template< typename K, typename V, typename C >
+  Tree< K, V, C >::Tree():
     root_(nullptr),
     size_(0)
   {}
 
-  template< typename Key, typename Value, typename Compare >
-  Tree< Key, Value, Compare >::Tree(const Tree< Key, Value, Compare >& rhs):
+  template< typename K, typename V, typename C >
+  Tree< K, V, C >::Tree(const Tree& rhs):
     root_(nullptr),
     size_(rhs.size_),
-    cmp_(rhs.cmp_)
+    comp_(rhs.comp_)
   {
     root_ = copy(rhs.root_);
   }
 
-  template< typename Key, typename Value, typename Compare >
-  typename Tree< Key, Value, Compare >::Node* Tree< Key, Value, Compare >::copy(Node* node)
+  template< typename K, typename V, typename C >
+  typename Tree< K, V, C >::Node* Tree< K, V, C >::copy(Node* root)
   {
-    if (!node)
+    if (!root)
     {
       return nullptr;
     }
-    Node* newNode = new Node(node->data[0].first, node->data[0].second);
-
-    ConstIterator< Key, Value, Compare > it(node);
-    if (it.isTriple())
+    Tree* copyRoot = new Tree(root->data[0], root->data[1]);
+    std::stack< std::pair< Node*, Node* > > stack;
+    stack.push(std::make_pair(root, copyRoot));
+    try
     {
-      newNode->data[1] = node->data[1];
+      while (!stack.empty())
+      {
+        std::pair< Node*, Node* > pair = stack.top();
+        Node* node = pair.first;
+        Node* copyNode = pair.second;
+        stack.pop();
+        if (node->left)
+        {
+          copyNode->left = new Node(node->left->data[0], node->left->data[1]);
+          stack.push(std::make_pair(node->left, copyNode->left));
+        }
+        if (node->right)
+        {
+          copyNode->right = new Node(node->right->data[0], node->right->data[1]);
+          stack.push(std::make_pair(node->right, copyNode->right));
+        }
+      }
     }
-    newNode->left = copy(node->left);
-    newNode->middle = copy(node->middle);
-    newNode->right = copy(node->right);
-
-    if (newNode->left)
+    catch (const std::bad_alloc&)
     {
-      newNode->left->parent = newNode;
+      copyRoot->clear();
+      throw;
     }
-    if (newNode->middle)
-    {
-      newNode->middle->parent = newNode;
-    }
-    if (newNode->right)
-    {
-      newNode->right->parent = newNode;
-    }
-    return newNode;
+    return copyRoot;
   }
 
-  template< typename Key, typename Value, typename Compare >
-  Tree< Key, Value, Compare >::Tree(Tree< Key, Value, Compare >&& rhs) noexcept:
+  template< typename K, typename V, typename C >
+  Tree< K, V, C >::Tree(Tree&& rhs) noexcept:
     root_(std::move(rhs.root_)),
     size_(std::move(rhs.size_)),
-    cmp_(std::move(rhs.cmp_))
+    comp_(std::move(rhs.comp_))
   {
     rhs.root_ = nullptr;
     rhs.size_ = 0;
+    rhs.comp_ = std::less< K >();
   }
 
-  template< typename Key, typename Value, typename Compare >
-  Tree< Key, Value, Compare >::~Tree()
+  template< typename K, typename V, typename C >
+  Tree< K, V, C >::~Tree()
   {
-    clear(root_);
+    clear();
   }
 
-  template< typename Key, typename Value, typename Compare >
-  ConstIterator< Key, Value, Compare > Tree< Key, Value, Compare >::begin() const noexcept
+  template< typename K, typename V, typename C >
+  template< bool isConst >
+  Iterator< K, V, C, false > Tree< K, V, C >::begin() const noexcept
   {
     assert(root_);
     if (root_->left)
     {
-      return ConstIterator< Key, Value, Compare >(root_->left).fallLeft();
+      return Iterator< K, V, C, false >(root_->left).fallLeft();
     }
     else if (root_->middle)
     {
-      return ConstIterator< Key, Value, Compare >(root_->middle).fallLeft();
+      return Iterator< K, V, C, false >(root_->middle).fallLeft();
     }
-    return ConstIterator< Key, Value, Compare >(root_);
+    return Iterator< K, V, C, false >(root_);
   }
 
-  template< typename Key, typename Value, typename Compare >
-  ConstIterator< Key, Value, Compare > Tree< Key, Value, Compare >::end() const noexcept
+  template< typename K, typename V, typename C >
+  template< bool isConst >
+  Iterator< K, V, C, false > Tree< K, V, C >::end() const noexcept
   {
     assert(root_);
     if (root_->right)
     {
-      return ConstIterator< Key, Value, Compare >(root_->right).fallRight();
+      return Iterator< K, V, C, false >(root_->right).fallRight();
     }
     else if (root_->middle)
     {
-      return ConstIterator< Key, Value, Compare >(root_->middle).fallRight();
+      return Iterator< K, V, C, false >(root_->middle).fallRight();
     }
-    return ConstIterator< Key, Value, Compare >(root_);
+    return Iterator< K, V, C, false >(root_);
   }
 
-  template< typename Key, typename Value, typename Compare >
-  size_t Tree< Key, Value, Compare >::size() const noexcept
+  template< typename K, typename V, typename C >
+  size_t Tree< K, V, C >::size() const noexcept
   {
     return size_;
   }
 
-  template< typename Key, typename Value, typename Compare >
-  bool Tree< Key, Value, Compare >::empty() const noexcept
+  template< typename K, typename V, typename C >
+  bool Tree< K, V, C >::empty() const noexcept
   {
     return !size_;
   }
 
-  template< typename Key, typename Value, typename Compare >
-  void Tree< Key, Value, Compare >::clear(detail::Node< Key, Value >* root) noexcept
+  template< typename K, typename V, typename C >
+  void Tree< K, V, C >::clear() noexcept
   {
-    if (!root)
+    if (!root_)
     {
       return;
     }
-    clear(root->left);
-    ConstIterator< Key, Value, Compare > it(root);
-    if (it.isTriple())
+    std::queue< Node* > nodes;
+    nodes.push(root_);
+    while (!nodes.empty())
     {
-      clear(root->middle);
+      Node* curr = nodes.front();
+      nodes.pop();
+
+      if (curr->left)
+      {
+        nodes.push(curr->left);
+      }
+      if (curr->right)
+      {
+        nodes.push(curr->right);
+      }
+      delete curr;
     }
-    clear(root->right);
-    delete root;
+    root_ = nullptr;
   }
 
-  template< typename Key, typename Value, typename Compare >
-  void Tree< Key, Value, Compare >::swap(Tree< Key, Value, Compare >& rhs) noexcept
+  template< typename K, typename V, typename C >
+  void Tree< K, V, C >::swap(Tree& rhs) noexcept
   {
     std::swap(root_, rhs.root_);
     std::swap(size_, rhs.size_);
-  }
-
-  template< typename Key, typename Value, typename Compare >
-  const Value& Tree< Key, Value, Compare >::at(const Key& key) const
-  {
-    ConstIterator< Key, Value, Compare > pos = find(key);
-    if (pos == end())
-    {
-      throw std::out_of_range("There is no such key!");
-    }
-  }
-
-  template< typename Key, typename Value, typename Compare >
-  Value& Tree< Key, Value, Compare >::operator[](const Key& key)
-  {
-    ConstIterator< Key, Value, Compare > pos = find(key);
-    if (pos == end())
-    {
-      pos = insert(std::make_pair(key, Value())).first;
-    }
-    return pos->second;
-  }
-
-  template< typename Key, typename Value, typename Compare >
-  ConstIterator< Key, Value, Compare > Tree< Key, Value, Compare >::find(const Key& key) const
-  {
-    Node* node = root_;
-    while (!node)
-    {
-      if (cmp_(key, node->data.first))
-      {
-        node = node->left;
-      }
-      else if (!cmp_(node->data[0].first, key) && !cmp_(key, node->data[0].first))
-      {
-        return ConstIterator< Key, Value, Compare >(node);
-      }
-      else if (node->isTriple())
-      {
-        if (cmp_(key, node->data[1].first))
-        {
-          node = node->middle;
-        }
-        else if (!cmp_(node->data[1].first, key) && !cmp_(key, node->data[1].first))
-        {
-          Node* tmp = node;
-          tmp->pos_ = ConstIterator< Key, Value, Compare >::PointsTo::Right;
-          return ConstIterator< Key, Value, Compare >(tmp);
-        }
-        else
-        {
-          node = node->right;
-        }
-      }
-      else
-      {
-        node = node->right;
-      }
-    }
-    return end();
+    std::swap(comp_, rhs.comp_);
   }
 }
 
