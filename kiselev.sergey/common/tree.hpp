@@ -1,11 +1,13 @@
 #ifndef TREE_HPP
 #define TREE_HPP
-#include <cassert>
 #include <initializer_list>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
 #include "iterator.hpp"
+#include "lnrIterator.hpp"
+#include "rnlIterator.hpp"
+#include "breadthIterator.hpp"
 #include "treeNode.hpp"
 
 namespace kiselev
@@ -17,6 +19,12 @@ namespace kiselev
     using value = std::pair< Key, Value >;
     using Iterator = detail::Iterator< Key, Value, Cmp, false >;
     using ConstIterator = detail::Iterator< Key, Value, Cmp, true >;
+    using LnrIterator = detail::LnrIterator< Key, Value, Cmp, false >;
+    using ConstLnrIterator = detail::LnrIterator< Key, Value, Cmp, true >;
+    using RnlIterator = detail::RnlIterator< Key, Value, Cmp, false >;
+    using ConstRnlIterator = detail::RnlIterator< Key, Value, Cmp, true >;
+    using BreadthIterator = detail::BreadthIterator< Key, Value, Cmp, false >;
+    using ConstBreadthIterator = detail::BreadthIterator< Key, Value, Cmp, true >;
     using IteratorPair = std::pair< Iterator, Iterator >;
     using ConstIteratorPair = std::pair< ConstIterator, ConstIterator >;
 
@@ -44,6 +52,27 @@ namespace kiselev
     ConstIterator cbegin() const noexcept;
     Iterator end() noexcept;
     ConstIterator cend() const noexcept;
+    LnrIterator lnrBegin();
+    ConstLnrIterator lnrCbegin() const;
+    LnrIterator lnrEnd() noexcept;
+    ConstLnrIterator lnrCend() const noexcept;
+
+    RnlIterator rnlBegin();
+    ConstRnlIterator rnlCbegin() const;
+    RnlIterator rnlEnd() noexcept;
+    ConstRnlIterator rnlCend() const noexcept;
+
+    BreadthIterator breadthBegin() noexcept;
+    ConstBreadthIterator breadthCbegin() const noexcept;
+    BreadthIterator breadthEnd() noexcept;
+    ConstBreadthIterator breadthCend() const noexcept;
+
+    template< typename F >
+    F traverse_lnr(F f) const;
+    template< typename F >
+    F traverse_rnl(F f) const;
+    template< typename F >
+    F traverse_breadth(F f) const;
 
     std::pair< Iterator, bool > insert(const value&);
     std::pair< Iterator, bool > insert(value&);
@@ -439,6 +468,151 @@ namespace kiselev
       temp = temp->right;
     }
     return ConstIterator(temp, true);
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp>::LnrIterator RBTree< Key, Value, Cmp >::lnrBegin()
+  {
+    if (empty())
+    {
+      return lnrEnd();
+    }
+    LnrIterator it(root_);
+    while (it.node->left)
+    {
+      it.stack_.push(it.node_);
+      it.node_ = it.node_->left;
+    }
+    return it;
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::ConstLnrIterator RBTree< Key, Value, Cmp >::lnrCbegin() const
+  {
+    if (empty())
+    {
+      return lnrCend();
+    }
+    LnrIterator it(root_);
+    while (it.node_->left)
+    {
+      it.stack_.push(it.node_);
+      it.node_ = it.node_->left;
+    }
+    return it;
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::LnrIterator RBTree< Key, Value, Cmp >::lnrEnd() noexcept
+  {
+    return LnrIterator(nullptr);
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::ConstLnrIterator RBTree< Key, Value, Cmp >::lnrCend() const noexcept
+  {
+    return ConstLnrIterator(nullptr);
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::RnlIterator RBTree< Key, Value, Cmp >::rnlBegin()
+  {
+    if (empty())
+    {
+      return rnlEnd();
+    }
+    RnlIterator it(root_);
+    while (it.node_->right)
+    {
+      it.stack_.push(it.node_);
+      it.node_ = it.node_->right;
+    }
+    return it;
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::ConstRnlIterator RBTree< Key, Value, Cmp >::rnlCbegin() const
+  {
+    if (empty())
+    {
+      return rnlCend();
+    }
+    ConstRnlIterator it(root_);
+    while(it.node_->right)
+    {
+      it.stack_.push(it.node_);
+      it.node_ = it.node_->right;
+    }
+    return it;
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::RnlIterator RBTree< Key, Value, Cmp >::rnlEnd() noexcept
+  {
+    return RnlIterator(nullptr);
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::ConstRnlIterator RBTree< Key, Value, Cmp >::rnlCend() const noexcept
+  {
+    return ConstRnlIterator(nullptr);
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::BreadthIterator RBTree< Key, Value, Cmp >::breadthBegin() noexcept
+  {
+    return BreadthIterator(root_);
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::ConstBreadthIterator RBTree< Key, Value, Cmp >::breadthCbegin() const noexcept
+  {
+    return ConstBreadthIterator(root_);
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::BreadthIterator RBTree< Key, Value, Cmp >::breadthEnd() noexcept
+  {
+    return BreadthIterator(nullptr);
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  typename RBTree< Key, Value, Cmp >::ConstBreadthIterator RBTree< Key, Value, Cmp >::breadthCend() const noexcept
+  {
+    return ConstBreadthIterator(nullptr);
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  template< typename F >
+  F RBTree< Key, Value, Cmp >::traverse_lnr(F f) const
+  {
+    for (ConstLnrIterator it = lnrCbegin(); it != lnrCend(); ++it)
+    {
+      f(*(it));
+    }
+    return f;
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  template< typename F >
+  F RBTree< Key, Value, Cmp >::traverse_rnl(F f) const
+  {
+    for (ConstRnlIterator it = rnlCbegin(); it != rnlCend(); ++it)
+    {
+      f(*(it));
+    }
+    return f;
+  }
+
+  template< typename Key, typename Value, typename Cmp >
+  template< typename F >
+  F RBTree< Key, Value, Cmp >::traverse_breadth(F f) const
+  {
+    for (ConstBreadthIterator it = breadthCbegin(); it != breadthCend(); ++it)
+    {
+      f(*(it));
+    }
+    return f;
   }
 
   template< typename Key, typename Value, typename Cmp >
