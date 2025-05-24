@@ -19,6 +19,13 @@ namespace rychkov
 
   template< class... T >
   using void_t = void;
+
+  template< class T >
+  struct is_nothrow_swappable: std::integral_constant< bool, noexcept(std::swap(std::declval< T& >(),
+              std::declval< T& >())) >
+  {};
+  template< class T >
+  constexpr bool is_nothrow_swappable_v = is_nothrow_swappable< T >::value;
 }
 
 #endif
