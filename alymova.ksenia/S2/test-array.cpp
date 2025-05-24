@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <string>
 #include <iostream>
-#include "array.hpp"
+#include <array.hpp>
 
 BOOST_AUTO_TEST_CASE(test_basic)
 {

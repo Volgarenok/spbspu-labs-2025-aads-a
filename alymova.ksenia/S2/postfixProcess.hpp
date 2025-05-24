@@ -1,7 +1,7 @@
 #ifndef POSTFIX_PROCESS_HPP
 #define POSTFIX_PROCESS_HPP
 #include <string>
-#include "queue.hpp"
+#include <queue.hpp>
 
 namespace alymova
 {

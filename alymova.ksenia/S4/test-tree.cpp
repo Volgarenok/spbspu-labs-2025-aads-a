@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "tree-2-3.hpp"
+#include <tree/tree-2-3.hpp>
 
 BOOST_AUTO_TEST_CASE(test_constructors_operators)
 {

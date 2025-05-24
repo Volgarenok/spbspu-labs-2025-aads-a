@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_CASE(test_constructors_operators)
   list_t list2(list1);
   BOOST_TEST(list1 == list2);
 
-  list_t list3(std::move(list_t(3ull, 1)));
+  list_t list3(list_t(3ull, 1));
   BOOST_TEST(list3.size() == 3);
   BOOST_TEST(list3.front() == 1);
 

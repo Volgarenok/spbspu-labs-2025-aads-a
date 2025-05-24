@@ -3,8 +3,8 @@
 #include <string>
 #include <cstddef>
 #include <stdexcept>
-#include "queue.hpp"
-#include "stack.hpp"
+#include <queue.hpp>
+#include <stack.hpp>
 #include "postfix.hpp"
 
 int main(int argc, char** argv)

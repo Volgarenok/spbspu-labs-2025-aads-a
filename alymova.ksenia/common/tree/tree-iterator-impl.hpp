@@ -98,7 +98,7 @@ namespace alymova
 
     if (node_->type == NodeType::Double)
     {
-      if (node_->left)
+      if (node_->left && node_->left->type != NodeType::Fake)
       {
         node_ = node_->left;
         fall_right();
@@ -110,7 +110,7 @@ namespace alymova
     {
       if (point_ == NodePoint::First)
       {
-        if (node_->left)
+        if (node_->left && node_->left->type != NodeType::Fake)
         {
           node_ = node_->left;
           fall_right();
@@ -195,7 +195,7 @@ namespace alymova
   template< class Key, class Value, class Comparator >
   void TTTIterator< Key, Value, Comparator >::fall_left()
   {
-    while (node_->left)
+    while (node_->left && node_->left->type != NodeType::Fake)
     {
       node_ = node_->left;
     }

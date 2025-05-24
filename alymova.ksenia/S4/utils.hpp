@@ -1,7 +1,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 #include <iostream>
-#include "tree-2-3.hpp"
+#include <tree/tree-2-3.hpp>
 
 namespace alymova
 {

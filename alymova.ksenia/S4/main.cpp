@@ -3,8 +3,8 @@
 #include <string>
 #include <exception>
 #include <functional>
+#include <tree/tree-2-3.hpp>
 #include "utils.hpp"
-#include "tree-2-3.hpp"
 
 int main(int argc, char** argv)
 {

@@ -85,7 +85,14 @@ namespace alymova
           return false;
         }
       }
-      return (!left && !mid && !overflow);
+      if (left)
+      {
+        if (left->type != NodeType::Fake)
+        {
+          return false;
+        }
+      }
+      return (!mid && !overflow);
     }
 
     template< class Key, class Value, class Comparator >

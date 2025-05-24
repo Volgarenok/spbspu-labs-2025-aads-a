@@ -1,8 +1,7 @@
 #include "postfix.hpp"
 #include <string>
+#include <stack.hpp>
 #include "postfixProcess.hpp"
-#include "stack.hpp"
-#include "queue.hpp"
 
 alymova::Postfix::Postfix(const std::string& s):
   postfix_()
