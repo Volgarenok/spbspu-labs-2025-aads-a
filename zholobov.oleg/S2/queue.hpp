@@ -1,0 +1,26 @@
+#ifndef QUEUE_HPP
+#define QUEUE_HPP
+
+#include "array.hpp"
+
+namespace zholobov {
+
+  template < typename T >
+  class Queue {
+  public:
+    void push(const T& value) { container_.push_back(value); }
+    void push(T&& value) { container_.push_back(std::forward< T >(value)); }
+    const T& front() const { return container_.front(); }
+    T& front() { return container_.front(); }
+    void pop() { container_.pop_front(); }
+    bool empty() const { return container_.empty(); }
+    void clear() noexcept { container_.clear(); }
+    void swap(Queue& other) noexcept { container_.swap(other); };
+
+  private:
+    Array< T > container_;
+  };
+
+}
+
+#endif
