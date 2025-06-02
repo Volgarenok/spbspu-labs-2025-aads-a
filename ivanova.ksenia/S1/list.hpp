@@ -9,7 +9,7 @@ namespace ivanova
   template <typename T>
   class List
   {
-    public:
+  public:
     List() noexcept : _head(nullptr), _tail(nullptr), _size(0) {}
 
     List(const List& other) : List()
@@ -28,6 +28,6 @@ namespace ivanova
       moved._tail = nullptr;
       moved._size = 0;
     }
-  }
+  };
 }
 #endif
