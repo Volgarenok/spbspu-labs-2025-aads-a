@@ -17,7 +17,7 @@ struct NamedList
 int main()
 {
   List<NamedList> data;
-  
+
   std::string token;
   while (std::cin >> token)
   {

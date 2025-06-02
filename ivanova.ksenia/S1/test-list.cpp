@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(test_move_constructor)
 
   BOOST_TEST(list.empty());
   BOOST_TEST(list2.size() == 2);
-  
+
   std::vector<int> check = {1, 2};
   BOOST_TEST(areEqual(list.begin(), list.end(), check.begin(), check.end()));
 }

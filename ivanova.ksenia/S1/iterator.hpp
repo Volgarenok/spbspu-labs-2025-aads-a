@@ -70,7 +70,7 @@ namespace ivanova
 
     bool operator==(const ListIterator& rhs) const { return _list == rhs._list && _node == rhs._node; }
     bool operator!=(const ListIterator& rhs) const { return !(*this == rhs); }
-  
+
   private:
     ptr_list _list;
     ptr_node _node;

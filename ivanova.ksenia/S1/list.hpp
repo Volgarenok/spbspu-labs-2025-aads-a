@@ -40,7 +40,7 @@ namespace ivanova
     {
       assign(n, value);
     }
-  
+
     List(List&& moved) noexcept : _head(moved._head), _tail(moved._tail), _size(moved._size)
     {
       moved._head = nullptr;
@@ -93,7 +93,7 @@ namespace ivanova
       }
       splice(position, other, other.begin(), other.end());
     }
- 
+
     void splice(iterator position, List& other, iterator i)
     {
       iterator n = i;
@@ -110,7 +110,7 @@ namespace ivanova
 
     template <typename Predicate>
     void remove_if(Predicate pred);
-  
+
     reference front() { return *begin(); }
     const_reference front() const { return *begin(); }
 
@@ -142,7 +142,7 @@ namespace ivanova
       void linkNodes(node_type* first, node_type* second);
       size_type getDistance(iterator first, iterator last) const;
   };
-  
+
   template <typename T>
   void List<T>::assign(size_type n, const_reference value)
   {
