@@ -203,7 +203,7 @@ namespace ivanova
         pop_back();
       }
       pop_back();
-    } 
+    }
   }
 
   template <typename T>
