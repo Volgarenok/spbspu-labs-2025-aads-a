@@ -78,8 +78,28 @@ namespace ivanova
       std::swap(_tail, other._tail);
       std::swap(_size, other._size);
     }
+
     void clear();
-    
+
+    void splice(iterator position, List& other)
+    {
+      if (empty())
+      {
+        swap(other);
+        return;
+      }
+      splice(position, other, other.begin(), other.end());
+    }
+ 
+    void splice(iterator position, List& other, iterator i)
+    {
+      iterator n = i;
+      ++n;
+      splice(position, other, i, n);
+    }
+
+    void splice(iterator position, List& other, iterator first, iterator last);
+
     void remove(const_reference value)
     {
       remove_if([&](auto x) { return x == value; });
@@ -115,6 +135,7 @@ namespace ivanova
       void deleteNode(node_type* node);
       void cutNodes(node_type* first, node_type* last);
       void linkNodes(node_type* first, node_type* second);
+      size_type getDistance(iterator first, iterator last) const;
   };
   
   template <typename T>
@@ -228,6 +249,47 @@ namespace ivanova
   }
 
   template <typename T>
+  void List<T>::splice(iterator position, List& other, iterator first, iterator last)
+  {
+    if (other.empty())
+    {
+      return;
+    }
+    size_type diff = other.getDistance(first, last);
+    if (diff == 0)
+    {
+      return;
+    }
+    iterator pre_last = last;
+    --pre_last;
+    other.cutNodes(first._node, pre_last._node);
+    if (empty())
+    {
+      _head = first._node;
+      _tail = pre_last._node;
+    }
+    else if (position == begin())
+    {
+      linkNodes(pre_last._node, _head);
+      _head = first._node;
+    }
+    else if (position == end())
+    {
+      linkNodes(_tail, first._node);
+      _tail = pre_last._node;
+    }
+    else
+    {
+      node_type* curr = position._node;
+      node_type* prev = curr->prev;
+      linkNodes(prev, first._node);
+      linkNodes(pre_last._node, curr);
+    }
+    other._size -= diff;
+    _size += diff;
+  }
+
+  template <typename T>
   void List<T>::linkNodes(node_type* first, node_type* second)
   {
     first->next = second;
@@ -242,6 +304,21 @@ namespace ivanova
       node->value.~value_type();
       operator delete(node);
     }
+  }
+
+  template <typename T>
+  typename List<T>::size_type List<T>::getDistance(iterator first, iterator last) const
+  {
+    if (first == begin() && last == end())
+    {
+      return _size;
+    }
+    size_type count = 0;
+    for (auto it = first; it != last; ++it)
+    {
+      ++count;
+    }
+    return count;
   }
 }
 #endif
