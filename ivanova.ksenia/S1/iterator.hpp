@@ -17,6 +17,9 @@ namespace ivanova
 
     ListIterator& operator=(const ListIterator& other)
     {
+      _list = other._list;
+      _node = other._node;
+      return *this;
     }
 
     reference operator*() const { return _node->value; }
@@ -24,10 +27,18 @@ namespace ivanova
 
     ListIterator& operator++()
     {
+      if (_list != nullptr && _node != nullptr)
+      {
+        _node = _node->next;
+      }
+      return *this;
     }
 
     ListIterator operator++(int)
     {
+      ListIterator tmp(*this);
+      ++(*this);
+      return tmp;
     }
 
     ListIterator& operator--()
