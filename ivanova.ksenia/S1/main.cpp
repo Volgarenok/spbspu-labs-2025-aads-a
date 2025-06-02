@@ -40,7 +40,7 @@ int main()
     std::cout << "0" << '\n';
     return 0;
   }
-  
+
   for (const auto& x : data)
   {
     std::cout << x.name << " ";

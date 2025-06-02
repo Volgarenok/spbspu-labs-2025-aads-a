@@ -325,7 +325,7 @@ namespace ivanova
     }
     return count;
   }
-  
+
   template <typename T>
   void List<T>::save_push(const_reference value, bool back)
   {
