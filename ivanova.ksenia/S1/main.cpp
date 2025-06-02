@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <exception>
 #include <iostream>
 #include <string>
 #include "list.hpp"
@@ -30,7 +31,15 @@ int main()
     else
     {
       auto& back = data.back();
-      back.list.push_back(std::stoi(token));
+      try
+      {
+        back.list.push_back(std::stoi(token));
+      }
+      catch (const std::out_of_range& e)
+      {
+        std::cout << e.what() << ": number is to big for int\n";
+        return 1;
+      }
       back.pos = back.list.begin();
     }
   }
@@ -41,9 +50,16 @@ int main()
     return 0;
   }
 
-  for (const auto& x : data)
+  for (auto x = data.begin(); x != data.end(); ++x)
   {
-    std::cout << x.name << " ";
+    if (x == data.begin())
+    {
+      std::cout << x->name;
+    }
+    else
+    {
+      std::cout << " " << x->name;
+    }
   }
   std::cout << "\n";
 
@@ -57,11 +73,18 @@ int main()
     {
       if (x.pos != x.list.end())
       {
-        flag = true;
         int value = *(x.pos);
         ++(x.pos);
         sum += value;
-        std::cout << value << " ";
+        if (!flag)
+        {
+          std::cout << value;
+        }
+        else
+        {
+          std::cout << " " << value;
+        }
+        flag = true;
       }
     }
     if (flag)
@@ -72,8 +95,8 @@ int main()
   }
   if (sums.empty())
   {
-    std::cerr << "Can't count sums: all sequences are empty" << '\n';
-    return 1;
+    std::cout << "0\n";
+    return 0;
   }
   for (const auto& x : sums)
   {
