@@ -15,6 +15,7 @@ namespace ivanova
   class List
   {
   public:
+    using value_type = T;
     using reference = T&;
     using const_reference = const T&;
     using size_type = std::size_t;
@@ -78,7 +79,15 @@ namespace ivanova
       std::swap(_size, other._size);
     }
     void clear();
+    
+    void remove(const_reference value)
+    {
+      remove_if([&](auto x) { return x == value; });
+    }
 
+    template <typename Predicate>
+    void remove_if(Predicate pred);
+  
     reference front() { return *begin(); }
     const_reference front() const { return *begin(); }
 
@@ -103,6 +112,9 @@ namespace ivanova
 
       void save_push(const_reference value, bool back);
       void pop(bool back);
+      void deleteNode(node_type* node);
+      void cutNodes(node_type* first, node_type* last);
+      void linkNodes(node_type* first, node_type* second);
   };
   
   template <typename T>
@@ -185,6 +197,51 @@ namespace ivanova
     _head = nullptr;
     _tail = nullptr;
     _size = 0;
+  }
+
+  template <typename T>
+  template <typename Predicate>
+  void List<T>::remove_if(Predicate pred)
+  {
+    while (!empty() && pred(front()))
+    {
+      pop_front();
+    }
+    while (!empty() && pred(back()))
+    {
+      pop_back();
+    }
+    for (node_type* x = _head; x != _tail; )
+    {
+      if (pred(x->next->value))
+      {
+        node_type* y = x->next;
+        linkNodes(x, y->next);
+        deleteNode(y);
+        --_size;
+      }
+      else
+      {
+        x = x->next;
+      }
+    }
+  }
+
+  template <typename T>
+  void List<T>::linkNodes(node_type* first, node_type* second)
+  {
+    first->next = second;
+    second->prev = first;
+  }
+
+  template <typename T>
+  void List<T>::deleteNode(node_type* node)
+  {
+    if (node != nullptr)
+    {
+      node->value.~value_type();
+      operator delete(node);
+    }
   }
 }
 #endif
