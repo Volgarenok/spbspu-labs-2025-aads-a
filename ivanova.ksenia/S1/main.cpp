@@ -98,10 +98,7 @@ int main()
     std::cout << "0\n";
     return 0;
   }
-  for (const auto& x : sums)
-  {
-    std::cout << x << " ";
-  }
+  std::copy(sums.begin(), sums.end(), std::ostream_iterator<int>(std::cout, " "));
   std::cout << "\n";
 
   return 0;
