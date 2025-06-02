@@ -16,8 +16,11 @@ namespace ivanova
   {
   public:
     using value_type = T;
+    using pointer = T*;
+    using const_pointer = const T*;
     using reference = T&;
     using const_reference = const T&;
+    using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
     using node_type = ListNode<T>;
     using iterator = ListIterator<List, false>;
@@ -132,6 +135,8 @@ namespace ivanova
 
       void save_push(const_reference value, bool back);
       void pop(bool back);
+      template <typename... Args>
+      node_type* createNode(Args&&... args);
       void deleteNode(node_type* node);
       void cutNodes(node_type* first, node_type* last);
       void linkNodes(node_type* first, node_type* second);
@@ -319,6 +324,105 @@ namespace ivanova
       ++count;
     }
     return count;
+  }
+  
+  template <typename T>
+  void List<T>::save_push(const_reference value, bool back)
+  {
+    node_type* node;
+    try
+    {
+      node = createNode(value);
+    }
+    catch(...)
+    {
+      throw;
+    }
+    if (empty())
+    {
+      _head = _tail = node;
+    }
+    else if (back)
+    {
+      linkNodes(_tail, node);
+      _tail = node;
+    }
+    else
+    {
+      linkNodes(node, _head);
+      _head = node;
+    }
+    ++_size;
+  }
+
+  template <typename T>
+  void List<T>::pop(bool back)
+  {
+    if (empty())
+    {
+      return;
+    }
+    if (size() == 1)
+    {
+      deleteNode(_head);
+      _head = nullptr;
+      _tail = nullptr;
+    }
+    else if (back)
+    {
+      _tail = _tail->prev;
+      deleteNode(_tail->next);
+      _tail->next = nullptr;
+    }
+    else
+    {
+      _head = _head->next;
+      deleteNode(_head->prev);
+      _head->prev = nullptr;
+    }
+    --_size;
+  }
+
+  template <typename T>
+  template <typename... Args>
+  typename List<T>::node_type* List<T>::createNode(Args&&... args)
+  {
+    node_type* node = static_cast<node_type*>(operator new(sizeof(node_type)));
+    try
+    {
+      new (node) node_type(std::forward<Args>(args)...);
+    }
+    catch(...)
+    {
+      operator delete(node);
+      throw;
+    }
+    return node;
+  }
+
+  template <typename T>
+  void List<T>::cutNodes(node_type* first, node_type* last)
+  {
+    node_type* pre_fisrt = first->prev;
+    node_type* post_last = last->next;
+    if (pre_fisrt != nullptr)
+    {
+      pre_fisrt->next = post_last;
+    }
+    else
+    {
+      _head = post_last;
+    }
+    if (post_last != nullptr)
+    {
+      post_last->prev = pre_fisrt;
+    }
+    else
+    {
+      _tail = pre_fisrt;
+    }
+    first->prev = nullptr;
+    last->next = nullptr;
   }
 }
 #endif
