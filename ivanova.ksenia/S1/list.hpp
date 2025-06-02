@@ -1,6 +1,9 @@
 #ifndef LIST_HPP
 #define LIST_HPP
 
+#include <algorithm>
+#include <cstddef>
+#include <iterator>
 #include "iterator.hpp"
 #include "node.hpp"
 
@@ -10,6 +13,9 @@ namespace ivanova
   class List
   {
   public:
+    using const_reference = const T&;
+    using size_type = std::size_t;
+
     List() noexcept : _head(nullptr), _tail(nullptr), _size(0) {}
 
     List(const List& other) : List()
@@ -27,6 +33,17 @@ namespace ivanova
       moved._head = nullptr;
       moved._tail = nullptr;
       moved._size = 0;
+    }
+
+    ~List() { clear(); }
+
+    List& operator=(const List& other)
+    {
+      if (this != &other)
+      {
+        assign(other.begin(), other.end());
+      }
+      return *this;
     }
   };
 }
