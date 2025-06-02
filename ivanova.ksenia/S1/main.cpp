@@ -37,7 +37,7 @@ int main()
       }
       catch (const std::out_of_range& e)
       {
-        std::cout << e.what() << ": number is to big for int\n";
+        std::cerr << e.what() << ": number is to big for int\n";
         return 1;
       }
       back.pos = back.list.begin();
