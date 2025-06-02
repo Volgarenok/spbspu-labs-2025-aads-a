@@ -98,7 +98,13 @@ int main()
     std::cout << "0\n";
     return 0;
   }
-  std::copy(sums.begin(), sums.end(), std::ostream_iterator<int>(std::cout, " "));
+  for (auto x = sums.begin(); x != sums.end(); ++x) {
+    if (x == sums.begin()) {
+      std::cout << *x;
+    } else {
+      std::cout << " " << *x;
+    }
+  }
   std::cout << "\n";
 
   return 0;
