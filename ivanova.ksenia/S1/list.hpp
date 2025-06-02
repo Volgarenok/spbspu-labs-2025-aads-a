@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
+#include <memory>
+#include <type_traits>
 #include "iterator.hpp"
 #include "node.hpp"
 
@@ -56,6 +58,11 @@ namespace ivanova
     void assign(size_type n, const_reference value);
     template <typename IterType>
     void assign(IterType first, IterType last);
+
+    void push_back(const_reference value) { save_push(value, true); }
+    void push_front(const_reference value) { save_push(value, false); }
+
+    void clear();
 
     private:
       node_type* _head;
@@ -124,6 +131,25 @@ namespace ivanova
       }
       pop_back();
     } 
+  }
+
+  template <typename T>
+  void List<T>::clear()
+  {
+    if (empty())
+    {
+      return;
+    }
+    node_type* node = _head;
+    while (node != nullptr)
+    {
+      node_type* x = node;
+      node = node->next;
+      deleteNode(x);
+    }
+    _head = nullptr;
+    _tail = nullptr;
+    _size = 0;
   }
 }
 #endif
