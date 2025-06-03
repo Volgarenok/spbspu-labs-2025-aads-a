@@ -9,8 +9,8 @@ using ivanova::List;
 struct NamedList
 {
   std::string name;
-  List<int> list;
-  List<int>::iterator pos;
+  List<uint64_t> list;
+  List<uint64_t>::iterator pos;
 
   NamedList(const std::string& name) : name(name) {}
 };
@@ -31,15 +31,7 @@ int main()
     else
     {
       auto& back = data.back();
-      try
-      {
-        back.list.push_back(std::stoi(token));
-      }
-      catch (const std::out_of_range& e)
-      {
-        std::cerr << e.what() << ": number is to big for int\n";
-        return 1;
-      }
+      back.list.push_back(std::stoull(token));
       back.pos = back.list.begin();
     }
   }
@@ -63,17 +55,17 @@ int main()
   }
   std::cout << "\n";
 
-  List<int> sums;
+  List<uint64_t> sums;
   bool flag = true;
   while (flag)
   {
     flag = false;
-    int sum = 0;
+    uint64_t sum = 0;
     for (auto& x : data)
     {
       if (x.pos != x.list.end())
       {
-        int value = *(x.pos);
+        uint64_t value = *(x.pos);
         ++(x.pos);
         sum += value;
         if (!flag)
