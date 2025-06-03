@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <limits>
 #include <string>
 #include "list.hpp"
 
@@ -17,6 +18,7 @@ struct NamedList
 
 int main()
 {
+  const uint64_t max_number = std::numeric_limits<uint64_t>::max();
   List<NamedList> data;
 
   std::string token;
@@ -67,6 +69,10 @@ int main()
       {
         uint64_t value = *(x.pos);
         ++(x.pos);
+        if (sum > max_number - value) {
+          std::cerr << "can't count sum, overflow\n";
+          return 1;
+        }
         sum += value;
         if (!flag)
         {
