@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <cstdint>
 #include <limits>
 #include <string>
 #include "list.hpp"
