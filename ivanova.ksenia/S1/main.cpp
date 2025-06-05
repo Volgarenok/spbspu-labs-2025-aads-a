@@ -32,7 +32,7 @@ void inputData(List<NamedList>& data, std::istream& ist)
     {
       auto& back = data.back();
       back.list.push_back(std::stoull(token));
-    } 
+    }
   }
 }
 
