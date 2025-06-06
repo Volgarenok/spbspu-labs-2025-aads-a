@@ -1,4 +1,6 @@
+#define BOOST_TEST_MAIN
 #include <algorithm>
+#include <iostream>
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
@@ -11,7 +13,7 @@ BOOST_AUTO_TEST_CASE(test_default_constructor)
   list_t list;
   BOOST_TEST(list.empty());
   BOOST_TEST(list.size() == 0);
-  BOOST_TEST(list.begin() == list.end());
+  BOOST_CHECK(list.begin() == list.end());
 }
 
 template <typename Iter1, typename Iter2>
@@ -54,5 +56,5 @@ BOOST_AUTO_TEST_CASE(test_move_constructor)
   BOOST_TEST(list2.size() == 2);
 
   std::vector<int> check = {1, 2};
-  BOOST_TEST(areEqual(list.begin(), list.end(), check.begin(), check.end()));
+  BOOST_TEST(areEqual(list2.begin(), list2.end(), check.begin(), check.end()));
 }
