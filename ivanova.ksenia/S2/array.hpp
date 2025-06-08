@@ -1,4 +1,7 @@
 #pragma once
+#include <algorithm>
+#include <cstddef>
+#include <memory>
 
 namespace ivanova
 {
@@ -54,6 +57,9 @@ namespace ivanova
       swap(temp);
       return *this;
     }
+
+    reference operator[](size_type index) { return _data[index]; }
+    const_reference operator[](size_type index) const { return _data[index]; }
 
     void swap(Array& other) noexcept
     {
