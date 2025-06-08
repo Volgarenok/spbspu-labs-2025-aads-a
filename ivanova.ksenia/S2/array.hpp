@@ -34,14 +34,25 @@ namespace ivanova
 
     ~Array()
     {
+      destruct(_data, _size);
+      deallocate(_data);
     }
 
     Array& operator=(const Array& other)
     {
+      if (this != &other)
+      {
+        Array temp(other);
+        swap(temp);
+      }
+      return *this;
     }
 
     Array& operator=(Array&& other) noexcept
     {
+      Array temp(std::move(other));
+      swap(temp);
+      return *this;
     }
 
     void swap(Array& other) noexcept
