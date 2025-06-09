@@ -3,6 +3,6 @@
 #include <string>
 
 namespace ivanova
-{    
-  int64_t countExpression(const std::string& expression);   
+{
+  int64_t countExpression(const std::string& expression);
 }
