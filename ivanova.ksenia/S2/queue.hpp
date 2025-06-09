@@ -100,5 +100,19 @@ namespace ivanova
     size_type _tail = 0;
     size_type _size = 0;
     Array<T> _buffer;
+
+    void shiftBuffer()
+    {
+      if (_head == 0)
+      {
+        _tail = _size;
+        return;
+      }
+      std::reverse(_buffer.begin(), _buffer.begin() + _head);
+      std::reverse(_buffer.begin() + _head, _buffer.end());
+      std::reverse(_buffer.begin(), _buffer.end());
+      _head = 0;
+      _tail = _size;
+    }
   };
 }
