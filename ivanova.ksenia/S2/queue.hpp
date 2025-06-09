@@ -48,6 +48,43 @@ namespace ivanova
     const_reference front() const { return _buffer[_head]; }
     const_reference back() const { return _buffer[_tail]; }
 
+    void push(const_reference value)
+    {
+      if (_buffer.size() == 0)
+      {
+        _buffer.push_back(value);
+        ++_size;
+        return;
+      }
+      if (_size == 0)
+      {
+        _head = _tail = 0;
+        ++_size;
+        _buffer[_head] = value;
+        return;
+      }
+      _tail = (_tail + 1) % _buffer.size();
+      if (_tail == _head)
+      {
+        shiftBuffer();
+        _buffer.push_back(value);
+        ++_size;
+        return;
+      }
+      _buffer[_tail] = value;
+      ++_size;
+    }
+
+    void pop()
+    {
+      if (_size == 0)
+      {
+        return;
+      }
+      _head = (_head + 1) % _buffer.size();
+      --_size;
+    }
+
     size_type size() const noexcept { return _size; }
     bool empty() const noexcept { return _size == 0; }
 
