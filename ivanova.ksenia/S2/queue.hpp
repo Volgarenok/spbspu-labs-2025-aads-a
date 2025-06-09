@@ -9,6 +9,13 @@ namespace ivanova
   class Queue
   {
   public:
+    using value_type = T;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
+    using difference_type = std::ptrdiff_t;
+    using size_type = std::size_t;
 
     Queue() = default;
   
@@ -35,6 +42,14 @@ namespace ivanova
       swap(temp);
       return *this;
     }
+
+    reference front() { return _buffer[_head]; }
+    reference back() { return _buffer[_tail]; }
+    const_reference front() const { return _buffer[_head]; }
+    const_reference back() const { return _buffer[_tail]; }
+
+    size_type size() const noexcept { return _size; }
+    bool empty() const noexcept { return _size == 0; }
 
     void swap(Queue& other)
     {
