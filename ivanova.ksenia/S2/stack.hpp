@@ -20,10 +20,19 @@ namespace ivanova
 
     Stack& operator=(const Stack& other)
     {
+      if (this != &other)
+      {
+        Stack temp(other);
+        swap(temp);
+      }
+      return *this;
     }
 
     Stack& operator=(Stack&& other)
     {
+      Stack temp(std::move(other));
+      swap(temp);
+      return *this;
     }
 
     void swap(Stack& other)
