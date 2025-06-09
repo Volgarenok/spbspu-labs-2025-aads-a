@@ -64,6 +64,54 @@ namespace ivanova
       return *this;
     }
 
+    void push_back(const_reference value)
+    {
+      if (_size != _capacity)
+      {
+        new (_data + _size) value_type(value);
+        ++_size;
+        return;
+      }
+      size_type new_capacity = _size * 2 + 1;
+      pointer new_data = allocate(new_capacity);
+      try
+      {
+        new (new_data + _size) value_type(value);
+      }
+      catch (...)
+      {
+        deallocate(new_data);
+        throw;
+      }
+      size_type constructed = 0;
+      try
+      {
+        for (; constructed < _size; ++constructed)
+        {
+          new (new_data + constructed) value_type(_data[constructed]);
+        }
+      }
+      catch (...)
+      {
+        destruct(new_data, constructed);
+        deallocate(new_data);
+        throw;
+      }
+      deallocate(_data);
+      _capacity = new_capacity;
+      _data = new_data;
+      ++_size;
+    }
+
+    void pop_back()
+    {
+      if (_size > 0)
+      {
+        back().~value_type();
+        --_size;
+      }
+    }
+
     reference front() { return _data[0]; }
     reference back() { return _data[_size - 1]; }
     const_reference front() const { return _data[0]; }
