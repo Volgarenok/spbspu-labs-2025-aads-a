@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "dynamic-array.hpp"
+#include <dynamic-array.hpp>
 
 using namespace savintsev;
 

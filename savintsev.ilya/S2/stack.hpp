@@ -1,6 +1,6 @@
 #ifndef STACK_HPP
 #define STACK_HPP
-#include "dynamic-array.hpp"
+#include <dynamic-array.hpp>
 
 namespace savintsev
 {

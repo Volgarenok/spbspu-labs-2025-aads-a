@@ -1,7 +1,7 @@
 #ifndef POSTFIX_EXPRESSION_H
 #define POSTFIX_EXPRESSION_H
 #include <string>
-#include "queue.hpp"
+#include <queue.hpp>
 
 namespace savintsev
 {
