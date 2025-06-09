@@ -11,7 +11,13 @@ namespace ivanova
   public:
     using value_type = T;
     using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
+    using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
+    using iterator = pointer;
+    using const_iterator = const_pointer;
 
     Array() noexcept : _size(0), _capacity(0), _data(nullptr) {}
 
@@ -58,8 +64,20 @@ namespace ivanova
       return *this;
     }
 
+    reference front() { return _data[0]; }
+    reference back() { return _data[_size - 1]; }
+    const_reference front() const { return _data[0]; }
+    const_reference back() const { return _data[_size - 1]; }
+
     reference operator[](size_type index) { return _data[index]; }
     const_reference operator[](size_type index) const { return _data[index]; }
+
+    pointer data() noexcept { return _data; }
+    const_pointer data() const noexcept { return _data; }
+
+    size_type size() const noexcept { return _size; }
+    size_type capacity() const noexcept { return _capacity; }
+    bool empty() const noexcept { return _size == 0; }
 
     void swap(Array& other) noexcept
     {
@@ -67,6 +85,11 @@ namespace ivanova
       std::swap(_capacity, other._capacity);
       std::swap(_data, other._data);
     }
+
+    iterator begin() noexcept { return _data; }
+    iterator end() noexcept { return _data + _size; }
+    const_iterator begin() const noexcept { return _data; }
+    const_iterator end() const noexcept { return _data + _size; }
 
   private:
     size_type _size;
