@@ -139,3 +139,68 @@ inline int64_t saveSub(int64_t a, int64_t b)
   }
   return a - b;
 }
+
+inline int64_t saveMul(int64_t a, int64_t b)
+{
+  if (a > 0)
+  {
+    if (b > 0)
+    {
+      if (a > std::numeric_limits<int64_t>::max() / b)
+      {
+        throw std::logic_error("multiplication overflow");
+      }
+    }
+    else if (b < 0)
+    {
+      if (b < std::numeric_limits<int64_t>::min() / a)
+      {
+        throw std::logic_error("multiplication overflow");
+      }
+    }
+  }
+  else if (a < 0)
+  {
+    if (b > 0)
+    {
+      if (a < std::numeric_limits<int64_t>::min() / b)
+      {
+        throw std::logic_error("multiplication overflow");
+      }
+    }
+    else if (b < 0)
+    {
+      if (a < std::numeric_limits<int64_t>::max() / b)
+      {
+        throw std::logic_error("multiplication overflow");
+      }
+    }
+  }
+  return a * b;
+}
+
+inline int64_t saveDiv(int64_t a, int64_t b)
+{
+  if (b == 0)
+  {
+    throw std::logic_error("division by zero");
+  }
+  if (a == std::numeric_limits<int64_t>::min() && b == -1)
+  {
+    throw std::logic_error("division overflow");
+  }
+  return a / b;
+}
+
+inline int64_t saveMod(int64_t a, int64_t b)
+{
+  if (b == 0)
+  {
+    throw std::logic_error("modulo by zero");
+  }
+  if (a == std::numeric_limits<int64_t>::min() && b == -1)
+  {
+    throw std::logic_error("modulo overflow");
+  }
+  return a % b;
+}
