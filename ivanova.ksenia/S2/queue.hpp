@@ -21,10 +21,19 @@ namespace ivanova
 
     Queue& operator=(const Queue& other)
     {
+      if (this != &other)
+      {
+        Queue temp(other);
+        swap(temp);
+      }
+      return *this;
     }
 
     Queue& operator=(Queue&& other)
     {
+      Queue temp(std::move(other));
+      swap(temp);
+      return *this;
     }
 
     void swap(Queue& other)
