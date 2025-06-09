@@ -119,3 +119,23 @@ inline ivanova::Queue<std::string> getPostfix(ivanova::Queue<std::string>& token
   }
   return postfix;
 }
+
+inline int64_t saveAdd(int64_t a, int64_t b)
+{
+  if ((b > 0 && a > std::numeric_limits<int64_t>::max() - b) ||
+      (b < 0 && a < std::numeric_limits<int64_t>::min() - b))
+  {
+    throw std::logic_error("addition overflow");
+  }
+  return a + b;
+}
+
+inline int64_t saveSub(int64_t a, int64_t b)
+{
+  if ((b < 0 && a > std::numeric_limits<int64_t>::max() + b) ||
+      (b > 0 && a < std::numeric_limits<int64_t>::min() + b))
+  {
+    throw std::logic_error("subtraction overflow");
+  }
+  return a - b;
+}
