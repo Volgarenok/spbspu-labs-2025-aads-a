@@ -204,3 +204,67 @@ inline int64_t saveMod(int64_t a, int64_t b)
   }
   return a % b;
 }
+
+inline int64_t doOperation(int64_t a, int64_t b, const std::string& op)
+{
+  if (op == "+")
+  {
+    return saveAdd(a, b);
+  }
+  if (op == "-")
+  {
+    return saveSub(a, b);
+  }
+  if (op == "*")
+  {
+    return saveMul(a, b);
+  }
+  if (op == "/")
+  {
+    return saveDiv(a, b);
+  }
+  if (op == "%")
+  {
+    return saveMod(a, b);
+  }
+  throw std::logic_error("unknown operation '" + op + "'");
+}
+
+inline int64_t evalPostfix(ivanova::Queue<std::string>& postfix)
+{
+  ivanova::Stack<int64_t> stack;
+  while (!postfix.empty())
+  {
+    std::string token = postfix.front();
+    postfix.pop();
+    if (isOperation(token))
+    {
+      if (stack.size() < 2)
+      {
+        std::string message = "binary operation '" + token + "' expected 2 arguments, but was one";
+        throw std::logic_error(message);
+      }
+      int64_t b = stack.top(); stack.pop();
+      int64_t a = stack.top(); stack.pop();
+      int64_t c = doOperation(a, b, token);
+      stack.push(c);
+    }
+    else
+    {
+      stack.push(std::stoll(token));
+    }
+  }
+  if (stack.size() > 1)
+  {
+    throw std::logic_error("wrong expression");
+  }
+  return stack.top();
+}
+
+int64_t ivanova::countExpression(const std::string& expression)
+{
+  ivanova::Queue<std::string> tokens = getTokens(expression);
+  ivanova::Queue<std::string> postfix = getPostfix(tokens);
+  int64_t value = evalPostfix(postfix);
+  return value;
+}
