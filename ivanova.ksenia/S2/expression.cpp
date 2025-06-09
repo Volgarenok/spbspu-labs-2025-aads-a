@@ -39,3 +39,83 @@ inline int prior(const std::string& op)
   }
   return 0;
 }
+
+inline ivanova::Queue<std::string> getTokens(const std::string& line)
+{
+  ivanova::Queue<std::string> tokens;
+  size_t prev = 0;
+  for (size_t i = 0; i <= line.size(); ++i)
+  {
+    if (i == line.size() || std::isspace(line[i]))
+    {
+      if (prev != i)
+      {
+        tokens.push(line.substr(prev, i - prev));
+      }
+      prev = i + 1;
+    }
+  }
+  return tokens;
+}
+
+inline ivanova::Queue<std::string> getPostfix(ivanova::Queue<std::string>& tokens)
+{
+  ivanova::Queue<std::string> postfix;
+  ivanova::Stack<std::string> operations;
+  while (!tokens.empty())
+  {
+    std::string token = tokens.front();
+    tokens.pop();
+    if (isNumber(token))
+    {
+      postfix.push(token);
+    }
+    else if (isOperation(token))
+    {
+      while (!operations.empty() &&
+              isOperation(operations.top()) &&
+              prior(operations.top()) >= prior(token))
+      {
+        postfix.push(operations.top());
+        operations.pop();
+      }
+      operations.push(token);
+    }
+    else if (token == "(")
+    {
+      operations.push(token);
+    }
+    else if (token == ")")
+    {
+      while (!operations.empty() && operations.top() != "(")
+      {
+        postfix.push(operations.top());
+        operations.pop();
+      }
+      if (!operations.empty())
+      {
+        operations.pop();
+      }
+      else
+      {
+        std::string message = "not balanced brackets";
+        throw std::logic_error(message);
+      }
+    }
+    else
+    {
+      std::string message = "unrknown token '" + token + "'";
+      throw std::logic_error(message);
+    }
+  }
+  while (!operations.empty())
+  {
+    if (operations.top() == "(")
+    {
+      throw std::logic_error("not balanced brackets");
+    }
+    postfix.push(operations.top());
+    operations.pop();
+  }
+  return postfix;
+}
