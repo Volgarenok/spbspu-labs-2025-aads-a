@@ -21,3 +21,21 @@ inline bool isNumber(const std::string& token)
   }
   return flag;
 }
+
+inline bool isOperation(const std::string& token)
+{
+  return token == "+" || token == "-" || token == "*" || token == "/" || token == "%";
+}
+
+inline int prior(const std::string& op)
+{
+  if (op == "+" || op == "-")
+  {
+    return 1;
+  }
+  if (op == "*" || op == "/" || op == "%")
+  {
+    return 2;
+  }
+  return 0;
+}
