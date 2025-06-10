@@ -99,6 +99,7 @@ namespace ivanova
         deallocate(new_data);
         throw;
       }
+      destruct(_data, _size);
       deallocate(_data);
       _capacity = new_capacity;
       _data = new_data;
