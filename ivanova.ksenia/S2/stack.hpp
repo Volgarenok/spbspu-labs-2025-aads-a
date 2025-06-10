@@ -1,4 +1,6 @@
-#pragma once
+#ifndef STACK_HPP
+#define STACK_HPP
+
 #include <algorithm>
 #include <cstddef>
 #include "array.hpp"
@@ -60,3 +62,5 @@ namespace ivanova
     Array<T> _buffer;
   };
 }
+
+#endif

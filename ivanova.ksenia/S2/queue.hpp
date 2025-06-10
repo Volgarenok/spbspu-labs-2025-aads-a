@@ -1,4 +1,6 @@
-#pragma once
+#ifndef QUEUE_HPP
+#define QUEUE_HPP
+
 #include <algorithm>
 #include <cstddef>
 #include "array.hpp"
@@ -116,3 +118,5 @@ namespace ivanova
     }
   };
 }
+
+#endif

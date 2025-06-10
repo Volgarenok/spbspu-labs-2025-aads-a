@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ARRAY_HPP
+#define ARRAY_HPP
+
 #include <algorithm>
 #include <cstddef>
 #include <memory>
@@ -166,3 +168,5 @@ namespace ivanova
     }
   };
 }
+
+#endif
