@@ -202,7 +202,8 @@ inline int64_t saveMod(int64_t a, int64_t b)
   {
     throw std::logic_error("modulo overflow");
   }
-  return a % b;
+
+  return (a % b + b) % b;
 }
 
 inline int64_t doOperation(int64_t a, int64_t b, const std::string& op)
