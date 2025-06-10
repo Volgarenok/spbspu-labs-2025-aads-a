@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(ArrayAssignSelfOperator)
 {
   ivanova::Array<int> a;
   a.push_back(10);
-  
+
   a = a;
   BOOST_CHECK_EQUAL(a.size(), 1);
   BOOST_CHECK_EQUAL(a[0], 10);

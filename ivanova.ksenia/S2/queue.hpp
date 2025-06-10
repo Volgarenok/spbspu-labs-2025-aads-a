@@ -18,7 +18,7 @@ namespace ivanova
     using size_type = std::size_t;
 
     Queue() = default;
-  
+
     Queue(const Queue& other)
       : _head(other._head), _tail(other._tail), _size(other._size), _buffer(other._buffer) {}
 
