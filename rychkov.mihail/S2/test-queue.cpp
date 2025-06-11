@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
-#include "queue.hpp"
-#include "mem_checker.hpp"
+#include <queue.hpp>
+#include <mem_checker.hpp>
 
 BOOST_AUTO_TEST_SUITE(S2_queue_test)
 

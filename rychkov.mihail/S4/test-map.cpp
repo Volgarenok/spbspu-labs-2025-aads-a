@@ -6,8 +6,8 @@
 #include <iterator>
 #include <boost/test/unit_test.hpp>
 #include <mem_checker.hpp>
-#include "map.hpp"
-#include "set.hpp"
+#include <map.hpp>
+#include <set.hpp>
 
 BOOST_AUTO_TEST_SUITE(S4_map_test)
 
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(random_test)
     std::uniform_int_distribution< size_t > range(0, size - 1);
     decltype(set)::iterator wrong_hint = (size == 0 ? set.begin() : set.lower_bound(data[range(engine)]));
     i = {engine()};
-    set.insert(wrong_hint, i);
+    BOOST_TEST((*set.insert(wrong_hint, i) == i));
   }
   std::sort(data, data + input_size);
   size = input_size;

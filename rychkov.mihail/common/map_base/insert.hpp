@@ -197,7 +197,8 @@ typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::transparent_compare_key
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 template< bool IsSet2, class... Args >
 std::enable_if_t< !IsSet && !IsSet2, typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::iterator >
-    rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::try_emplace(const_iterator hint, const key_type& key, Args&&... args)
+    rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::try_emplace
+    (const_iterator hint, const key_type& key, Args&&... args)
 {
   return emplace_hint_impl(correct_hint(hint, key), key, std::forward< Args >(args)...).first;
 }
@@ -232,7 +233,8 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::iterator, bo
 }
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 template< class V >
-std::enable_if_t< std::is_constructible< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::value_type, V&& >::value,
+std::enable_if_t< std::is_constructible
+      < typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::value_type, V&& >::value,
       std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::iterator, bool > >
     rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::insert(V&& value)
 {
@@ -252,7 +254,8 @@ typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::iterator
 }
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 template< class V >
-std::enable_if_t< std::is_constructible< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::value_type, V&& >::value,
+std::enable_if_t< std::is_constructible
+      < typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::value_type, V&& >::value,
       typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::iterator >
     rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::insert(const_iterator hint, V&& value)
 {

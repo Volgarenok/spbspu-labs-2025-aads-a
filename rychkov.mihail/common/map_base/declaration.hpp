@@ -2,10 +2,11 @@
 #define MAP_BASE_DECLARATION_HPP
 
 #include <utility>
-#include <type_traits>
 #include <memory>
+#include <type_traits.hpp>
 #include "node.hpp"
 #include "iterator.hpp"
+#include "heavy_iterator.hpp"
 
 namespace rychkov
 {
@@ -22,14 +23,6 @@ namespace rychkov
     auto clear_p = const_cast< Member* >(std::addressof(fake_member));
     return reinterpret_cast< Base* >(reinterpret_cast< char* >(clear_p) - offset);
   }
-  template< class Cmp, class = void >
-  struct is_transparent: std::false_type
-  {};
-  template< class Cmp >
-  struct is_transparent< Cmp, void_t< typename Cmp::is_transparent > >: std::true_type
-  {};
-  template< class Cmp >
-  constexpr bool is_transparent_v = is_transparent< Cmp >::value;
   namespace details
   {
     template< class R, class K1, class C, class... Exclude >
@@ -60,6 +53,16 @@ namespace rychkov
     using const_iterator = MapBaseIterator< value_type, N, real_value_type, true, false >;
     using reverse_iterator = MapBaseIterator< value_type, N, real_value_type, false, true >;
     using const_reverse_iterator = MapBaseIterator< value_type, N, real_value_type, true, true >;
+
+    using heavy_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, false, false, false >;
+    using const_heavy_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, true, false, false >;
+    using reverse_heavy_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, false, true, false >;
+    using const_reverse_heavy_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, true, true, false >;
+
+    using breadth_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, false, false, true >;
+    using const_breadth_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, true, false, true >;
+    using reverse_breadth_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, false, true, true >;
+    using const_reverse_breadth_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, true, true, true >;
 
     struct map_value_compare
     {
@@ -104,6 +107,13 @@ namespace rychkov
     reverse_iterator rend() noexcept;
     const_reverse_iterator rend() const noexcept;
     const_reverse_iterator crend() const noexcept;
+
+    template< class Unary >
+    Unary traverse_lnr(Unary f) const;
+    template< class Unary >
+    Unary traverse_rnl(Unary f) const;
+    template< class Unary >
+    Unary traverse_breadth(Unary f) const;
 
     iterator lower_bound(const key_type& key);
     const_iterator lower_bound(const key_type& key) const;

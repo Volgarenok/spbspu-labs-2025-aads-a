@@ -71,7 +71,8 @@ template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::reverse_iterator
     rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::rbegin() noexcept
 {
-  return {cached_rbegin_, cached_rbegin_->size() - 1};
+  node_size_type result_idx = cached_rbegin_->size();
+  return {cached_rbegin_, (result_idx == 0 ? static_cast< node_size_type >(0) : --result_idx)};
 }
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_reverse_iterator
@@ -83,7 +84,8 @@ template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_reverse_iterator
     rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::crbegin() const noexcept
 {
-  return {cached_rbegin_, cached_rbegin_->size() - 1};
+  node_size_type result_idx = cached_rbegin_->size();
+  return {cached_rbegin_, (result_idx == 0 ? static_cast< node_size_type >(0) : --result_idx)};
 }
 
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >

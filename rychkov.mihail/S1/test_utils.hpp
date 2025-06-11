@@ -4,7 +4,7 @@
 #include <functional>
 #include <iterator>
 #include <boost/test/unit_test.hpp>
-#include "list.hpp"
+#include <list.hpp>
 
 namespace rychkov
 {
