@@ -1,8 +1,8 @@
 #ifndef LIST_HPP
 #define LIST_HPP
 #include <utility>
-#include "iterator.hpp"
-#include "node.hpp"
+#include "list_iterator.hpp"
+#include "list_node.hpp"
 
 namespace demehin
 {
@@ -25,6 +25,7 @@ namespace demehin
     ~List();
 
     List< T >& operator=(const List< T >&);
+    List< T >& operator=(List< T >&&) noexcept;
     bool operator==(const List< T >&) const noexcept;
     bool operator!=(const List< T >&) const noexcept;
     bool operator<(const List< T >&) const noexcept;
@@ -142,6 +143,18 @@ namespace demehin
   List< T >& List< T >::operator=(const List< T >& other)
   {
     assign(other.begin(), other.end());
+    return *this;
+  }
+
+  template< typename T >
+  List< T >& List< T >::operator=(List< T >&& other) noexcept
+  {
+    if (this != std::addressof(other))
+    {
+      tail_ = std::exchange(other.tail_, nullptr);
+      fake_ = std::exchange(other.fake_, nullptr);
+      size_ = std::exchange(other.size_, 0);
+    }
     return *this;
   }
 
