@@ -2,7 +2,7 @@
 #define EXPRESSION_PROCESSING_HPP
 
 #include "postfix_token.hpp"
-#include "stack.hpp"
+#include <stack.hpp>
 
 namespace maslevtsov {
   using expression_queue = maslevtsov::Queue< maslevtsov::PostfixToken >;
