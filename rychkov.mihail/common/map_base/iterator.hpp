@@ -7,15 +7,20 @@
 
 namespace rychkov
 {
+  template< class V, size_t N, class RealV, bool isConst, bool isReversed, bool isBreadth >
+  class MapBaseHeavyIterator;
+
   template< class Value, size_t N, class RealValue, bool isConst, bool isReversed >
   class MapBaseIterator
   {
   private:
-    using real_value_type = RealValue;
-  public:
     static constexpr size_t node_capacity = N;
+    using real_value_type = RealValue;
     using node_type = MapBaseNode< real_value_type, node_capacity >;
 
+    template< class V, size_t N1, class RealV, bool isConst1, bool isReversed1, bool isBreadth >
+    friend class MapBaseHeavyIterator;
+  public:
     using difference_type = ptrdiff_t;
     using value_type = Value;
     using pointer = value_type*;
@@ -31,6 +36,14 @@ namespace rychkov
           MapBaseIterator< Value, N, RealValue, false, isReversed > > rhs) noexcept:
       node_(rhs.node_),
       pointed_(rhs.pointed_)
+    {}
+    MapBaseIterator(MapBaseHeavyIterator< Value, N, RealValue, isConst, isReversed, false > src) noexcept:
+      node_(src.container_.empty() ? nullptr : src.top()),
+      pointed_(src.pointed_)
+    {}
+    MapBaseIterator(MapBaseHeavyIterator< Value, N, RealValue, isConst, isReversed, true > src) noexcept:
+      node_(src.container_.empty() ? nullptr : src.top()),
+      pointed_(src.pointed_)
     {}
 
     bool operator==(MapBaseIterator rhs) const noexcept
@@ -130,6 +143,10 @@ void rychkov::MapBaseIterator< Value, N, RealValue, isConst, isReversed >::shift
       {
         break;
       }
+    }
+    if (!node_->isfake())
+    {
+      pointed_--;
     }
   }
 }

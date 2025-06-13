@@ -6,8 +6,8 @@
 #include <iterator>
 #include <boost/test/unit_test.hpp>
 #include <mem_checker.hpp>
-#include "map.hpp"
-#include "set.hpp"
+#include <map.hpp>
+#include <set.hpp>
 
 BOOST_AUTO_TEST_SUITE(S4_map_test)
 

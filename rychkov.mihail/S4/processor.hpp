@@ -2,8 +2,8 @@
 #define PROCESSOR_HPP
 
 #include <string>
-#include "map.hpp"
-#include "parser.hpp"
+#include <map.hpp>
+#include <parser.hpp>
 
 namespace rychkov
 {

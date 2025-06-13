@@ -6,6 +6,7 @@
 #include <memory>
 #include "node.hpp"
 #include "iterator.hpp"
+#include "heavy_iterator.hpp"
 
 namespace rychkov
 {
@@ -61,6 +62,16 @@ namespace rychkov
     using reverse_iterator = MapBaseIterator< value_type, N, real_value_type, false, true >;
     using const_reverse_iterator = MapBaseIterator< value_type, N, real_value_type, true, true >;
 
+    using heavy_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, false, false, false >;
+    using const_heavy_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, true, false, false >;
+    using reverse_heavy_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, false, true, false >;
+    using const_reverse_heavy_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, true, true, false >;
+
+    using breadth_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, false, false, true >;
+    using const_breadth_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, true, false, true >;
+    using reverse_breadth_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, false, true, true >;
+    using const_reverse_breadth_iterator = MapBaseHeavyIterator< value_type, N, real_value_type, true, true, true >;
+
     struct map_value_compare
     {
       using value_type = std::pair< const key_type, mapped_type >;
@@ -104,6 +115,13 @@ namespace rychkov
     reverse_iterator rend() noexcept;
     const_reverse_iterator rend() const noexcept;
     const_reverse_iterator crend() const noexcept;
+
+    template< class Unary >
+    Unary traverse_lnr(Unary f) const;
+    template< class Unary >
+    Unary traverse_rnl(Unary f) const;
+    template< class Unary >
+    Unary traverse_breadth(Unary f) const;
 
     iterator lower_bound(const key_type& key);
     const_iterator lower_bound(const key_type& key) const;
