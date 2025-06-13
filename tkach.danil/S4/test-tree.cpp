@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <string>
-#include "AVLtree.hpp"
+#include <AVLtree.hpp>
 
 using namespace tkach;
 template< class Key, class Value >
