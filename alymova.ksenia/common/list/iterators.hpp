@@ -1,11 +1,13 @@
 #ifndef ITERATORS_HPP
 #define ITERATORS_HPP
 #include <cassert>
-#include "list.hpp"
 #include "listNode.hpp"
 
 namespace alymova
 {
+  template< typename T >
+  class List;
+
   template< typename T >
   struct Iterator:
     public std::iterator< std::bidirectional_iterator_tag, T >
