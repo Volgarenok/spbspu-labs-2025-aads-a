@@ -43,6 +43,8 @@ namespace tkach
     ~DynArray();
     DynArray< T >& operator=(DynArray< T >&&) noexcept;
     DynArray< T >& operator=(const DynArray< T >&);
+    T& operator[](size_t index);
+    const T& operator[](size_t index) const;
     void pushBack(T&& data);
     void pushBack(const T& data);
     void popBack();
@@ -64,6 +66,18 @@ namespace tkach
     void realloc();
     void clear();
   };
+
+  template< typename T >
+  T& DynArray< T >::operator[](size_t index)
+  {
+    return data_[begin_ + index];
+  }
+
+  template< typename T >
+  const T& DynArray< T >::operator[](size_t index) const
+  {
+    return data_[begin_ + index];
+  }
 
   template< typename T >
   DynArray< T >::DynArray():

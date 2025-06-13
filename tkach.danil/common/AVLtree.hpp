@@ -5,6 +5,8 @@
 #include "node_tree.hpp"
 #include "c_iterator.hpp"
 #include "iterator.hpp"
+#include "stack.hpp"
+#include "queue.hpp"
 
 namespace tkach
 {
@@ -42,6 +44,18 @@ namespace tkach
     Iterator< Key, Value, Cmp > erase(Iterator< Key, Value, Cmp > begin, Iterator< Key, Value, Cmp > end);
     Iterator< Key, Value, Cmp > lowerBound(const Key& key);
     Iterator< Key, Value, Cmp > upperBound(const Key& key);
+    template< typename F >
+    F traverseLnr(F f) const;
+    template< typename F >
+    F traverseRnl(F f) const;
+    template< typename F >
+    F traverseBreadth(F f) const;
+    template< typename F >
+    F traverseLnr(F f);
+    template< typename F >
+    F traverseRnl(F f);
+    template< typename F >
+    F traverseBreadth(F f);
     Citerator< Key, Value, Cmp > lowerBound(const Key& key) const;
     Citerator< Key, Value, Cmp > upperBound(const Key& key) const;
     std::pair< Iterator< Key, Value >, Iterator< Key, Value > > equalRange(const Key& key);
@@ -624,7 +638,161 @@ namespace tkach
       delete root;
     }
   }
-}
 
+  template< class Key, class Value, class Cmp >
+  template< typename F >
+  F AvlTree< Key, Value, Cmp >::traverseLnr(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< const TreeNode< Key, Value >* > stack;
+    const TreeNode< Key, Value >* temp = root_;
+    while (!stack.empty() || temp)
+    {
+      while (temp)
+      {
+        stack.push(temp);
+        temp = temp->left;
+      }
+      temp = stack.top();
+      stack.pop();
+      f(temp->data);
+      temp = temp->right;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Cmp >
+  template< typename F >
+  F AvlTree< Key, Value, Cmp >::traverseRnl(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< const TreeNode< Key, Value >* > stack;
+    const TreeNode< Key, Value >* temp = root_;
+    while (!stack.empty() || temp)
+    {
+      while (temp)
+      {
+        stack.push(temp);
+        temp = temp->right;
+      }
+      temp = stack.top();
+      stack.pop();
+      f(temp->data);
+      temp = temp->left;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Cmp >
+  template< typename F >
+  F AvlTree< Key, Value, Cmp >::traverseBreadth(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Queue< const TreeNode< Key, Value >* > queue;
+    queue.push(root_);
+    while (!queue.empty())
+    {
+      const TreeNode< Key, Value >* temp = queue.front();
+      queue.pop();
+      f(temp->data);
+      if (temp->left)
+      {
+        queue.push(temp->left);
+      }
+      if (temp->right)
+      {
+        queue.push(temp->right);
+      }
+    }
+    return f;
+  }
+
+
+  template< class Key, class Value, class Cmp >
+  template< typename F >
+  F AvlTree< Key, Value, Cmp >::traverseLnr(F f)
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< TreeNode< Key, Value >* > stack;
+    TreeNode< Key, Value >* temp = root_;
+    while (!stack.empty() || temp)
+    {
+      while (temp)
+      {
+        stack.push(temp);
+        temp = temp->left;
+      }
+      temp = stack.top();
+      stack.pop();
+      f(temp->data);
+      temp = temp->right;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Cmp >
+  template< typename F >
+  F AvlTree< Key, Value, Cmp >::traverseRnl(F f)
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< TreeNode< Key, Value >* > stack;
+    TreeNode< Key, Value >* temp = root_;
+    while (!stack.empty() || temp)
+    {
+      while (temp)
+      {
+        stack.push(temp);
+        temp = temp->right;
+      }
+      temp = stack.top();
+      stack.pop();
+      f(temp->data);
+      temp = temp->left;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Cmp >
+  template< typename F >
+  F AvlTree< Key, Value, Cmp >::traverseBreadth(F f)
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Queue< TreeNode< Key, Value >* > queue;
+    queue.push(root_);
+    while (!queue.empty())
+    {
+      TreeNode< Key, Value >* temp = queue.front();
+      queue.pop();
+      f(temp->data);
+      if (temp->left)
+      {
+        queue.push(temp->left);
+      }
+      if (temp->right)
+      {
+        queue.push(temp->right);
+      }
+    }
+    return f;
+  }
+}
 
 #endif
