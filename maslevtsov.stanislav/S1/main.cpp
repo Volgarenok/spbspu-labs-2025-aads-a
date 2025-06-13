@@ -1,6 +1,6 @@
 #include <iostream>
 #include "fwd_list_operations.hpp"
-#include "fwd_list/definition.hpp"
+#include <fwd_list/definition.hpp>
 
 int main()
 {
