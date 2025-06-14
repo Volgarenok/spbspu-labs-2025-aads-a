@@ -156,7 +156,7 @@ namespace maslov
     {
       throw std::runtime_error("ERROR: empty queue, cannot pop");
     }
-    head_ = head_ + 1;
+    head_ = (head_ + 1) % capacity_;
     --size_;
   }
 
