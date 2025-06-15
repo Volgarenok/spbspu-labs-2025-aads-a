@@ -1,8 +1,8 @@
-#ifndef ITERATOR_HPP
-#define ITERATOR_HPP
+#ifndef LIST_ITERATOR_HPP
+#define LIST_ITERATOR_HPP
 #include <cassert>
 #include <iterator>
-#include "node.hpp"
+#include "list_node.hpp"
 
 namespace demehin
 {
