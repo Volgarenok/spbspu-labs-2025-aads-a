@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "fwd_list/definition.hpp"
+#include <fwd_list/definition.hpp>
 
 namespace {
   template< typename T >

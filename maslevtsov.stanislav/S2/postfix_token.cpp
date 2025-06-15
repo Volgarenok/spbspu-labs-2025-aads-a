@@ -1,6 +1,6 @@
 #include "postfix_token.hpp"
 #include <sstream>
-#include "stack.hpp"
+#include <stack.hpp>
 #include "checked_operations.hpp"
 
 namespace {
