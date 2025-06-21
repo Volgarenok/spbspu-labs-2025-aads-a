@@ -1,5 +1,5 @@
-#ifndef NODE_HPP
-#define NODE_HPP
+#ifndef LIST_NODE_HPP
+#define LIST_NODE_HPP
 
 namespace maslov
 {

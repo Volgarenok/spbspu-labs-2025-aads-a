@@ -1,5 +1,5 @@
-#ifndef NODE_HPP
-#define NODE_HPP
+#ifndef TREE_NODE_HPP
+#define TREE_NODE_HPP
 
 #include <utility>
 

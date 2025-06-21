@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <string>
 #include <sstream>
-#include <tree.hpp>
+#include <tree/tree.hpp>
 
 namespace
 {

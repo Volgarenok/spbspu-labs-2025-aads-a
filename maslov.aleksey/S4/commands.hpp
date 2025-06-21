@@ -2,7 +2,7 @@
 #define COMMANDS_HPP
 
 #include <string>
-#include <tree.hpp>
+#include <tree/tree.hpp>
 
 namespace maslov
 {
