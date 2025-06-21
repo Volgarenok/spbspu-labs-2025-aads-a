@@ -2,8 +2,8 @@
 #define MAP_BASE_DECLARATION_HPP
 
 #include <utility>
-#include <type_traits>
 #include <memory>
+#include <type_traits.hpp>
 #include "node.hpp"
 #include "iterator.hpp"
 #include "heavy_iterator.hpp"
@@ -23,14 +23,6 @@ namespace rychkov
     auto clear_p = const_cast< Member* >(std::addressof(fake_member));
     return reinterpret_cast< Base* >(reinterpret_cast< char* >(clear_p) - offset);
   }
-  template< class Cmp, class = void >
-  struct is_transparent: std::false_type
-  {};
-  template< class Cmp >
-  struct is_transparent< Cmp, void_t< typename Cmp::is_transparent > >: std::true_type
-  {};
-  template< class Cmp >
-  constexpr bool is_transparent_v = is_transparent< Cmp >::value;
   namespace details
   {
     template< class R, class K1, class C, class... Exclude >

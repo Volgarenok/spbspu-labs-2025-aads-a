@@ -93,8 +93,10 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::iterator, bo
     root->emplace_back(std::move(to_insert[0]));
     root->children[0] = to_insert.children[0];
     root->children[1] = to_insert.children[1];
-    to_insert.pop_back();
-    correct_emplace_result(*root, *storage.data[storage.size - 1], 0, hint);
+    if (hint.pointed_ == node_middle)
+    {
+      hint = {root, 0};
+    }
     storage.data[storage.size - 1] = nullptr;
   }
   else
@@ -102,7 +104,7 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::iterator, bo
     caret->emplace(temp.pointed_, std::move(to_insert[0]));
     caret->children[temp.pointed_] = to_insert.children[0];
     caret->children[temp.pointed_ + 1] = to_insert.children[1];
-    if (hint.pointed_ > node_middle)
+    if (hint.pointed_ == node_middle)
     {
       hint = {caret, temp.pointed_};
     }
@@ -185,7 +187,7 @@ template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 void rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::correct_emplace_result(node_type& left, node_type& right,
     node_size_type ins_point, const_iterator& hint)
 {
-  if ((hint.pointed_ > node_middle) && (ins_point != node_middle))
+  if ((hint.pointed_ >= node_middle) && (ins_point != node_middle))
   {
     if (ins_point < node_middle)
     {
@@ -194,7 +196,7 @@ void rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::correct_emplace_result(node
     }
     else
     {
-      hint.pointed_ = hint.pointed_ - node_middle - 1;
+      hint.pointed_ = ins_point - node_middle - 1;
       hint.node_ = &right;
     }
   }
