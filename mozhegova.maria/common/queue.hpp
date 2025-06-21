@@ -120,7 +120,7 @@ namespace mozhegova
     {
       throw std::logic_error("empty queue");
     }
-    first_++;
+    first_ = (first_ + 1) % capacity_;
     size_--;
   }
 
