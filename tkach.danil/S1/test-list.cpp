@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
-#include "list.hpp"
+#include <list.hpp>
 
 using namespace tkach;
 
@@ -481,8 +481,8 @@ BOOST_AUTO_TEST_CASE(list_range_constructor_first_equal_last_test)
   List< int > list2(list.begin(), list.end());
   std::ostringstream out;
   outputList(out, list2);
-  BOOST_TEST(out.str() == "");
-  BOOST_TEST(list2.empty());
+  BOOST_TEST(out.str() == "1 2 3");
+  BOOST_TEST(!list2.empty());
 }
 
 BOOST_AUTO_TEST_CASE(list_insert_after_count_test)
@@ -585,4 +585,3 @@ BOOST_AUTO_TEST_CASE(list_begin_end_test)
   BOOST_TEST(*(list1.begin()) == 1);
   BOOST_TEST(*(list1.end()) == 1);
 }
-

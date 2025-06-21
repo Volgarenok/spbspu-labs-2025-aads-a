@@ -39,7 +39,7 @@ namespace tkach
     Citerator< Key, Value, Cmp > cend() const;
     Iterator< Key, Value, Cmp > end();
     Iterator< Key, Value, Cmp > erase(Iterator< Key, Value, Cmp > it);
-    Iterator< Key, Value, Cmp > erase(const Key& key);
+    size_t erase(const Key& key);
     Iterator< Key, Value, Cmp > erase(Citerator< Key, Value, Cmp > begin, Citerator< Key, Value, Cmp > end);
     Iterator< Key, Value, Cmp > erase(Iterator< Key, Value, Cmp > begin, Iterator< Key, Value, Cmp > end);
     Iterator< Key, Value, Cmp > lowerBound(const Key& key);
@@ -64,7 +64,7 @@ namespace tkach
     size_t size() const noexcept;
     size_t count(const Key& k) const;
   private:
-    using pair_t = std::pair< tkach::TreeNode< Key, Value >*, tkach::TreeNode< Key, Value >* >;
+    using pair_t = std::pair< TreeNode< Key, Value >*, std::pair< TreeNode< Key, Value >*, bool > >;
     TreeNode< Key, Value >* root_;
     size_t size_;
     Cmp cmp_;
@@ -259,7 +259,7 @@ namespace tkach
   {
     while (begin != end)
     {
-      insert((begin.node_)->data);
+      insert(*begin);
       begin++;
     }
   }
@@ -276,7 +276,7 @@ namespace tkach
     Iterator< Key, Value, Cmp > res;
     while (begin != end)
     {
-      res = erase(begin->first);
+      res = erase(begin);
       begin++;
     }
     return res;
@@ -311,14 +311,15 @@ namespace tkach
   }
 
   template< class Key, class Value, class Cmp >
-  Iterator< Key, Value, Cmp > AvlTree< Key, Value, Cmp >::erase(const Key& key)
+  size_t AvlTree< Key, Value, Cmp >::erase(const Key& key)
   {
-    auto it = find(key);
-    auto it2 = it;
-    it2++;
-    root_ = eraseFrom(root_, key);
-    size_--;
-    return it2;
+    Iterator< Key, Value, Cmp > it = find(key);
+    if (it != end())
+    {
+      erase(it);
+      return 1;
+    }
+    return 0;
   }
 
   template< class Key, class Value, class Cmp >
@@ -505,8 +506,11 @@ namespace tkach
   {
     auto pair = insertCmp(root_, key, std::forward< Args >(args)...);
     root_ = pair.first;
-    size_++;
-    return Iterator< Key, Value >(pair.second);
+    if (pair.second.second)
+    {
+      size_++;
+    }
+    return Iterator< Key, Value >(pair.second.first);
   }
 
   template< class Key, class Value, class Cmp >
@@ -540,34 +544,33 @@ namespace tkach
     if (root == nullptr)
     {
       TreeNode< Key, Value >* new_node = new TreeNode< Key, Value >(std::forward< Args >(args)...);
-      return std::make_pair(new_node, new_node);
+      return std::make_pair(new_node, std::make_pair(new_node, true));
     }
     else if (cmp_(key, root->data.first))
     {
       auto pair = insertCmp(root->left, key, std::forward< Args >(args)...);
       root->left = pair.first;
-      inserted = pair.second;
+      inserted = pair.second.first;
       if (root->left->parent == nullptr)
       {
         root->left->parent = root;
       }
+      fixHeight(root);
+      return std::make_pair(balance(root), std::make_pair(inserted, pair.second.second));
     }
     else if (cmp_(root->data.first, key))
     {
       auto pair = insertCmp(root->right, key, std::forward< Args >(args)...);
       root->right = pair.first;
-      inserted = pair.second;
+      inserted = pair.second.first;
       if (root->right->parent == nullptr)
       {
         root->right->parent = root;
       }
+      fixHeight(root);
+      return std::make_pair(balance(root), std::make_pair(inserted, pair.second.second));
     }
-    else
-    {
-      return std::make_pair(root, root);
-    }
-    fixHeight(root);
-    return std::make_pair(balance(root), inserted);
+    return std::make_pair(root, std::make_pair(root, false));
   }
 
   template< class Key, class Value, class Cmp >
@@ -625,6 +628,7 @@ namespace tkach
   {
     clearFrom(root_);
     root_ = nullptr;
+    size_ = 0;
   }
 
   template< class Key, class Value, class Cmp >
@@ -632,7 +636,6 @@ namespace tkach
   {
     if (root)
     {
-      size_--;
       clearFrom(root->left);
       clearFrom(root->right);
       delete root;

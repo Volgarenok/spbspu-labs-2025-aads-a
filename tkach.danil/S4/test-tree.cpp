@@ -276,11 +276,11 @@ BOOST_AUTO_TEST_CASE(tree_erase_key_test)
   {
     tree.insert(std::make_pair(i, std::to_string(i)));
   }
-  auto it = tree.erase(2);
+  bool res = tree.erase(2);
   std::ostringstream out;
   print(tree, out);
   BOOST_TEST(out.str() == "0 0 1 1 3 3 4 4 5 5");
-  BOOST_TEST((it->first == 3 && it->second == "3"));
+  BOOST_TEST(res);
   BOOST_TEST(tree.size() == 5);
 }
 

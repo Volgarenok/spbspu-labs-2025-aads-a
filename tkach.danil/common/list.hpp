@@ -25,10 +25,10 @@ namespace tkach
     List< T >& operator=(const List< T >& other);
     List< T >& operator=(List< T >&& other) noexcept;
     List< T >& operator=(std::initializer_list< T > in_list);
-    Iterator< T > begin() noexcept;
-    Citerator< T > cbegin() const noexcept;
-    Iterator< T > end() noexcept;
-    Citerator< T > cend() const noexcept;
+    ListIterator< T > begin() noexcept;
+    CListIterator< T > cbegin() const noexcept;
+    ListIterator< T > end() noexcept;
+    CListIterator< T > cend() const noexcept;
     bool empty() const noexcept;
     T& front();
     const T& front() const;
@@ -38,12 +38,12 @@ namespace tkach
     void pushBack(T&& data);
     void pushBack(const T& data);
     void popFront();
-    void spliceAfter(Citerator< T > pos, List< T >& other);
-    void spliceAfter(Citerator< T > pos, List< T >&& other);
-    void spliceAfter(Citerator< T > pos, List< T >& other, Citerator< T > first);
-    void spliceAfter(Citerator< T > pos, List< T >&& other, Citerator< T > first);
-    void spliceAfter(Citerator< T > pos, List< T >& other, Citerator< T > first, Citerator< T > last);
-    void spliceAfter(Citerator< T > pos, List< T >&& other, Citerator< T > first, Citerator< T > last);
+    void spliceAfter(CListIterator< T > pos, List< T >& other);
+    void spliceAfter(CListIterator< T > pos, List< T >&& other);
+    void spliceAfter(CListIterator< T > pos, List< T >& other, CListIterator< T > first);
+    void spliceAfter(CListIterator< T > pos, List< T >&& other, CListIterator< T > first);
+    void spliceAfter(CListIterator< T > pos, List< T >& other, CListIterator< T > first, CListIterator< T > last);
+    void spliceAfter(CListIterator< T > pos, List< T >&& other, CListIterator< T > first, CListIterator< T > last);
     void remove(const T& value);
     template< class UnaryPredicate >
     void removeIf(UnaryPredicate p);
@@ -51,14 +51,14 @@ namespace tkach
     template< class InputIt >
     void assign(InputIt first, InputIt last);
     void assign(std::initializer_list< T > in_list);
-    Iterator< T > insertAfter(Citerator < T > pos, const T& value);
-    Iterator< T > insertAfter(Citerator < T > pos, T&& value);
-    Iterator< T > insertAfter(Citerator < T > pos, size_t count, const T & data);
+    ListIterator< T > insertAfter(CListIterator < T > pos, const T& value);
+    ListIterator< T > insertAfter(CListIterator < T > pos, T&& value);
+    ListIterator< T > insertAfter(CListIterator < T > pos, size_t count, const T & data);
     template< class InputIt >
-    Iterator< T > insertAfter(Citerator < T > pos, InputIt first, InputIt last);
-    Iterator< T > insertAfter(Citerator < T > pos, std::initializer_list< T > in_list);
-    Iterator< T > eraseAfter(Citerator < T > pos);
-    Iterator< T > eraseAfter(Citerator < T > first, Citerator < T > last);
+    ListIterator< T > insertAfter(CListIterator < T > pos, InputIt first, InputIt last);
+    ListIterator< T > insertAfter(CListIterator < T > pos, std::initializer_list< T > in_list);
+    ListIterator< T > eraseAfter(CListIterator < T > pos);
+    ListIterator< T > eraseAfter(CListIterator < T > first, CListIterator < T > last);
     void clear();
     void swap(List< T >& other) noexcept;
   private:
@@ -71,8 +71,15 @@ namespace tkach
     template< class... Args >
     void pushBk(Args&&... args);
     template< class... Args >
-    Iterator< T > insertAft(Citerator< T > pos, Args&&... args);
+    ListIterator< T > insertAft(CListIterator< T > pos, Args&&... args);
+    Node< T >* getHead() const noexcept;
   };
+
+  template< typename T >
+  Node< T >* List< T >::getHead() const noexcept
+  {
+    return tail_ ? tail_->next_ : nullptr;
+  }
 
   template< typename T >
   List< T >::List():
@@ -147,27 +154,45 @@ namespace tkach
   {}
 
   template< typename T >
-  Iterator< T > List< T >::begin() noexcept
+  ListIterator< T > List< T >::begin() noexcept
   {
-    return Iterator< T >(tail_->next_);
+    Node< T >* head = getHead();
+    if (empty())
+    {
+      return ListIterator< T >(head, head, true);
+    }
+    else
+    {
+      return ListIterator< T >(head, head, false);
+    }
   }
 
   template< typename T >
-  Iterator< T > List< T >::end() noexcept
+  ListIterator< T > List< T >::end() noexcept
   {
-    return Iterator< T >(tail_->next_);
+    Node< T >* head = getHead();
+    return ListIterator< T >(head, head, true);
   }
 
   template< typename T >
-  Citerator< T > List< T >::cbegin() const noexcept
+  CListIterator< T > List< T >::cbegin() const noexcept
   {
-    return Citerator< T >(tail_->next_);
+    Node< T >* head = getHead();
+    if (empty())
+    {
+      return CListIterator< T >(head, head, true);
+    }
+    else
+    {
+      return CListIterator< T >(head, head, false);
+    }
   }
 
   template< typename T >
-  Citerator< T > List< T >::cend() const noexcept
+  CListIterator< T > List< T >::cend() const noexcept
   {
-    return Citerator< T >(tail_->next_);
+    Node< T >* head = getHead();
+    return CListIterator< T >(head, head, true);
   }
 
   template< typename T >
@@ -300,7 +325,7 @@ namespace tkach
     {
       return;
     }
-    eraseAfter(Citerator< T >(tail_));
+    eraseAfter(CListIterator< T >(tail_, getHead(), false));
   }
 
   template< typename T >
@@ -331,8 +356,15 @@ namespace tkach
     {
       return;
     }
-    auto it = ++cbegin();
-    for (; it != cend();)
+    while (!empty() && p(tail_->next_->data_))
+    {
+      popFront();
+      if (empty())
+      {
+          return;
+      }
+    }
+    for (auto it = cbegin(); it != cend();)
     {
       if (p(*(std::next(it))))
       {
@@ -342,10 +374,6 @@ namespace tkach
       {
         it++;
       }
-    }
-    if (p(*(++it)))
-    {
-      eraseAfter(Citerator< T >(tail_->next_));
     }
   }
 
@@ -365,7 +393,7 @@ namespace tkach
   }
 
   template< typename T >
-  Iterator< T > List< T >::eraseAfter(Citerator< T > pos)
+  ListIterator< T > List< T >::eraseAfter(CListIterator< T > pos)
   {
     if (empty())
     {
@@ -376,22 +404,21 @@ namespace tkach
       delete tail_;
       tail_ = nullptr;
       size_--;
-      return Iterator< T >();
+      return ListIterator< T >(nullptr, nullptr, true);
     }
     else
     {
-      Iterator< T > it(pos.node_);
-      Node< T >* list_delete = it.node_->next_;
+      Node< T >* list_delete = pos.node_->next_;
       if (pos.node_->next_ == tail_)
       {
         tail_ = pos.node_;
       }
-      it.node_->next_ = list_delete->next_;
+      pos.node_->next_ = list_delete->next_;
       delete list_delete;
       size_--;
-      return Iterator< T >(it.node_->next_);
+      return ListIterator< T >(pos.node_->next_, getHead(), false);
     }
-    return Iterator< T >();
+    return ListIterator< T >(nullptr, nullptr, true);
   }
 
   template< typename T >
@@ -402,7 +429,7 @@ namespace tkach
   }
 
   template< typename T >
-  void List< T >::spliceAfter(Citerator< T > pos, List< T >& other)
+  void List< T >::spliceAfter(CListIterator< T > pos, List< T >& other)
   {
     if (other.empty())
     {
@@ -422,25 +449,25 @@ namespace tkach
   }
 
   template< typename T >
-  void List< T >::spliceAfter(Citerator< T > pos, List< T >&& other)
+  void List< T >::spliceAfter(CListIterator< T > pos, List< T >&& other)
   {
     spliceAfter(pos, other);
   }
 
   template< typename T >
-  void List< T >::spliceAfter(Citerator< T > pos, List< T >& other, Citerator< T > first)
+  void List< T >::spliceAfter(CListIterator< T > pos, List< T >& other, CListIterator< T > first)
   {
     spliceAfter(pos, other, first, std::next(first, 2));
   }
 
   template< typename T >
-  void List< T >::spliceAfter(Citerator< T > pos, List< T >&& other, Citerator< T > first)
+  void List< T >::spliceAfter(CListIterator< T > pos, List< T >&& other, CListIterator< T > first)
   {
     spliceAfter(pos, other, first, std::next(first, 2));
   }
 
   template< typename T >
-  void List< T >::spliceAfter(Citerator< T > pos, List< T >& other, Citerator< T > first, Citerator< T > last)
+  void List< T >::spliceAfter(CListIterator< T > pos, List< T >& other, CListIterator< T > first, CListIterator< T > last)
   {
     if (other.empty() || first.node_ == nullptr || last.node_ == nullptr || (std::next(first) == last))
     {
@@ -479,18 +506,18 @@ namespace tkach
   }
 
   template< typename T >
-  void List< T >::spliceAfter(Citerator< T > pos, List< T >&& other, Citerator< T > first, Citerator< T > last)
+  void List< T >::spliceAfter(CListIterator< T > pos, List< T >&& other, CListIterator< T > first, CListIterator< T > last)
   {
     spliceAfter(pos, other, first, last);
   }
 
   template< typename T >
   template< class... Args >
-  Iterator< T > List< T >::insertAft(Citerator< T > pos, Args&&... args)
+  ListIterator< T > List< T >::insertAft(CListIterator< T > pos, Args&&... args)
   {
     if (empty())
     {
-      return Iterator< T >();
+      return ListIterator< T >(nullptr, nullptr, true);
     }
     Node< T >* temp = pos.node_;
     Node< T >* new_node = new Node< T >{temp->next_, std::forward< Args >(args)...};
@@ -500,24 +527,24 @@ namespace tkach
     }
     temp->next_ = new_node;
     size_++;
-    return Iterator< T >(new_node);
+    return ListIterator< T >(new_node, getHead(), false);
   }
 
   template< typename T >
-  Iterator< T > List< T >::insertAfter(Citerator< T > pos, T&& value)
+  ListIterator< T > List< T >::insertAfter(CListIterator< T > pos, T&& value)
   {
     return insertAft(pos, std::move(value));
   }
 
   template< typename T >
-  Iterator< T > List< T >::insertAfter(Citerator< T > pos, const T& value)
+  ListIterator< T > List< T >::insertAfter(CListIterator< T > pos, const T& value)
   {
     return insertAft(pos, value);
   }
 
   template< typename T >
   template< class InputIt >
-  Iterator< T > List< T >::insertAfter(Citerator < T > pos, InputIt first, InputIt last)
+  ListIterator< T > List< T >::insertAfter(CListIterator < T > pos, InputIt first, InputIt last)
   {
     spliceAfter(pos, List< T >(first, last));
     size_t splice_size = std::distance(first, last);
@@ -525,24 +552,38 @@ namespace tkach
     {
       ++pos;
     }
-    return Iterator< T >(pos.node_);
+    if (splice_size > 0)
+    {
+      return ListIterator< T >(pos.node_, getHead(), false);
+    }
+    else
+    {
+      return ListIterator< T >(pos.node_, getHead(), pos.is_past_the_end_);
+    }
   }
 
   template< typename T >
-  Iterator< T > List< T >::insertAfter(Citerator < T > pos, std::initializer_list< T > in_list)
+  ListIterator< T > List< T >::insertAfter(CListIterator < T > pos, std::initializer_list< T > in_list)
   {
     return insertAfter(pos, in_list.begin(), in_list.end());
   }
 
   template< typename T >
-  Iterator< T > List< T >::insertAfter(Citerator< T > pos, size_t count, const T & data)
+  ListIterator< T > List< T >::insertAfter(CListIterator< T > pos, size_t count, const T & data)
   {
     spliceAfter(pos, List< T >(count, data));
     for (size_t i = 0; i < count; ++i)
     {
       ++pos;
     }
-    return Iterator< T >(pos.node_);
+    if (count > 0)
+    {
+      return ListIterator< T >(pos.node_, getHead(), false);
+    }
+    else
+    {
+      return ListIterator< T >(pos.node_, getHead(), pos.is_past_the_end_);
+    }
   }
 
   template< typename T >
@@ -561,13 +602,13 @@ namespace tkach
   }
 
   template< typename T >
-  Iterator< T > List< T >::eraseAfter(Citerator< T > first, Citerator< T > last)
+  ListIterator< T > List< T >::eraseAfter(CListIterator< T > first, CListIterator< T > last)
   {
     while (std::next(first) != last)
     {
       eraseAfter(first);
     }
-    return Iterator< T >(last.node_);
+    return ListIterator< T >(last.node_, getHead(), last.is_past_the_end_);
   }
 }
 
