@@ -9,13 +9,16 @@ namespace savintsev
   class Array
   {
   public:
+    ~Array();
     Array(size_t n);
     Array(const Array & rhs);
     Array(Array && rhs) noexcept;
-    ~Array();
 
     Array & operator=(const Array & rhs);
     Array & operator=(Array && rhs) noexcept;
+
+    T & operator[](size_t n);
+    const T & operator[](size_t n) const;
 
     bool empty() const noexcept;
     size_t size() const noexcept;
@@ -30,8 +33,7 @@ namespace savintsev
     void pop_front() noexcept;
     void pop_back() noexcept;
 
-    template< typename U >
-    friend void swap(Array< U > & x, Array< U > & y) noexcept;
+    void swap(Array & x) noexcept;
   private:
     T * data_ = nullptr;
     size_t size_ = 0;
@@ -40,12 +42,12 @@ namespace savintsev
   };
 
   template< typename T >
-  void swap(Array< T > & x, Array< T > & y) noexcept
+  void Array< T >::swap(Array & x) noexcept
   {
-    std::swap(x.data_, y.data_);
-    std::swap(x.size_, y.size_);
-    std::swap(x.start_, y.start_);
-    std::swap(x.capacity_, y.capacity_);
+    std::swap(data_, x.data_);
+    std::swap(size_, x.size_);
+    std::swap(start_, x.start_);
+    std::swap(capacity_, x.capacity_);
   }
 
   template< typename T >
@@ -70,7 +72,31 @@ namespace savintsev
     size_(rhs.size_),
     start_(rhs.start_),
     capacity_(rhs.capacity_)
-  {}
+  {
+    rhs.data_ = nullptr;
+  }
+
+  template< typename T >
+  Array< T > & Array< T >::operator=(const Array & rhs)
+  {
+    if (this != std::addressof(rhs))
+    {
+      Array temp(rhs);
+      swap(temp);
+    }
+    return *this;
+  }
+
+  template< typename T >
+  Array< T > & Array< T >::operator=(Array && rhs) noexcept
+  {
+    if (this != std::addressof(rhs))
+    {
+      Array temp(std::move(rhs));
+      swap(temp);
+    }
+    return *this;
+  }
 
   template< typename T >
   Array< T >::~Array()
@@ -79,19 +105,15 @@ namespace savintsev
   }
 
   template< typename T >
-  Array< T > & Array< T >::operator=(const Array & rhs)
+  T & Array< T >::operator[](size_t n)
   {
-    Array< T > copy{rhs};
-    swap(*this, copy);
-    return *this;
+    return data_[n + start_];
   }
 
   template< typename T >
-  Array< T > & Array< T >::operator=(Array && rhs) noexcept
+  const T & Array< T >::operator[](size_t n) const
   {
-    Array< T > copy{std::move(rhs)};
-    swap(*this, copy);
-    return *this;
+    return data_[n + start_];
   }
 
   template< typename T >
