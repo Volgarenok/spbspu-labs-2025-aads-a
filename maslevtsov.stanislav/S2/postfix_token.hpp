@@ -2,7 +2,7 @@
 #define POSTFIX_TOKEN_HPP
 
 #include <string>
-#include "queue.hpp"
+#include <queue.hpp>
 
 namespace maslevtsov {
   class PostfixToken

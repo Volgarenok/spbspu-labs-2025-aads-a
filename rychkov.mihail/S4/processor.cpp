@@ -20,7 +20,7 @@ rychkov::S4ParseProcessor::S4ParseProcessor(int argc, char** argv)
   {
     if (map.contains(name))
     {
-      throw std::runtime_error("map name repeated");
+      throw std::logic_error("map name repeated");
     }
     inner_map& link = map[name];
     int key = 0;
@@ -29,7 +29,7 @@ rychkov::S4ParseProcessor::S4ParseProcessor(int argc, char** argv)
       std::string str;
       if (!(file >> str))
       {
-        throw std::runtime_error("failed to read string for key");
+        throw std::logic_error("failed to read string for key");
       }
       link.try_emplace(key, std::move(str));
     }
@@ -39,7 +39,7 @@ rychkov::S4ParseProcessor::S4ParseProcessor(int argc, char** argv)
 bool rychkov::S4ParseProcessor::print(ParserContext& context)
 {
   std::string name;
-  if (!(context.in >> name) || !context.eol())
+  if (!(context.in >> name) || !eol(context.in))
   {
     return false;
   }
@@ -64,7 +64,7 @@ bool rychkov::S4ParseProcessor::print(ParserContext& context)
 bool rychkov::S4ParseProcessor::make_complement(ParserContext& context)
 {
   std::string name, lhs, rhs;
-  if (!(context.in >> name >> lhs >> rhs) || !context.eol() || !map.contains(lhs) || !map.contains(rhs))
+  if (!(context.in >> name >> lhs >> rhs) || !eol(context.in) || !map.contains(lhs) || !map.contains(rhs))
   {
     return false;
   }
@@ -85,7 +85,7 @@ bool rychkov::S4ParseProcessor::make_complement(ParserContext& context)
 bool rychkov::S4ParseProcessor::make_intersect(ParserContext& context)
 {
   std::string name, lhs, rhs;
-  if (!(context.in >> name >> lhs >> rhs) || !context.eol() || !map.contains(lhs) || !map.contains(rhs))
+  if (!(context.in >> name >> lhs >> rhs) || !eol(context.in) || !map.contains(lhs) || !map.contains(rhs))
   {
     return false;
   }
@@ -106,7 +106,7 @@ bool rychkov::S4ParseProcessor::make_intersect(ParserContext& context)
 bool rychkov::S4ParseProcessor::make_union(ParserContext& context)
 {
   std::string name, lhs, rhs;
-  if (!(context.in >> name >> lhs >> rhs) || !context.eol() || !map.contains(lhs) || !map.contains(rhs))
+  if (!(context.in >> name >> lhs >> rhs) || !eol(context.in) || !map.contains(lhs) || !map.contains(rhs))
   {
     return false;
   }
