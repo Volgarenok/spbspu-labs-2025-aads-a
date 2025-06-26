@@ -2,7 +2,7 @@
 #include <fstream>
 #include <unordered_map>
 #include <vector>
-#include <stdexcept>
+#include <string>
 
 namespace asafov
 {
@@ -71,7 +71,7 @@ namespace asafov
       return it->second.hasVertex(vertex);
     }
 
-    void sortWeights(Weights& weights)
+    void sortWeights(Weights& weights) const
     {
       for (size_t i = 0; i < weights.size(); ++i)
       {
@@ -85,7 +85,7 @@ namespace asafov
       }
     }
 
-    void sortVertices(std::vector< Vertex >& vertices)
+    void sortVertices(std::vector< Vertex >& vertices) const
     {
       for (size_t i = 0; i < vertices.size(); ++i)
       {
@@ -109,7 +109,7 @@ namespace asafov
       }
 
       std::string line;
-      while (getline(file, line))
+      while (std::getline(file, line))
       {
         if (line.empty()) continue;
 
@@ -132,7 +132,7 @@ namespace asafov
 
         for (int i = 0; i < edge_count; ++i)
         {
-          if (!getline(file, line)) break;
+          if (!std::getline(file, line)) break;
           if (line.empty())
           {
             --i;
@@ -343,7 +343,7 @@ namespace asafov
       {
         if (edge_it->second[i] == weight)
         {
-          edge_it->second.erase(edge_it->second.begin() + i);
+          edge_it->second.erase(edge_it->second.begin() + static_cast< std::ptrdiff_t >(i));
           found = true;
           break;
         }
@@ -456,7 +456,7 @@ namespace asafov
       }
     }
   };
-} // namespace asafov
+}
 
 int main(int argc, char* argv[])
 {
@@ -471,19 +471,9 @@ int main(int argc, char* argv[])
     asafov::GraphManager manager;
     manager.loadGraphsFromFile(argv[1]);
 
-    std::string line;
-    while (getline(std::cin, line))
+    std::string command;
+    while (std::cin >> command)
     {
-      if (line.empty()) continue;
-
-      size_t pos = 0;
-      std::string command;
-      while (pos < line.size() && line[pos] != ' ')
-      {
-        command += line[pos++];
-      }
-      if (pos < line.size()) pos++;
-
       if (command == "graphs")
       {
         manager.printGraphs();
@@ -491,11 +481,7 @@ int main(int argc, char* argv[])
       else if (command == "vertexes")
       {
         std::string graph_name;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          graph_name += line[pos++];
-        }
-        if (!graph_name.empty())
+        if (std::cin >> graph_name)
         {
           manager.printVertexes(graph_name);
         }
@@ -507,16 +493,7 @@ int main(int argc, char* argv[])
       else if (command == "outbound")
       {
         std::string graph_name, vertex;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          graph_name += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          vertex += line[pos++];
-        }
-        if (!graph_name.empty() && !vertex.empty())
+        if (std::cin >> graph_name >> vertex)
         {
           manager.printOutbound(graph_name, vertex);
         }
@@ -528,16 +505,7 @@ int main(int argc, char* argv[])
       else if (command == "inbound")
       {
         std::string graph_name, vertex;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          graph_name += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          vertex += line[pos++];
-        }
-        if (!graph_name.empty() && !vertex.empty())
+        if (std::cin >> graph_name >> vertex)
         {
           manager.printInbound(graph_name, vertex);
         }
@@ -549,27 +517,8 @@ int main(int argc, char* argv[])
       else if (command == "bind")
       {
         std::string graph_name, from, to;
-        Weight weight = 0;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          graph_name += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          from += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          to += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          weight = weight * 10 + (line[pos++] - '0');
-        }
-        if (!graph_name.empty() && !from.empty() && !to.empty())
+        asafov::Weight weight;
+        if (std::cin >> graph_name >> from >> to >> weight)
         {
           manager.bindEdge(graph_name, from, to, weight);
         }
@@ -581,27 +530,8 @@ int main(int argc, char* argv[])
       else if (command == "cut")
       {
         std::string graph_name, from, to;
-        Weight weight = 0;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          graph_name += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          from += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          to += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          weight = weight * 10 + (line[pos++] - '0');
-        }
-        if (!graph_name.empty() && !from.empty() && !to.empty())
+        asafov::Weight weight;
+        if (std::cin >> graph_name >> from >> to >> weight)
         {
           manager.cutEdge(graph_name, from, to, weight);
         }
@@ -613,33 +543,11 @@ int main(int argc, char* argv[])
       else if (command == "create")
       {
         std::string graph_name;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          graph_name += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-
-        if (!graph_name.empty())
+        if (std::cin >> graph_name)
         {
           std::vector< asafov::Vertex > vertices;
-          std::string v;
-          while (pos < line.size())
-          {
-            if (line[pos] == ' ')
-            {
-              if (!v.empty())
-              {
-                vertices.push_back(v);
-                v.clear();
-              }
-              pos++;
-            }
-            else
-            {
-              v += line[pos++];
-            }
-          }
-          if (!v.empty())
+          asafov::Vertex v;
+          while (std::cin >> v)
           {
             vertices.push_back(v);
           }
@@ -653,21 +561,7 @@ int main(int argc, char* argv[])
       else if (command == "merge")
       {
         std::string new_name, name1, name2;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          new_name += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          name1 += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          name2 += line[pos++];
-        }
-        if (!new_name.empty() && !name1.empty() && !name2.empty())
+        if (std::cin >> new_name >> name1 >> name2)
         {
           manager.mergeGraphs(new_name, name1, name2);
         }
@@ -679,44 +573,12 @@ int main(int argc, char* argv[])
       else if (command == "extract")
       {
         std::string new_name, old_name;
-        int count = 0;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          new_name += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          old_name += line[pos++];
-        }
-        if (pos < line.size()) pos++;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          count = count * 10 + (line[pos++] - '0');
-        }
-        if (pos < line.size()) pos++;
-
-        if (!new_name.empty() && !old_name.empty() && count >= 0)
+        int count;
+        if (std::cin >> new_name >> old_name >> count)
         {
           std::vector< asafov::Vertex > vertices;
-          std::string v;
-          while (pos < line.size() && vertices.size() < static_cast< size_t >(count))
-          {
-            if (line[pos] == ' ')
-            {
-              if (!v.empty())
-              {
-                vertices.push_back(v);
-                v.clear();
-              }
-              pos++;
-            }
-            else
-            {
-              v += line[pos++];
-            }
-          }
-          if (!v.empty() && vertices.size() < static_cast< size_t >(count))
+          asafov::Vertex v;
+          for (int i = 0; i < count && std::cin >> v; ++i)
           {
             vertices.push_back(v);
           }
@@ -737,6 +599,7 @@ int main(int argc, char* argv[])
       else
       {
         std::cout << "<INVALID COMMAND>\n";
+        std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
       }
     }
   }
