@@ -3,655 +3,361 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <unordered_set>
-#include <algorithm>
+#include <map>
 #include <cctype>
+#include <cstdlib>
 
-struct Edge
+struct pair_hash
 {
-  std::string from;
-  std::string to;
-  unsigned weight;
+  size_t operator()(const std::pair< std::string, std::string >& p) const
+  {
+    return std::hash< std::string >()(p.first) ^ (std::hash< std::string >()(p.second) << 1);
+  }
 };
 
-class Graph
+struct Graph
 {
-private:
-  std::unordered_map< std::string, std::vector< Edge > > outbound_edges;
-  std::unordered_map< std::string, std::vector< Edge > > inbound_edges;
-  std::unordered_set< std::string > vertices;
+  std::unordered_map< std::pair< std::string, std::string >, std::vector< unsigned >, pair_hash > edges;
+  std::vector< std::string > vertices;
 
-public:
+  bool has_vertex(const std::string& v) const
+  {
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+      if (vertices[i] == v) return true;
+    }
+    return false;
+  }
+
+  void add_vertex(const std::string& v)
+  {
+    if (!has_vertex(v))
+    {
+      vertices.push_back(v);
+    }
+  }
+
   void add_edge(const std::string& from, const std::string& to, unsigned weight)
   {
-    Edge e{from, to, weight};
-    outbound_edges[from].push_back(e);
-    inbound_edges[to].push_back(e);
-    vertices.insert(from);
-    vertices.insert(to);
+    add_vertex(from);
+    add_vertex(to);
+    edges[make_pair(from, to)].push_back(weight);
   }
 
-  void remove_edge(const std::string& from, const std::string& to, unsigned weight)
+  bool remove_edge(const std::string& from, const std::string& to, unsigned weight)
   {
-    bool found = false;
-
-    // Remove from outbound
-    auto& out_edges = outbound_edges[from];
-    for (auto it = out_edges.begin(); it != out_edges.end();)
+    std::pair< std::string, std::string > key = make_pair(from, to);
+    if (edges.count(key))
     {
-      if (it->to == to && it->weight == weight)
+      std::vector< unsigned >& weights = edges[key];
+      for (size_t i = 0; i < weights.size(); ++i)
       {
-        it = out_edges.erase(it);
-        found = true;
-      }
-      else
-      {
-        ++it;
-      }
-    }
-
-    // Remove from inbound
-    auto& in_edges = inbound_edges[to];
-    for (auto it = in_edges.begin(); it != in_edges.end();)
-    {
-      if (it->from == from && it->weight == weight)
-      {
-        it = in_edges.erase(it);
-      }
-      else
-      {
-        ++it;
-      }
-    }
-
-    // Clean up if no more edges
-    if (out_edges.empty())
-    {
-      outbound_edges.erase(from);
-    }
-    if (in_edges.empty())
-    {
-      inbound_edges.erase(to);
-    }
-
-    // Remove vertices if they have no edges
-    if (outbound_edges.count(from) == 0 && inbound_edges.count(from) == 0)
-    {
-      vertices.erase(from);
-    }
-    if (from != to && outbound_edges.count(to) == 0 && inbound_edges.count(to) == 0)
-    {
-      vertices.erase(to);
-    }
-
-    if (!found)
-    {
-      throw std::runtime_error("Edge not found");
-    }
-  }
-
-  std::vector< std::string > get_vertices() const
-  {
-    std::vector< std::string > result;
-    for (const auto& v: vertices)
-    {
-      result.push_back(v);
-    }
-    std::sort(result.begin(), result.end());
-    return result;
-  }
-
-  std::vector< Edge > get_outbound_edges(const std::string& vertex) const
-  {
-    auto it = outbound_edges.find(vertex);
-    if (it != outbound_edges.end())
-    {
-      return it->second;
-    }
-    return {};
-  }
-
-  std::vector< Edge > get_inbound_edges(const std::string& vertex) const
-  {
-    auto it = inbound_edges.find(vertex);
-    if (it != inbound_edges.end())
-    {
-      return it->second;
-    }
-    return {};
-  }
-
-  void add_vertex(const std::string& vertex)
-  {
-    vertices.insert(vertex);
-  }
-
-  bool has_vertex(const std::string& vertex) const
-  {
-    return vertices.count(vertex) > 0;
-  }
-
-  static Graph merge(const Graph& g1, const Graph& g2)
-  {
-    Graph result;
-
-    // Add all vertices
-    for (const auto& v: g1.vertices)
-    {
-      result.add_vertex(v);
-    }
-    for (const auto& v: g2.vertices)
-    {
-      result.add_vertex(v);
-    }
-
-    // Add all edges from g1
-    for (const auto& pair: g1.outbound_edges)
-    {
-      for (const auto& edge: pair.second)
-      {
-        result.add_edge(edge.from, edge.to, edge.weight);
-      }
-    }
-
-    // Add all edges from g2
-    for (const auto& pair: g2.outbound_edges)
-    {
-      for (const auto& edge: pair.second)
-      {
-        result.add_edge(edge.from, edge.to, edge.weight);
-      }
-    }
-
-    return result;
-  }
-
-  static Graph extract(const Graph& g, const std::unordered_set< std::string >& vertices)
-  {
-    Graph result;
-
-    // Add selected vertices
-    for (const auto& v: vertices)
-    {
-      if (g.has_vertex(v))
-      {
-        result.add_vertex(v);
-      }
-      else
-      {
-        throw std::runtime_error("Vertex not found in original graph");
-      }
-    }
-
-    // Add edges between selected vertices
-    for (const auto& v: vertices)
-    {
-      auto it = g.outbound_edges.find(v);
-      if (it == g.outbound_edges.end()) continue;
-
-      for (const auto& edge: it->second)
-      {
-        if (vertices.count(edge.to))
+        if (weights[i] == weight)
         {
-          result.add_edge(edge.from, edge.to, edge.weight);
+          weights.erase(weights.begin() + i);
+          if (weights.empty())
+          {
+            edges.erase(key);
+          }
+          return true;
         }
       }
     }
-
-    return result;
-  }
-};
-
-class GraphManager
-{
-private:
-  std::unordered_map< std::string, Graph > graphs;
-
-  std::vector< std::string > split(const std::string& s)
-  {
-    std::vector< std::string > tokens;
-    size_t start = 0;
-    size_t end = s.find(' ');
-
-    while (end != std::string::npos)
-    {
-      std::string token = s.substr(start, end - start);
-      if (!token.empty())
-      {
-        tokens.push_back(token);
-      }
-      start = end + 1;
-      end = s.find(' ', start);
-    }
-    std::string last_token = s.substr(start);
-    if (!last_token.empty())
-    {
-      tokens.push_back(last_token);
-    }
-
-    return tokens;
+    return false;
   }
 
-public:
-  void add_graph(const std::string& name, const Graph& graph)
+  void get_outbound(const std::string& vertex) const
   {
-    graphs[name] = graph;
-  }
-
-  void process_command(const std::string& command_line)
-  {
-    std::vector< std::string > tokens = split(command_line);
-    if (tokens.empty()) return;
-
-    try
-    {
-      const std::string& command = tokens[0];
-
-      if (command == "graphs")
-      {
-        cmd_graphs();
-      }
-      else if (command == "vertexes")
-      {
-        cmd_vertexes(tokens);
-      }
-      else if (command == "outbound")
-      {
-        cmd_outbound(tokens);
-      }
-      else if (command == "inbound")
-      {
-        cmd_inbound(tokens);
-      }
-      else if (command == "bind")
-      {
-        cmd_bind(tokens);
-      }
-      else if (command == "cut")
-      {
-        cmd_cut(tokens);
-      }
-      else if (command == "create")
-      {
-        cmd_create(tokens);
-      }
-      else if (command == "merge")
-      {
-        cmd_merge(tokens);
-      }
-      else if (command == "extract")
-      {
-        cmd_extract(tokens);
-      }
-      else
-      {
-        throw std::runtime_error("Unknown command");
-      }
-    }
-    catch (const std::exception& e)
+    if (!has_vertex(vertex))
     {
       std::cout << "<INVALID COMMAND>" << '\n';
+      return;
     }
-  }
-
-private:
-  void cmd_graphs()
-  {
-    std::vector< std::string > names;
-    for (const auto& pair: graphs)
+    std::map< std::string, std::vector< unsigned > > result;
+    for (auto it = edges.begin(); it != edges.end(); ++it)
     {
-      names.push_back(pair.first);
-    }
-    std::sort(names.begin(), names.end());
-    for (const auto& name: names)
-    {
-      std::cout << name << '\n';
-    }
-  }
-
-  void cmd_vertexes(const std::vector< std::string >& tokens)
-  {
-    if (tokens.size() < 2) throw std::runtime_error("Missing graph name");
-
-    const std::string& graph_name = tokens[1];
-    if (graphs.count(graph_name) == 0)
-    {
-      throw std::runtime_error("Invalid graph name");
-    }
-
-    std::vector< std::string > vertices = graphs[graph_name].get_vertices();
-    for (const auto& v: vertices)
-    {
-      std::cout << v << '\n';
-    }
-  }
-
-  void cmd_outbound(const std::vector< std::string >& tokens)
-  {
-    if (tokens.size() < 3) throw std::runtime_error("Missing parameters");
-
-    const std::string& graph_name = tokens[1];
-    const std::string& vertex = tokens[2];
-
-    if (graphs.count(graph_name) == 0)
-    {
-      throw std::runtime_error("Invalid graph name");
-    }
-
-    const Graph& g = graphs[graph_name];
-    if (!g.has_vertex(vertex))
-    {
-      throw std::runtime_error("Vertex not found");
-    }
-
-    std::vector< Edge > edges = g.get_outbound_edges(vertex);
-    std::unordered_map< std::string, std::vector< unsigned > > targets;
-    for (const auto& e: edges)
-    {
-      targets[e.to].push_back(e.weight);
-    }
-
-    // Sort target vertices
-    std::vector< std::string > sorted_targets;
-    for (const auto& pair: targets)
-    {
-      sorted_targets.push_back(pair.first);
-    }
-    std::sort(sorted_targets.begin(), sorted_targets.end());
-
-    // Output sorted results
-    for (const auto& target: sorted_targets)
-    {
-      std::vector< unsigned > weights = targets[target];
-      std::sort(weights.begin(), weights.end());
-
-      std::cout << target;
-      for (unsigned w: weights)
+      if (it->first.first == vertex)
       {
-        std::cout << " " << w;
+        result[it->first.second].insert(result[it->first.second].end(),
+                                        it->second.begin(), it->second.end());
       }
+    }
+    for (std::map< std::string, std::vector< unsigned > >::iterator it = result.begin(); it != result.end(); ++it)
+    {
+      std::cout << it->first;
+      sort_weights(it->second);
+      for (size_t i = 0; i < it->second.size(); ++i)
+        std::cout << " " << it->second[i];
       std::cout << '\n';
     }
   }
 
-  void cmd_inbound(const std::vector< std::string >& tokens)
+  void get_inbound(const std::string& vertex) const
   {
-    if (tokens.size() < 3) throw std::runtime_error("Missing parameters");
-
-    const std::string& graph_name = tokens[1];
-    const std::string& vertex = tokens[2];
-
-    if (graphs.count(graph_name) == 0)
+    if (!has_vertex(vertex))
     {
-      throw std::runtime_error("Invalid graph name");
+      std::cout << "<INVALID COMMAND>" << '\n';
+      return;
     }
-
-    const Graph& g = graphs[graph_name];
-    if (!g.has_vertex(vertex))
+    std::map< std::string, std::vector< unsigned > > result;
+    for (auto it = edges.begin(); it != edges.end(); ++it)
     {
-      throw std::runtime_error("Vertex not found");
-    }
-
-    std::vector< Edge > edges = g.get_inbound_edges(vertex);
-    std::unordered_map< std::string, std::vector< unsigned > > sources;
-    for (const auto& e: edges)
-    {
-      sources[e.from].push_back(e.weight);
-    }
-
-    // Sort source vertices
-    std::vector< std::string > sorted_sources;
-    for (const auto& pair: sources)
-    {
-      sorted_sources.push_back(pair.first);
-    }
-    std::sort(sorted_sources.begin(), sorted_sources.end());
-
-    // Output sorted results
-    for (const auto& source: sorted_sources)
-    {
-      std::vector< unsigned > weights = sources[source];
-      std::sort(weights.begin(), weights.end());
-
-      std::cout << source;
-      for (unsigned w: weights)
+      if (it->first.second == vertex)
       {
-        std::cout << " " << w;
+        result[it->first.first].insert(result[it->first.first].end(),
+                                       it->second.begin(), it->second.end());
       }
+    }
+    for (std::map< std::string, std::vector< unsigned > >::iterator it = result.begin(); it != result.end(); ++it)
+    {
+      std::cout << it->first;
+      sort_weights(it->second);
+      for (size_t i = 0; i < it->second.size(); ++i)
+        std::cout << " " << it->second[i];
       std::cout << '\n';
     }
   }
 
-  void cmd_bind(const std::vector< std::string >& tokens)
+  static void sort_weights(std::vector< unsigned >& weights)
   {
-    if (tokens.size() < 5) throw std::runtime_error("Missing parameters");
-
-    const std::string& graph_name = tokens[1];
-    const std::string& from = tokens[2];
-    const std::string& to = tokens[3];
-    unsigned weight;
-
-    try
+    for (size_t i = 0; i < weights.size(); ++i)
     {
-      weight = std::stoul(tokens[4]);
-    }
-    catch (...)
-    {
-      throw std::runtime_error("Invalid weight");
-    }
-
-    if (graphs.count(graph_name) == 0)
-    {
-      throw std::runtime_error("Invalid graph name");
-    }
-
-    graphs[graph_name].add_edge(from, to, weight);
-  }
-
-  void cmd_cut(const std::vector< std::string >& tokens)
-  {
-    if (tokens.size() < 5) throw std::runtime_error("Missing parameters");
-
-    const std::string& graph_name = tokens[1];
-    const std::string& from = tokens[2];
-    const std::string& to = tokens[3];
-    unsigned weight;
-
-    try
-    {
-      weight = std::stoul(tokens[4]);
-    }
-    catch (...)
-    {
-      throw std::runtime_error("Invalid weight");
-    }
-
-    if (graphs.count(graph_name) == 0)
-    {
-      throw std::runtime_error("Invalid graph name");
-    }
-
-    Graph& g = graphs[graph_name];
-    if (!g.has_vertex(from) || !g.has_vertex(to))
-    {
-      throw std::runtime_error("Vertex not found");
-    }
-
-    g.remove_edge(from, to, weight);
-  }
-
-  void cmd_create(const std::vector< std::string >& tokens)
-  {
-    if (tokens.size() < 2) throw std::runtime_error("Missing graph name");
-
-    const std::string& graph_name = tokens[1];
-    if (graphs.count(graph_name) > 0)
-    {
-      throw std::runtime_error("Graph already exists");
-    }
-
-    Graph g;
-    if (tokens.size() > 2)
-    {
-      try
+      for (size_t j = i + 1; j < weights.size(); ++j)
       {
-        int count = std::stoi(tokens[2]);
-        if (count < 0 || tokens.size() < 3 + static_cast< size_t >(count))
+        if (weights[j] < weights[i])
         {
-          throw std::runtime_error("Invalid vertex count");
-        }
-        for (int i = 0; i < count; ++i)
-        {
-          g.add_vertex(tokens[3 + i]);
-        }
-      }
-      catch (...)
-      {
-        // If count is not a number, treat all remaining tokens as vertices
-        for (size_t i = 2; i < tokens.size(); ++i)
-        {
-          g.add_vertex(tokens[i]);
+          unsigned tmp = weights[i];
+          weights[i] = weights[j];
+          weights[j] = tmp;
         }
       }
     }
-
-    graphs[graph_name] = g;
-  }
-
-  void cmd_merge(const std::vector< std::string >& tokens)
-  {
-    if (tokens.size() < 4) throw std::runtime_error("Missing parameters");
-
-    const std::string& new_name = tokens[1];
-    const std::string& graph1_name = tokens[2];
-    const std::string& graph2_name = tokens[3];
-
-    if (graphs.count(new_name) > 0 ||
-      graphs.count(graph1_name) == 0 ||
-      graphs.count(graph2_name) == 0)
-    {
-      throw std::runtime_error("Invalid parameters");
-    }
-
-    Graph merged = Graph::merge(graphs[graph1_name], graphs[graph2_name]);
-    graphs[new_name] = merged;
-  }
-
-  void cmd_extract(const std::vector< std::string >& tokens)
-  {
-    if (tokens.size() < 5) throw std::runtime_error("Missing parameters");
-
-    const std::string& new_name = tokens[1];
-    const std::string& old_name = tokens[2];
-    int count;
-
-    try
-    {
-      count = std::stoi(tokens[3]);
-    }
-    catch (...)
-    {
-      throw std::runtime_error("Invalid count");
-    }
-
-    if (graphs.count(new_name) > 0 ||
-      graphs.count(old_name) == 0 ||
-      static_cast< int >(tokens.size()) < 4 + count)
-    {
-      throw std::runtime_error("Invalid parameters");
-    }
-
-    std::unordered_set< std::string > vertices;
-    for (int i = 0; i < count; ++i)
-    {
-      vertices.insert(tokens[4 + i]);
-    }
-
-    Graph extracted = Graph::extract(graphs[old_name], vertices);
-    graphs[new_name] = extracted;
   }
 };
 
-void load_graphs_from_file(const std::string& filename, GraphManager& manager)
+std::map< std::string, Graph > graphs;
+
+void trim(std::string& s)
 {
-  std::ifstream file(filename);
-  if (!file.is_open())
+  while (!s.empty() && isspace(s[s.size() - 1])) s.pop_back();
+  size_t i = 0;
+  while (i < s.size() && isspace(s[i])) ++i;
+  s = s.substr(i);
+}
+
+std::vector< std::string > split(const std::string& s)
+{
+  std::vector< std::string > result;
+  std::string word;
+  for (size_t i = 0; i <= s.size(); ++i)
   {
-    std::cerr << "Failed to open file: " << filename << '\n';
-    return;
+    if (i == s.size() || s[i] == ' ')
+    {
+      if (!word.empty())
+      {
+        result.push_back(word);
+        word.clear();
+      }
+    }
+    else
+    {
+      word += s[i];
+    }
+  }
+  return result;
+}
+
+void read_graphs_from_file(const std::string& filename)
+{
+  std::ifstream fin(filename.c_str());
+  if (!fin)
+  {
+    std::cerr << "Cannot open file: " << filename << '\n';
+    exit(1);
   }
 
   std::string line;
-  while (std::getline(file, line))
+  while (getline(fin, line))
   {
-    // Skip empty lines
+    trim(line);
     if (line.empty()) continue;
 
-    // Split line into tokens
-    size_t space1 = line.find(' ');
-    if (space1 == std::string::npos)
+    std::vector< std::string > parts = split(line);
+    if (parts.size() != 2) continue;
+
+    std::string graph_name = parts[0];
+    int edge_count = atoi(parts[1].c_str());
+    Graph g;
+
+    for (int i = 0; i < edge_count && getline(fin, line);)
     {
-      std::cerr << "Invalid graph header: " << line << '\n';
+      trim(line);
+      if (line.empty()) continue;
+      std::vector< std::string > edge_parts = split(line);
+      if (edge_parts.size() != 3) continue;
+
+      std::string from = edge_parts[0], to = edge_parts[1];
+      unsigned weight = (unsigned)atoi(edge_parts[2].c_str());
+      g.add_edge(from, to, weight);
+      ++i;
+    }
+    graphs[graph_name] = g;
+  }
+}
+
+void process_commands()
+{
+  std::string line;
+  while (getline(std::cin, line))
+  {
+    trim(line);
+    if (line.empty()) continue;
+    std::vector< std::string > parts = split(line);
+    if (parts.empty()) continue;
+
+    std::string cmd = parts[0];
+
+    if (cmd == "graphs")
+    {
+      for (std::map< std::string, Graph >::iterator it = graphs.begin(); it != graphs.end(); ++it)
+        std::cout << it->first << '\n';
+    }
+    else if (cmd == "vertexes" && parts.size() == 2)
+    {
+      if (!graphs.count(parts[1]))
+      {
+        std::cout << "<INVALID COMMAND>" << '\n';
+        continue;
+      }
+      std::vector< std::string > vs = graphs[parts[1]].vertices;
+      for (size_t i = 0; i < vs.size(); ++i)
+      {
+        for (size_t j = i + 1; j < vs.size(); ++j)
+        {
+          if (vs[j] < vs[i])
+          {
+            std::string tmp = vs[i];
+            vs[i] = vs[j];
+            vs[j] = tmp;
+          }
+        }
+      }
+      for (size_t i = 0; i < vs.size(); ++i) std::cout << vs[i] << '\n';
+    }
+    else if (cmd == "outbound" && parts.size() == 3)
+    {
+      if (!graphs.count(parts[1]))
+      {
+        std::cout << "<INVALID COMMAND>" << '\n';
+        continue;
+      }
+      graphs[parts[1]].get_outbound(parts[2]);
+    }
+    else if (cmd == "inbound" && parts.size() == 3)
+    {
+      if (!graphs.count(parts[1]))
+      {
+        std::cout << "<INVALID COMMAND>" << '\n';
+        continue;
+      }
+      graphs[parts[1]].get_inbound(parts[2]);
+    }
+    else if (cmd == "bind" && parts.size() == 5)
+    {
+      if (!graphs.count(parts[1]))
+      {
+        std::cout << "<INVALID COMMAND>" << '\n';
+        continue;
+      }
+      unsigned w = (unsigned)atoi(parts[4].c_str());
+      graphs[parts[1]].add_edge(parts[2], parts[3], w);
+    }
+    else if (cmd == "cut" && parts.size() == 5)
+    {
+      if (!graphs.count(parts[1]) ||
+        !graphs[parts[1]].has_vertex(parts[2]) ||
+        !graphs[parts[1]].has_vertex(parts[3]) ||
+        !graphs[parts[1]].remove_edge(parts[2], parts[3], (unsigned)atoi(parts[4].c_str())))
+      {
+        std::cout << "<INVALID COMMAND>" << '\n';
+        continue;
+      }
+    }
+    else if (cmd == "create" && parts.size() >= 2)
+    {
+      std::string name = parts[1];
+      if (graphs.count(name))
+      {
+        std::cout << "<INVALID COMMAND>" << '\n';
+        continue;
+      }
+      Graph g;
+      for (size_t i = 2; i < parts.size(); ++i)
+      {
+        g.add_vertex(parts[i]);
+      }
+      graphs[name] = g;
+    }
+    else if (cmd == "merge" && parts.size() == 4)
+    {
+      std::string newg = parts[1], g1 = parts[2], g2 = parts[3];
+      if (graphs.count(newg) || !graphs.count(g1) || !graphs.count(g2))
+      {
+        std::cout << "<INVALID COMMAND>" << '\n';
+        continue;
+      }
+      Graph g;
+      for (size_t i = 0; i < graphs[g1].vertices.size(); ++i)
+        g.add_vertex(graphs[g1].vertices[i]);
+      for (size_t i = 0; i < graphs[g2].vertices.size(); ++i)
+        g.add_vertex(graphs[g2].vertices[i]);
+      for (auto it = graphs[g1].edges.begin(); it != graphs[g1].edges.end(); ++it)
+      {
+        g.edges[it->first].insert(g.edges[it->first].end(),
+                                  it->second.begin(), it->second.end());
+      }
+      for (auto it = graphs[g2].edges.begin(); it != graphs[g2].edges.end(); ++it)
+      {
+        g.edges[it->first].insert(g.edges[it->first].end(),
+                                  it->second.begin(), it->second.end());
+      }
+      graphs[newg] = g;
+    }
+    else if (cmd == "extract" && parts.size() >= 4)
+    {
+      std::string newg = parts[1], oldg = parts[2];
+      int k = atoi(parts[3].c_str());
+      if ((int)parts.size() != 4 + k || graphs.count(newg) == 1 || !graphs.count(oldg))
+      {
+        std::cout << "<INVALID COMMAND>" << '\n';
+        continue;
+      }
+      Graph g;
+      for (int i = 0; i < k; ++i)
+      {
+        if (!graphs[oldg].has_vertex(parts[4 + i]))
+        {
+          std::cout << "<INVALID COMMAND>" << '\n';
+          goto skip;
+        }
+        g.add_vertex(parts[4 + i]);
+      }
+      for (auto it = graphs[oldg].edges.begin(); it != graphs[oldg].edges.end(); ++it)
+      {
+        std::string from = it->first.first, to = it->first.second;
+        if (g.has_vertex(from) && g.has_vertex(to))
+        {
+          g.edges[it->first] = it->second;
+        }
+      }
+      graphs[newg] = g;
+    skip:
       continue;
     }
-
-    std::string graph_name = line.substr(0, space1);
-    unsigned edge_count;
-
-    try
+    else
     {
-      edge_count = std::stoul(line.substr(space1 + 1));
+      std::cout << "<INVALID COMMAND>" << '\n';
     }
-    catch (...)
-    {
-      std::cerr << "Invalid edge count: " << line << '\n';
-      continue;
-    }
-
-    Graph graph;
-    for (unsigned i = 0; i < edge_count; ++i)
-    {
-      while (std::getline(file, line))
-      {
-        if (line.empty()) continue;
-        break;
-      }
-
-      size_t space1 = line.find(' ');
-      if (space1 == std::string::npos)
-      {
-        std::cerr << "Invalid edge format: " << line << '\n';
-        --i; // Retry this edge
-        continue;
-      }
-
-      size_t space2 = line.find(' ', space1 + 1);
-      if (space2 == std::string::npos)
-      {
-        std::cerr << "Invalid edge format: " << line << '\n';
-        --i;
-        continue;
-      }
-
-      std::string from = line.substr(0, space1);
-      std::string to = line.substr(space1 + 1, space2 - space1 - 1);
-      unsigned weight;
-
-      try
-      {
-        weight = std::stoul(line.substr(space2 + 1));
-      }
-      catch (...)
-      {
-        std::cerr << "Invalid weight: " << line << '\n';
-        --i;
-        continue;
-      }
-
-      graph.add_edge(from, to, weight);
-    }
-
-    manager.add_graph(graph_name, graph);
   }
 }
 
@@ -659,19 +365,12 @@ int main(int argc, char* argv[])
 {
   if (argc != 2)
   {
-    std::cerr << "Usage: " << argv[0] << " <graph-file>" << '\n';
+    std::cerr << "Usage: ./graph_tool <filename>" << '\n';
     return 1;
   }
 
-  GraphManager manager;
-  load_graphs_from_file(argv[1], manager);
-
-  std::string command_line;
-  while (std::getline(std::cin, command_line))
-  {
-    if (command_line.empty()) continue;
-    manager.process_command(command_line);
-  }
+  read_graphs_from_file(argv[1]);
+  process_commands();
 
   return 0;
 }
