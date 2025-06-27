@@ -1,4 +1,4 @@
-#include "graphManager.h"
+#include "GraphManager.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -7,21 +7,23 @@ namespace asafov
 {
   void GraphManager::read_from_file(const std::string& filename)
   {
-    std::ifstream in(filename);
+    std::ifstream in(filename.c_str());
     std::string line;
+
     while (std::getline(in, line))
     {
       if (line.empty()) continue;
 
       size_t pos = line.find(' ');
       if (pos == std::string::npos) continue;
+
       std::string name = line.substr(0, pos);
       int count = std::atoi(line.substr(pos + 1).c_str());
 
       Graph g;
       for (int i = 0; i < count; ++i)
       {
-        if (!std::getline(in, line)) break;
+        std::getline(in, line);
         if (line.empty())
         {
           --i;
@@ -30,14 +32,12 @@ namespace asafov
 
         size_t p1 = line.find(' ');
         size_t p2 = line.find(' ', p1 + 1);
-        if (p1 == std::string::npos || p2 == std::string::npos) continue;
-
         std::string from = line.substr(0, p1);
         std::string to = line.substr(p1 + 1, p2 - p1 - 1);
         unsigned weight = static_cast< unsigned >(std::atoi(line.substr(p2 + 1).c_str()));
-
         g.add_edge(from, to, weight);
       }
+
       graphs[name] = g;
     }
   }
@@ -137,7 +137,7 @@ namespace asafov
         {
           const std::string& name = parts[1];
           int k = std::atoi(parts[2].c_str());
-          if (static_cast<int>(parts.size()) != 3 + k || graphs.count(name))
+          if (static_cast< int >(parts.size()) != 3 + k || graphs.count(name))
           {
             std::cout << "<INVALID COMMAND>\n";
           }
@@ -178,7 +178,7 @@ namespace asafov
         }
         const std::string &newg = parts[1], &oldg = parts[2];
         int k = std::atoi(parts[3].c_str());
-        if (static_cast<int>(parts.size()) != 4 + k || graphs.count(newg) || !graphs.count(oldg))
+        if (static_cast< int >(parts.size()) != 4 + k || graphs.count(newg) || !graphs.count(oldg))
         {
           std::cout << "<INVALID COMMAND>\n";
         }
