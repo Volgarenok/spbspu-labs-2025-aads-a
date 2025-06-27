@@ -130,7 +130,6 @@ namespace asafov
             std::cout << " " << weights[j];
           std::cout << '\n';
         }
-        std::cout << '\n';
       }
       else if (parts[0] == "inbound" && parts.size() == 3)
       {
@@ -163,7 +162,6 @@ namespace asafov
             std::cout << " " << weights[j];
           std::cout << '\n';
         }
-        std::cout << '\n';
       }
       else if (parts[0] == "bind" && parts.size() == 5)
       {
