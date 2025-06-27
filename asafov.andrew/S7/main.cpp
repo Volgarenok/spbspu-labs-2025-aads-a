@@ -6,6 +6,7 @@
 #include <cctype>
 #include <limits>
 #include <functional>
+#include <algorithm>
 
 namespace asafov
 {
@@ -39,11 +40,7 @@ namespace asafov
 
     bool hasVertex(const Vertex& v) const
     {
-      for (const auto& vertex: vertices)
-      {
-        if (vertex == v) return true;
-      }
-      return false;
+      return std::find(vertices.begin(), vertices.end(), v) != vertices.end();
     }
   };
 
@@ -135,59 +132,21 @@ namespace asafov
 
     void sortWeights(Weights& weights) const
     {
-      for (size_t i = 0; i < weights.size(); ++i)
-      {
-        size_t min_idx = i;
-        for (size_t j = i + 1; j < weights.size(); ++j)
-        {
-          if (weights[j] < weights[min_idx])
-          {
-            min_idx = j;
-          }
-        }
-        if (min_idx != i)
-        {
-          std::swap(weights[i], weights[min_idx]);
-        }
-      }
+      std::sort(weights.begin(), weights.end());
     }
 
     void sortVertices(std::vector< Vertex >& vertices) const
     {
-      for (size_t i = 0; i < vertices.size(); ++i)
-      {
-        size_t min_idx = i;
-        for (size_t j = i + 1; j < vertices.size(); ++j)
-        {
-          if (vertices[j] < vertices[min_idx])
-          {
-            min_idx = j;
-          }
-        }
-        if (min_idx != i)
-        {
-          std::swap(vertices[i], vertices[min_idx]);
-        }
-      }
+      std::sort(vertices.begin(), vertices.end());
     }
 
     void sortVertexWeightPairs(std::vector< std::pair< Vertex, Weights > >& pairs) const
     {
-      for (size_t i = 0; i < pairs.size(); ++i)
-      {
-        size_t min_idx = i;
-        for (size_t j = i + 1; j < pairs.size(); ++j)
-        {
-          if (pairs[j].first < pairs[min_idx].first)
-          {
-            min_idx = j;
-          }
-        }
-        if (min_idx != i)
-        {
-          std::swap(pairs[i], pairs[min_idx]);
-        }
-      }
+      std::sort(pairs.begin(), pairs.end(),
+                [](const auto& a, const auto& b)
+                {
+                  return a.first < b.first;
+                });
     }
 
   public:
@@ -220,33 +179,13 @@ namespace asafov
 
     void printGraphs() const
     {
-      if (graphs.empty())
-      {
-        std::cout << "\n";
-        return;
-      }
-
       std::vector< std::string > names;
       for (const auto& graph_pair: graphs)
       {
         names.push_back(graph_pair.first);
       }
 
-      for (size_t i = 0; i < names.size(); ++i)
-      {
-        size_t min_idx = i;
-        for (size_t j = i + 1; j < names.size(); ++j)
-        {
-          if (names[j] < names[min_idx])
-          {
-            min_idx = j;
-          }
-        }
-        if (min_idx != i)
-        {
-          std::swap(names[i], names[min_idx]);
-        }
-      }
+      std::sort(names.begin(), names.end());
 
       for (const auto& name: names)
       {
@@ -288,12 +227,6 @@ namespace asafov
         }
       }
 
-      if (outbound.empty())
-      {
-        std::cout << "\n";
-        return;
-      }
-
       sortVertexWeightPairs(outbound);
       for (const auto& pair: outbound)
       {
@@ -324,12 +257,6 @@ namespace asafov
         {
           inbound.emplace_back(edge_weights.first.first, edge_weights.second);
         }
-      }
-
-      if (inbound.empty())
-      {
-        std::cout << "\n";
-        return;
       }
 
       sortVertexWeightPairs(inbound);
@@ -374,13 +301,17 @@ namespace asafov
       }
 
       bool found = false;
-      for (size_t i = 0; i < edge_it->second.size(); ++i)
+      auto& weights = edge_it->second;
+      for (auto it = weights.begin(); it != weights.end();)
       {
-        if (edge_it->second[i] == weight)
+        if (*it == weight)
         {
-          edge_it->second.erase(edge_it->second.begin() + static_cast< std::ptrdiff_t >(i));
+          it = weights.erase(it);
           found = true;
-          break;
+        }
+        else
+        {
+          ++it;
         }
       }
 
@@ -390,7 +321,7 @@ namespace asafov
         return;
       }
 
-      if (edge_it->second.empty())
+      if (weights.empty())
       {
         edges.erase(edge_it);
       }
@@ -512,6 +443,7 @@ int main(int argc, char* argv[])
       if (command == "graphs")
       {
         manager.printGraphs();
+        std::cout << "\n";
       }
       else if (command == "vertexes")
       {
@@ -519,6 +451,7 @@ int main(int argc, char* argv[])
         if (std::cin >> graph_name)
         {
           manager.printVertexes(graph_name);
+          std::cout << "\n";
         }
         else
         {
@@ -531,6 +464,7 @@ int main(int argc, char* argv[])
         if (std::cin >> graph_name >> vertex)
         {
           manager.printOutbound(graph_name, vertex);
+          std::cout << "\n";
         }
         else
         {
@@ -543,6 +477,7 @@ int main(int argc, char* argv[])
         if (std::cin >> graph_name >> vertex)
         {
           manager.printInbound(graph_name, vertex);
+          std::cout << "\n";
         }
         else
         {
