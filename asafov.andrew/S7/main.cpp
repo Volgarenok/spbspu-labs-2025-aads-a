@@ -101,19 +101,7 @@ namespace asafov
     void addEdge(const std::string& graph_name, const Vertex& from, const Vertex& to, Weight weight)
     {
       auto& edges = graphs[graph_name].edges;
-      bool found = false;
-      for (auto& w: edges[{from, to}])
-      {
-        if (w == weight)
-        {
-          found = true;
-          break;
-        }
-      }
-      if (!found)
-      {
-        edges[{from, to}].push_back(weight);
-      }
+      edges[{from, to}].push_back(weight);
       addVertex(graph_name, from);
       addVertex(graph_name, to);
     }
@@ -197,7 +185,7 @@ namespace asafov
     {
       if (!graphExists(graph_name))
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
 
@@ -214,7 +202,7 @@ namespace asafov
     {
       if (!graphExists(graph_name) || !vertexExists(graph_name, vertex))
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
 
@@ -225,6 +213,11 @@ namespace asafov
         {
           outbound.emplace_back(edge_weights.first.second, edge_weights.second);
         }
+      }
+
+      if (outbound.empty())
+      {
+        return;
       }
 
       sortVertexWeightPairs(outbound);
@@ -246,7 +239,7 @@ namespace asafov
     {
       if (!graphExists(graph_name) || !vertexExists(graph_name, vertex))
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
 
@@ -257,6 +250,11 @@ namespace asafov
         {
           inbound.emplace_back(edge_weights.first.first, edge_weights.second);
         }
+      }
+
+      if (inbound.empty())
+      {
+        return;
       }
 
       sortVertexWeightPairs(inbound);
@@ -278,7 +276,7 @@ namespace asafov
     {
       if (!graphExists(graph_name))
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
       addEdge(graph_name, from, to, weight);
@@ -288,7 +286,7 @@ namespace asafov
     {
       if (!graphExists(graph_name))
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
 
@@ -296,7 +294,7 @@ namespace asafov
       auto edge_it = edges.find({from, to});
       if (edge_it == edges.end())
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
 
@@ -317,7 +315,7 @@ namespace asafov
 
       if (!found)
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
 
@@ -331,7 +329,7 @@ namespace asafov
     {
       if (graphExists(graph_name))
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
 
@@ -346,7 +344,7 @@ namespace asafov
     {
       if (!graphExists(name1) || !graphExists(name2) || graphExists(new_name))
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
 
@@ -381,7 +379,7 @@ namespace asafov
     {
       if (!graphExists(old_name) || graphExists(new_name))
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         return;
       }
 
@@ -389,7 +387,7 @@ namespace asafov
       {
         if (!vertexExists(old_name, v))
         {
-          std::cout << "<INVALID COMMAND>\n";
+          std::cout << "<INVALID COMMAND>";
           return;
         }
       }
@@ -443,7 +441,6 @@ int main(int argc, char* argv[])
       if (command == "graphs")
       {
         manager.printGraphs();
-        std::cout << "\n";
       }
       else if (command == "vertexes")
       {
@@ -451,11 +448,10 @@ int main(int argc, char* argv[])
         if (std::cin >> graph_name)
         {
           manager.printVertexes(graph_name);
-          std::cout << "\n";
         }
         else
         {
-          std::cout << "<INVALID COMMAND>\n";
+          std::cout << "<INVALID COMMAND>";
         }
       }
       else if (command == "outbound")
@@ -464,11 +460,10 @@ int main(int argc, char* argv[])
         if (std::cin >> graph_name >> vertex)
         {
           manager.printOutbound(graph_name, vertex);
-          std::cout << "\n";
         }
         else
         {
-          std::cout << "<INVALID COMMAND>\n";
+          std::cout << "<INVALID COMMAND>";
         }
       }
       else if (command == "inbound")
@@ -477,11 +472,10 @@ int main(int argc, char* argv[])
         if (std::cin >> graph_name >> vertex)
         {
           manager.printInbound(graph_name, vertex);
-          std::cout << "\n";
         }
         else
         {
-          std::cout << "<INVALID COMMAND>\n";
+          std::cout << "<INVALID COMMAND>";
         }
       }
       else if (command == "bind")
@@ -494,7 +488,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-          std::cout << "<INVALID COMMAND>\n";
+          std::cout << "<INVALID COMMAND>";
         }
       }
       else if (command == "cut")
@@ -507,7 +501,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-          std::cout << "<INVALID COMMAND>\n";
+          std::cout << "<INVALID COMMAND>";
         }
       }
       else if (command == "create")
@@ -518,7 +512,7 @@ int main(int argc, char* argv[])
         {
           if (count < 0)
           {
-            std::cout << "<INVALID COMMAND>\n";
+            std::cout << "<INVALID COMMAND>";
             std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
             continue;
           }
@@ -534,12 +528,12 @@ int main(int argc, char* argv[])
           }
           else
           {
-            std::cout << "<INVALID COMMAND>\n";
+            std::cout << "<INVALID COMMAND>";
           }
         }
         else
         {
-          std::cout << "<INVALID COMMAND>\n";
+          std::cout << "<INVALID COMMAND>";
         }
         std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
       }
@@ -552,7 +546,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-          std::cout << "<INVALID COMMAND>\n";
+          std::cout << "<INVALID COMMAND>";
         }
       }
       else if (command == "extract")
@@ -573,19 +567,20 @@ int main(int argc, char* argv[])
           }
           else
           {
-            std::cout << "<INVALID COMMAND>\n";
+            std::cout << "<INVALID COMMAND>";
           }
         }
         else
         {
-          std::cout << "<INVALID COMMAND>\n";
+          std::cout << "<INVALID COMMAND>";
         }
       }
       else
       {
-        std::cout << "<INVALID COMMAND>\n";
+        std::cout << "<INVALID COMMAND>";
         std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
       }
+      std::cout << "\n";
     }
   }
   catch (const std::exception& e)
