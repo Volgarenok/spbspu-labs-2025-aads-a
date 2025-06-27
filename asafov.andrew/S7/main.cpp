@@ -2,7 +2,10 @@
 #include <fstream>
 #include <unordered_map>
 #include <vector>
-#include <string>
+#include <stdexcept>
+#include <cctype>
+#include <limits>
+#include <functional>
 
 namespace asafov
 {
@@ -11,10 +14,31 @@ namespace asafov
   using Edge = std::pair< Vertex, Vertex >;
   using Weights = std::vector< Weight >;
 
+
+  struct EdgeHash
+  {
+    std::size_t operator()(const Edge& e) const
+    {
+      std::size_t h1 = std::hash< Vertex >()(e.first);
+      std::size_t h2 = std::hash< Vertex >()(e.second);
+      return h1 ^ (h2 << 1);
+    }
+  };
+
+  struct EdgeEqual
+  {
+    bool operator()(const Edge& lhs, const Edge& rhs) const
+    {
+      return lhs.first == rhs.first && lhs.second == rhs.second;
+    }
+  };
+
   struct Graph
   {
     std::vector< Vertex > vertices;
-    std::unordered_map< Edge, Weights > edges;
+    std::unordered_map< Edge, Weights, EdgeHash, EdgeEqual > edges;
+
+    Graph() = default;
 
     bool hasVertex(const Vertex& v) const
     {
@@ -30,6 +54,47 @@ namespace asafov
   {
   private:
     std::unordered_map< std::string, Graph > graphs;
+
+    bool readToken(std::istream& is, std::string& token)
+    {
+      token.clear();
+      char c;
+      while (is.get(c))
+      {
+        if (std::isspace(c))
+        {
+          if (!token.empty()) return true;
+          continue;
+        }
+        token += c;
+      }
+      return !token.empty();
+    }
+
+    bool readNumber(std::istream& is, Weight& num)
+    {
+      num = 0;
+      char c;
+      bool hasDigit = false;
+      while (is.get(c))
+      {
+        if (std::isdigit(c))
+        {
+          num = num * 10 + (c - '0');
+          hasDigit = true;
+        }
+        else if (std::isspace(c))
+        {
+          return hasDigit;
+        }
+        else
+        {
+          is.unget();
+          return false;
+        }
+      }
+      return hasDigit;
+    }
 
     void addVertex(const std::string& graph_name, const Vertex& vertex)
     {
@@ -99,6 +164,20 @@ namespace asafov
       }
     }
 
+    void sortVertexWeightPairs(std::vector< std::pair< Vertex, Weights > >& pairs) const
+    {
+      for (size_t i = 0; i < pairs.size(); ++i)
+      {
+        for (size_t j = i + 1; j < pairs.size(); ++j)
+        {
+          if (pairs[i].first > pairs[j].first)
+          {
+            std::swap(pairs[i], pairs[j]);
+          }
+        }
+      }
+    }
+
   public:
     void loadGraphsFromFile(const std::string& filename)
     {
@@ -108,59 +187,19 @@ namespace asafov
         return;
       }
 
-      std::string line;
-      while (std::getline(file, line))
+      std::string graph_name;
+      while (readToken(file, graph_name))
       {
-        if (line.empty()) continue;
+        Weight edge_count;
+        if (!readNumber(file, edge_count)) break;
 
-        size_t pos = 0;
-        std::string graph_name;
-        while (pos < line.size() && line[pos] != ' ')
+        for (Weight i = 0; i < edge_count; ++i)
         {
-          graph_name += line[pos++];
-        }
-        if (pos >= line.size()) continue;
-        pos++;
-
-        int edge_count = 0;
-        while (pos < line.size() && line[pos] != ' ')
-        {
-          edge_count = edge_count * 10 + (line[pos++] - '0');
-        }
-        if (pos >= line.size()) continue;
-        pos++;
-
-        for (int i = 0; i < edge_count; ++i)
-        {
-          if (!std::getline(file, line)) break;
-          if (line.empty())
-          {
-            --i;
-            continue;
-          }
-
-          size_t edge_pos = 0;
           std::string from, to;
-          Weight weight = 0;
-
-          while (edge_pos < line.size() && line[edge_pos] != ' ')
-          {
-            from += line[edge_pos++];
-          }
-          if (edge_pos >= line.size()) continue;
-          edge_pos++;
-
-          while (edge_pos < line.size() && line[edge_pos] != ' ')
-          {
-            to += line[edge_pos++];
-          }
-          if (edge_pos >= line.size()) continue;
-          edge_pos++;
-
-          while (edge_pos < line.size() && line[edge_pos] != ' ')
-          {
-            weight = weight * 10 + (line[edge_pos++] - '0');
-          }
+          Weight weight;
+          if (!readToken(file, from)) break;
+          if (!readToken(file, to)) break;
+          if (!readNumber(file, weight)) break;
 
           addEdge(graph_name, from, to, weight);
         }
@@ -228,15 +267,12 @@ namespace asafov
         return;
       }
 
-      std::unordered_map< Vertex, Weights > outbound;
+      std::vector< std::pair< Vertex, Weights > > outbound;
       for (const auto& edge_weights: graphs.at(graph_name).edges)
       {
         if (edge_weights.first.first == vertex)
         {
-          for (auto w: edge_weights.second)
-          {
-            outbound[edge_weights.first.second].push_back(w);
-          }
+          outbound.emplace_back(edge_weights.first.second, edge_weights.second);
         }
       }
 
@@ -246,19 +282,14 @@ namespace asafov
         return;
       }
 
-      std::vector< Vertex > sorted_vertices;
+      sortVertexWeightPairs(outbound);
       for (const auto& pair: outbound)
       {
-        sorted_vertices.push_back(pair.first);
-      }
-      sortVertices(sorted_vertices);
-
-      for (const auto& v: sorted_vertices)
-      {
-        auto weights = outbound.at(v);
-        sortWeights(weights);
+        const auto& v = pair.first;
+        auto sorted_weights = pair.second;
+        sortWeights(sorted_weights);
         std::cout << v;
-        for (const auto& weight: weights)
+        for (const auto& weight: sorted_weights)
         {
           std::cout << " " << weight;
         }
@@ -274,15 +305,12 @@ namespace asafov
         return;
       }
 
-      std::unordered_map< Vertex, Weights > inbound;
+      std::vector< std::pair< Vertex, Weights > > inbound;
       for (const auto& edge_weights: graphs.at(graph_name).edges)
       {
         if (edge_weights.first.second == vertex)
         {
-          for (auto w: edge_weights.second)
-          {
-            inbound[edge_weights.first.first].push_back(w);
-          }
+          inbound.emplace_back(edge_weights.first.first, edge_weights.second);
         }
       }
 
@@ -292,19 +320,14 @@ namespace asafov
         return;
       }
 
-      std::vector< Vertex > sorted_vertices;
+      sortVertexWeightPairs(inbound);
       for (const auto& pair: inbound)
       {
-        sorted_vertices.push_back(pair.first);
-      }
-      sortVertices(sorted_vertices);
-
-      for (const auto& v: sorted_vertices)
-      {
-        auto weights = inbound.at(v);
-        sortWeights(weights);
+        const auto& v = pair.first;
+        auto sorted_weights = pair.second;
+        sortWeights(sorted_weights);
         std::cout << v;
-        for (const auto& weight: weights)
+        for (const auto& weight: sorted_weights)
         {
           std::cout << " " << weight;
         }
@@ -369,14 +392,10 @@ namespace asafov
         return;
       }
 
+      graphs[graph_name] = Graph();
       for (const auto& v: vertices)
       {
         addVertex(graph_name, v);
-      }
-
-      if (vertices.empty())
-      {
-        graphs[graph_name];
       }
     }
 
@@ -387,6 +406,8 @@ namespace asafov
         std::cout << "<INVALID COMMAND>\n";
         return;
       }
+
+      graphs[new_name] = Graph();
 
       for (const auto& v: graphs[name1].vertices)
       {
@@ -430,6 +451,8 @@ namespace asafov
         }
       }
 
+      graphs[new_name] = Graph();
+
       for (const auto& v: vertices)
       {
         addVertex(new_name, v);
@@ -458,133 +481,138 @@ namespace asafov
   };
 }
 
-int main(int argc, char* argv[])
-{
-  if (argc != 2)
+  int main(int argc, char* argv[])
   {
-    std::cerr << "Usage: " << argv[0] << " filename\n";
-    return 1;
-  }
-
-  try
-  {
-    asafov::GraphManager manager;
-    manager.loadGraphsFromFile(argv[1]);
-
-    std::string command;
-    while (std::cin >> command)
+    if (argc != 2)
     {
-      if (command == "graphs")
+      std::cerr << "Usage: " << argv[0] << " filename\n";
+      return 1;
+    }
+
+    try
+    {
+      asafov::GraphManager manager;
+      manager.loadGraphsFromFile(argv[1]);
+
+      std::string command;
+      while (std::cin >> command)
       {
-        manager.printGraphs();
-      }
-      else if (command == "vertexes")
-      {
-        std::string graph_name;
-        if (std::cin >> graph_name)
+        if (command == "graphs")
         {
-          manager.printVertexes(graph_name);
+          manager.printGraphs();
         }
-        else
+        else if (command == "vertexes")
         {
-          std::cout << "<INVALID COMMAND>\n";
-        }
-      }
-      else if (command == "outbound")
-      {
-        std::string graph_name, vertex;
-        if (std::cin >> graph_name >> vertex)
-        {
-          manager.printOutbound(graph_name, vertex);
-        }
-        else
-        {
-          std::cout << "<INVALID COMMAND>\n";
-        }
-      }
-      else if (command == "inbound")
-      {
-        std::string graph_name, vertex;
-        if (std::cin >> graph_name >> vertex)
-        {
-          manager.printInbound(graph_name, vertex);
-        }
-        else
-        {
-          std::cout << "<INVALID COMMAND>\n";
-        }
-      }
-      else if (command == "bind")
-      {
-        std::string graph_name, from, to;
-        asafov::Weight weight;
-        if (std::cin >> graph_name >> from >> to >> weight)
-        {
-          manager.bindEdge(graph_name, from, to, weight);
-        }
-        else
-        {
-          std::cout << "<INVALID COMMAND>\n";
-        }
-      }
-      else if (command == "cut")
-      {
-        std::string graph_name, from, to;
-        asafov::Weight weight;
-        if (std::cin >> graph_name >> from >> to >> weight)
-        {
-          manager.cutEdge(graph_name, from, to, weight);
-        }
-        else
-        {
-          std::cout << "<INVALID COMMAND>\n";
-        }
-      }
-      else if (command == "create")
-      {
-        std::string graph_name;
-        if (std::cin >> graph_name)
-        {
-          std::vector< asafov::Vertex > vertices;
-          asafov::Vertex v;
-          while (std::cin >> v)
+          std::string graph_name;
+          if (std::cin >> graph_name)
           {
-            vertices.push_back(v);
+            manager.printVertexes(graph_name);
           }
-          manager.createGraph(graph_name, vertices);
-        }
-        else
-        {
-          std::cout << "<INVALID COMMAND>\n";
-        }
-      }
-      else if (command == "merge")
-      {
-        std::string new_name, name1, name2;
-        if (std::cin >> new_name >> name1 >> name2)
-        {
-          manager.mergeGraphs(new_name, name1, name2);
-        }
-        else
-        {
-          std::cout << "<INVALID COMMAND>\n";
-        }
-      }
-      else if (command == "extract")
-      {
-        std::string new_name, old_name;
-        int count;
-        if (std::cin >> new_name >> old_name >> count)
-        {
-          std::vector< asafov::Vertex > vertices;
-          asafov::Vertex v;
-          for (int i = 0; i < count && std::cin >> v; ++i)
+          else
           {
-            vertices.push_back(v);
+            std::cout << "<INVALID COMMAND>\n";
           }
-          if (static_cast< int >(vertices.size()) == count)
+        }
+        else if (command == "outbound")
+        {
+          std::string graph_name, vertex;
+          if (std::cin >> graph_name >> vertex)
           {
-            manager.extractGraph(new_name, old_name, vertices);
+            manager.printOutbound(graph_name, vertex);
+          }
+          else
+          {
+            std::cout << "<INVALID COMMAND>\n";
+          }
+        }
+        else if (command == "inbound")
+        {
+          std::string graph_name, vertex;
+          if (std::cin >> graph_name >> vertex)
+          {
+            manager.printInbound(graph_name, vertex);
+          }
+          else
+          {
+            std::cout << "<INVALID COMMAND>\n";
+          }
+        }
+        else if (command == "bind")
+        {
+          std::string graph_name, from, to;
+          asafov::Weight weight;
+          if (std::cin >> graph_name >> from >> to >> weight)
+          {
+            manager.bindEdge(graph_name, from, to, weight);
+          }
+          else
+          {
+            std::cout << "<INVALID COMMAND>\n";
+          }
+        }
+        else if (command == "cut")
+        {
+          std::string graph_name, from, to;
+          asafov::Weight weight;
+          if (std::cin >> graph_name >> from >> to >> weight)
+          {
+            manager.cutEdge(graph_name, from, to, weight);
+          }
+          else
+          {
+            std::cout << "<INVALID COMMAND>\n";
+          }
+        }
+        else if (command == "create")
+        {
+          std::string graph_name;
+          if (std::cin >> graph_name)
+          {
+            std::vector< asafov::Vertex > vertices;
+            asafov::Vertex v;
+            while (std::cin >> v)
+            {
+              vertices.push_back(v);
+            }
+            manager.createGraph(graph_name, vertices);
+          }
+          else
+          {
+            std::cout << "<INVALID COMMAND>\n";
+          }
+        }
+        else if (command == "merge")
+        {
+          std::string new_name, name1, name2;
+          if (std::cin >> new_name >> name1 >> name2)
+          {
+            manager.mergeGraphs(new_name, name1, name2);
+          }
+          else
+          {
+            std::cout << "<INVALID COMMAND>\n";
+          }
+        }
+        else if (command == "extract")
+        {
+          std::string new_name, old_name;
+          int count;
+          if (std::cin >> new_name >> old_name >> count)
+          {
+            std::vector< asafov::Vertex > vertices;
+            asafov::Vertex v;
+            for (int i = 0; i < count && std::cin >> v; ++i)
+            {
+              vertices.push_back(v);
+            }
+            if (static_cast< int >(vertices.size()) == count)
+            {
+              manager.extractGraph(new_name, old_name, vertices);
+            }
+            else
+            {
+              std::cout << "<INVALID COMMAND>\n";
+            }
           }
           else
           {
@@ -594,20 +622,15 @@ int main(int argc, char* argv[])
         else
         {
           std::cout << "<INVALID COMMAND>\n";
+          std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
         }
       }
-      else
-      {
-        std::cout << "<INVALID COMMAND>\n";
-        std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
-      }
     }
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << "Error: " << e.what() << "\n";
-    return 1;
-  }
+    catch (const std::exception& e)
+    {
+      std::cerr << "Error: " << e.what() << "\n";
+      return 1;
+    }
 
-  return 0;
-}
+    return 0;
+  }
