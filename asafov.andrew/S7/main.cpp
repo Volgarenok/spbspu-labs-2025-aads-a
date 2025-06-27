@@ -175,12 +175,17 @@ namespace asafov
     {
       for (size_t i = 0; i < pairs.size(); ++i)
       {
+        size_t min_idx = i;
         for (size_t j = i + 1; j < pairs.size(); ++j)
         {
-          if (pairs[i].first > pairs[j].first)
+          if (pairs[j].first < pairs[min_idx].first)
           {
-            std::swap(pairs[i], pairs[j]);
+            min_idx = j;
           }
+        }
+        if (min_idx != i)
+        {
+          std::swap(pairs[i], pairs[min_idx]);
         }
       }
     }
@@ -578,22 +583,27 @@ int main(int argc, char* argv[])
       else if (command == "create")
       {
         std::string graph_name;
-        if (std::cin >> graph_name)
+        int count;
+        if (std::cin >> graph_name >> count)
         {
           std::vector< asafov::Vertex > vertices;
           asafov::Vertex v;
-          while (std::cin.peek() != '\n' && std::cin >> v)
+          for (int i = 0; i < count && std::cin >> v; ++i)
           {
             vertices.push_back(v);
           }
-          std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
-          manager.createGraph(graph_name, vertices);
+          if (static_cast< int >(vertices.size()) == count)
+          {
+            manager.createGraph(graph_name, vertices);
+          }
+          else
+          {
+            std::cout << "<INVALID COMMAND>\n";
+          }
         }
         else
         {
           std::cout << "<INVALID COMMAND>\n";
-          std::cin.clear();
-          std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
         }
       }
       else if (command == "merge")
