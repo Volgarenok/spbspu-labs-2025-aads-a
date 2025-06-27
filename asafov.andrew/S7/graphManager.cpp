@@ -1,4 +1,4 @@
-#include "GraphManager.h"
+#include "graphManager.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>

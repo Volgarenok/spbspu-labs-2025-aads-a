@@ -1,6 +1,6 @@
 #ifndef GRAPH_MANAGER_H
 #define GRAPH_MANAGER_H
-#include "Graph.h"
+#include "graph.h"
 #include <string>
 #include <unordered_map>
 
