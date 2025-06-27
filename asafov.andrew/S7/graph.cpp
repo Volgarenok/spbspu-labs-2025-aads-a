@@ -2,6 +2,63 @@
 
 namespace asafov
 {
+  void Graph::add_vertex(const std::string& name)
+  {
+    vertex_map[name];
+  }
+
+  bool Graph::has_vertex(const std::string& name) const
+  {
+    return vertex_map.find(name) != vertex_map.end();
+  }
+
+  std::vector< std::string > Graph::get_vertices() const
+  {
+    std::vector< std::string > result;
+    for (std::unordered_map< std::string, std::vector< unsigned > >::const_iterator it = vertex_map.begin(); it !=
+         vertex_map.end(); ++it)
+    {
+      result.push_back(it->first);
+    }
+    for (size_t i = 0; i < result.size(); ++i)
+    {
+      for (size_t j = i + 1; j < result.size(); ++j)
+      {
+        if (result[j] < result[i])
+        {
+          std::string tmp = result[i];
+          result[i] = result[j];
+          result[j] = tmp;
+        }
+      }
+    }
+    return result;
+  }
+
+  bool Graph::remove_edge(const std::string& from, const std::string& to, unsigned weight)
+  {
+    if (edges.find(from) == edges.end()) return false;
+    if (edges[from].find(to) == edges[from].end()) return false;
+    std::vector< unsigned >& weights = edges[from][to];
+    for (std::vector< unsigned >::iterator it = weights.begin(); it != weights.end(); ++it)
+    {
+      if (*it == weight)
+      {
+        weights.erase(it);
+        if (weights.empty())
+        {
+          edges[from].erase(to);
+          if (edges[from].empty())
+          {
+            edges.erase(from);
+          }
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
   void Graph::add_edge(const std::string& from, const std::string& to, unsigned weight)
   {
     edges[from][to].push_back(weight);
