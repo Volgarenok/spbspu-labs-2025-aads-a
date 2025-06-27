@@ -265,11 +265,6 @@ namespace asafov
       auto vertices = graphs.at(graph_name).vertices;
       sortVertices(vertices);
 
-      if (vertices.empty())
-      {
-        std::cout << "\n";
-        return;
-      }
       for (const auto& vertex: vertices)
       {
         std::cout << vertex << "\n";
@@ -586,6 +581,12 @@ int main(int argc, char* argv[])
         int count;
         if (std::cin >> graph_name >> count)
         {
+          if (count < 0)
+          {
+            std::cout << "<INVALID COMMAND>\n";
+            std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+            continue;
+          }
           std::vector< asafov::Vertex > vertices;
           asafov::Vertex v;
           for (int i = 0; i < count && std::cin >> v; ++i)
@@ -605,6 +606,7 @@ int main(int argc, char* argv[])
         {
           std::cout << "<INVALID COMMAND>\n";
         }
+        std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
       }
       else if (command == "merge")
       {
