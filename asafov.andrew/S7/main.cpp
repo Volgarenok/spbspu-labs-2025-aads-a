@@ -14,7 +14,6 @@ namespace asafov
   using Edge = std::pair< Vertex, Vertex >;
   using Weights = std::vector< Weight >;
 
-
   struct EdgeHash
   {
     std::size_t operator()(const Edge& e) const
@@ -37,8 +36,6 @@ namespace asafov
   {
     std::vector< Vertex > vertices;
     std::unordered_map< Edge, Weights, EdgeHash, EdgeEqual > edges;
-
-    Graph() = default;
 
     bool hasVertex(const Vertex& v) const
     {
@@ -140,12 +137,17 @@ namespace asafov
     {
       for (size_t i = 0; i < weights.size(); ++i)
       {
+        size_t min_idx = i;
         for (size_t j = i + 1; j < weights.size(); ++j)
         {
-          if (weights[i] > weights[j])
+          if (weights[j] < weights[min_idx])
           {
-            std::swap(weights[i], weights[j]);
+            min_idx = j;
           }
+        }
+        if (min_idx != i)
+        {
+          std::swap(weights[i], weights[min_idx]);
         }
       }
     }
@@ -154,12 +156,17 @@ namespace asafov
     {
       for (size_t i = 0; i < vertices.size(); ++i)
       {
+        size_t min_idx = i;
         for (size_t j = i + 1; j < vertices.size(); ++j)
         {
-          if (vertices[i] > vertices[j])
+          if (vertices[j] < vertices[min_idx])
           {
-            std::swap(vertices[i], vertices[j]);
+            min_idx = j;
           }
+        }
+        if (min_idx != i)
+        {
+          std::swap(vertices[i], vertices[min_idx]);
         }
       }
     }
@@ -222,12 +229,17 @@ namespace asafov
 
       for (size_t i = 0; i < names.size(); ++i)
       {
+        size_t min_idx = i;
         for (size_t j = i + 1; j < names.size(); ++j)
         {
-          if (names[i] > names[j])
+          if (names[j] < names[min_idx])
           {
-            std::swap(names[i], names[j]);
+            min_idx = j;
           }
+        }
+        if (min_idx != i)
+        {
+          std::swap(names[i], names[min_idx]);
         }
       }
 
@@ -386,27 +398,10 @@ namespace asafov
 
     void createGraph(const std::string& graph_name, const std::vector< Vertex >& vertices)
     {
-      if (graph_name.empty() || graphExists(graph_name))
+      if (graphExists(graph_name))
       {
         std::cout << "<INVALID COMMAND>\n";
         return;
-      }
-
-      for (size_t i = 0; i < vertices.size(); ++i)
-      {
-        if (vertices[i].empty())
-        {
-          std::cout << "<INVALID COMMAND>\n";
-          return;
-        }
-        for (size_t j = i + 1; j < vertices.size(); ++j)
-        {
-          if (vertices[i] == vertices[j])
-          {
-            std::cout << "<INVALID COMMAND>\n";
-            return;
-          }
-        }
       }
 
       graphs[graph_name] = Graph();
@@ -587,25 +582,11 @@ int main(int argc, char* argv[])
         {
           std::vector< asafov::Vertex > vertices;
           asafov::Vertex v;
-
-          std::cin >> std::ws;
-          while (true)
+          while (std::cin.peek() != '\n' && std::cin >> v)
           {
-            char c = std::cin.peek();
-            if (c == '\n' || c == EOF) break;
-
-            if (std::cin >> v)
-            {
-              vertices.push_back(v);
-            }
-            else
-            {
-              std::cin.clear();
-              break;
-            }
+            vertices.push_back(v);
           }
           std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
-
           manager.createGraph(graph_name, vertices);
         }
         else
