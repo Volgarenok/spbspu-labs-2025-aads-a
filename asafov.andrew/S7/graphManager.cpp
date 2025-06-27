@@ -82,6 +82,9 @@ namespace asafov
         }
         for (size_t i = 0; i < names.size(); ++i)
           std::cout << names[i] << '\n';
+        if (names.empty()) {
+          std::cout << '\n';
+        }
       }
       else if (parts[0] == "vertexes" && parts.size() == 2)
       {
@@ -98,7 +101,6 @@ namespace asafov
         }
         for (size_t i = 0; i < v.size(); ++i)
           std::cout << v[i] << '\n';
-        std::cout << '\n';
       }
       else if (parts[0] == "outbound" && parts.size() == 3)
       {
