@@ -82,7 +82,8 @@ namespace asafov
         }
         for (size_t i = 0; i < names.size(); ++i)
           std::cout << names[i] << '\n';
-        if (names.empty()) {
+        if (names.empty())
+        {
           std::cout << '\n';
         }
       }
@@ -131,6 +132,10 @@ namespace asafov
           const std::vector< unsigned >& weights = m[keys[i]];
           for (size_t j = 0; j < weights.size(); ++j)
             std::cout << " " << weights[j];
+          std::cout << '\n';
+        }
+        if (m.empty())
+        {
           std::cout << '\n';
         }
       }
