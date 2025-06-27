@@ -386,10 +386,27 @@ namespace asafov
 
     void createGraph(const std::string& graph_name, const std::vector< Vertex >& vertices)
     {
-      if (graphExists(graph_name))
+      if (graph_name.empty() || graphExists(graph_name))
       {
         std::cout << "<INVALID COMMAND>\n";
         return;
+      }
+
+      for (size_t i = 0; i < vertices.size(); ++i)
+      {
+        if (vertices[i].empty())
+        {
+          std::cout << "<INVALID COMMAND>\n";
+          return;
+        }
+        for (size_t j = i + 1; j < vertices.size(); ++j)
+        {
+          if (vertices[i] == vertices[j])
+          {
+            std::cout << "<INVALID COMMAND>\n";
+            return;
+          }
+        }
       }
 
       graphs[graph_name] = Graph();
@@ -481,138 +498,150 @@ namespace asafov
   };
 }
 
-  int main(int argc, char* argv[])
+int main(int argc, char* argv[])
+{
+  if (argc != 2)
   {
-    if (argc != 2)
-    {
-      std::cerr << "Usage: " << argv[0] << " filename\n";
-      return 1;
-    }
+    std::cerr << "Usage: " << argv[0] << " filename\n";
+    return 1;
+  }
 
-    try
-    {
-      asafov::GraphManager manager;
-      manager.loadGraphsFromFile(argv[1]);
+  try
+  {
+    asafov::GraphManager manager;
+    manager.loadGraphsFromFile(argv[1]);
 
-      std::string command;
-      while (std::cin >> command)
+    std::string command;
+    while (std::cin >> command)
+    {
+      if (command == "graphs")
       {
-        if (command == "graphs")
+        manager.printGraphs();
+      }
+      else if (command == "vertexes")
+      {
+        std::string graph_name;
+        if (std::cin >> graph_name)
         {
-          manager.printGraphs();
+          manager.printVertexes(graph_name);
         }
-        else if (command == "vertexes")
+        else
         {
-          std::string graph_name;
-          if (std::cin >> graph_name)
-          {
-            manager.printVertexes(graph_name);
-          }
-          else
-          {
-            std::cout << "<INVALID COMMAND>\n";
-          }
+          std::cout << "<INVALID COMMAND>\n";
         }
-        else if (command == "outbound")
+      }
+      else if (command == "outbound")
+      {
+        std::string graph_name, vertex;
+        if (std::cin >> graph_name >> vertex)
         {
-          std::string graph_name, vertex;
-          if (std::cin >> graph_name >> vertex)
-          {
-            manager.printOutbound(graph_name, vertex);
-          }
-          else
-          {
-            std::cout << "<INVALID COMMAND>\n";
-          }
+          manager.printOutbound(graph_name, vertex);
         }
-        else if (command == "inbound")
+        else
         {
-          std::string graph_name, vertex;
-          if (std::cin >> graph_name >> vertex)
-          {
-            manager.printInbound(graph_name, vertex);
-          }
-          else
-          {
-            std::cout << "<INVALID COMMAND>\n";
-          }
+          std::cout << "<INVALID COMMAND>\n";
         }
-        else if (command == "bind")
+      }
+      else if (command == "inbound")
+      {
+        std::string graph_name, vertex;
+        if (std::cin >> graph_name >> vertex)
         {
-          std::string graph_name, from, to;
-          asafov::Weight weight;
-          if (std::cin >> graph_name >> from >> to >> weight)
-          {
-            manager.bindEdge(graph_name, from, to, weight);
-          }
-          else
-          {
-            std::cout << "<INVALID COMMAND>\n";
-          }
+          manager.printInbound(graph_name, vertex);
         }
-        else if (command == "cut")
+        else
         {
-          std::string graph_name, from, to;
-          asafov::Weight weight;
-          if (std::cin >> graph_name >> from >> to >> weight)
-          {
-            manager.cutEdge(graph_name, from, to, weight);
-          }
-          else
-          {
-            std::cout << "<INVALID COMMAND>\n";
-          }
+          std::cout << "<INVALID COMMAND>\n";
         }
-        else if (command == "create")
+      }
+      else if (command == "bind")
+      {
+        std::string graph_name, from, to;
+        asafov::Weight weight;
+        if (std::cin >> graph_name >> from >> to >> weight)
         {
-          std::string graph_name;
-          if (std::cin >> graph_name)
+          manager.bindEdge(graph_name, from, to, weight);
+        }
+        else
+        {
+          std::cout << "<INVALID COMMAND>\n";
+        }
+      }
+      else if (command == "cut")
+      {
+        std::string graph_name, from, to;
+        asafov::Weight weight;
+        if (std::cin >> graph_name >> from >> to >> weight)
+        {
+          manager.cutEdge(graph_name, from, to, weight);
+        }
+        else
+        {
+          std::cout << "<INVALID COMMAND>\n";
+        }
+      }
+      else if (command == "create")
+      {
+        std::string graph_name;
+        if (std::cin >> graph_name)
+        {
+          std::vector< asafov::Vertex > vertices;
+          asafov::Vertex v;
+
+          std::cin >> std::ws;
+          while (true)
           {
-            std::vector< asafov::Vertex > vertices;
-            asafov::Vertex v;
-            while (std::cin >> v)
+            char c = std::cin.peek();
+            if (c == '\n' || c == EOF) break;
+
+            if (std::cin >> v)
             {
               vertices.push_back(v);
-            }
-            manager.createGraph(graph_name, vertices);
-          }
-          else
-          {
-            std::cout << "<INVALID COMMAND>\n";
-          }
-        }
-        else if (command == "merge")
-        {
-          std::string new_name, name1, name2;
-          if (std::cin >> new_name >> name1 >> name2)
-          {
-            manager.mergeGraphs(new_name, name1, name2);
-          }
-          else
-          {
-            std::cout << "<INVALID COMMAND>\n";
-          }
-        }
-        else if (command == "extract")
-        {
-          std::string new_name, old_name;
-          int count;
-          if (std::cin >> new_name >> old_name >> count)
-          {
-            std::vector< asafov::Vertex > vertices;
-            asafov::Vertex v;
-            for (int i = 0; i < count && std::cin >> v; ++i)
-            {
-              vertices.push_back(v);
-            }
-            if (static_cast< int >(vertices.size()) == count)
-            {
-              manager.extractGraph(new_name, old_name, vertices);
             }
             else
             {
-              std::cout << "<INVALID COMMAND>\n";
+              std::cin.clear();
+              break;
             }
+          }
+          std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+
+          manager.createGraph(graph_name, vertices);
+        }
+        else
+        {
+          std::cout << "<INVALID COMMAND>\n";
+          std::cin.clear();
+          std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+        }
+      }
+      else if (command == "merge")
+      {
+        std::string new_name, name1, name2;
+        if (std::cin >> new_name >> name1 >> name2)
+        {
+          manager.mergeGraphs(new_name, name1, name2);
+        }
+        else
+        {
+          std::cout << "<INVALID COMMAND>\n";
+        }
+      }
+      else if (command == "extract")
+      {
+        std::string new_name, old_name;
+        int count;
+        if (std::cin >> new_name >> old_name >> count)
+        {
+          std::vector< asafov::Vertex > vertices;
+          asafov::Vertex v;
+          for (int i = 0; i < count && std::cin >> v; ++i)
+          {
+            vertices.push_back(v);
+          }
+          if (static_cast< int >(vertices.size()) == count)
+          {
+            manager.extractGraph(new_name, old_name, vertices);
           }
           else
           {
@@ -622,15 +651,20 @@ namespace asafov
         else
         {
           std::cout << "<INVALID COMMAND>\n";
-          std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
         }
       }
+      else
+      {
+        std::cout << "<INVALID COMMAND>\n";
+        std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+      }
     }
-    catch (const std::exception& e)
-    {
-      std::cerr << "Error: " << e.what() << "\n";
-      return 1;
-    }
-
-    return 0;
   }
+  catch (const std::exception& e)
+  {
+    std::cerr << "Error: " << e.what() << "\n";
+    return 1;
+  }
+
+  return 0;
+}
