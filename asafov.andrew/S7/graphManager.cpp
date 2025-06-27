@@ -137,7 +137,7 @@ namespace asafov
         {
           const std::string& name = parts[1];
           int k = std::atoi(parts[2].c_str());
-          if ((int)parts.size() != 3 + k || graphs.count(name))
+          if (static_cast<int>(parts.size()) != 3 + k || graphs.count(name))
           {
             std::cout << "<INVALID COMMAND>\n";
           }
@@ -178,7 +178,7 @@ namespace asafov
         }
         const std::string &newg = parts[1], &oldg = parts[2];
         int k = std::atoi(parts[3].c_str());
-        if ((int)parts.size() != 4 + k || graphs.count(newg) || !graphs.count(oldg))
+        if (static_cast<int>(parts.size()) != 4 + k || graphs.count(newg) || !graphs.count(oldg))
         {
           std::cout << "<INVALID COMMAND>\n";
         }
