@@ -1,91 +1,37 @@
 #include "graph.h"
-#include <algorithm>
 
 namespace asafov
 {
-  void Graph::add_vertex(const std::string& name)
-  {
-    vertex_map[name];
-  }
-
-  bool Graph::has_vertex(const std::string& name) const
-  {
-    return vertex_map.find(name) != vertex_map.end();
-  }
-
-  std::vector< std::string > Graph::get_vertices() const
-  {
-    std::vector< std::string > result;
-    for (const auto& p: vertex_map)
-      result.push_back(p.first);
-    std::sort(result.begin(), result.end());
-    return result;
-  }
-
   void Graph::add_edge(const std::string& from, const std::string& to, unsigned weight)
   {
-    add_vertex(from);
-    add_vertex(to);
     edges[from][to].push_back(weight);
   }
 
-  bool Graph::remove_edge(const std::string& from, const std::string& to, unsigned weight)
-  {
-    auto it = edges.find(from);
-    if (it == edges.end()) return false;
-
-    auto jt = it->second.find(to);
-    if (jt == it->second.end()) return false;
-
-    auto& weights = jt->second;
-    auto wt_it = std::find(weights.begin(), weights.end(), weight);
-    if (wt_it == weights.end()) return false;
-
-    weights.erase(wt_it);
-    if (weights.empty())
-    {
-      it->second.erase(to);
-      if (it->second.empty())
-      {
-        edges.erase(from);
-      }
-    }
-
-    return true;
-  }
-
-  void Graph::sort_vector(std::vector< unsigned >& vec)
-  {
-    std::sort(vec.begin(), vec.end());
-  }
-
-  std::unordered_map< std::string, std::vector< unsigned > > Graph::get_outbound(const std::string& v) const
+  std::unordered_map< std::string, std::vector< unsigned > > Graph::get_outbound(const std::string& vertex) const
   {
     std::unordered_map< std::string, std::vector< unsigned > > result;
-    auto it = edges.find(v);
+    std::unordered_map< std::string, std::unordered_map< std::string, std::vector< unsigned > > >::const_iterator it =
+      edges.find(vertex);
     if (it != edges.end())
     {
-      for (const auto& pair: it->second)
-      {
-        auto sorted = pair.second;
-        sort_vector(sorted);
-        result[pair.first] = sorted;
-      }
+      result = it->second;
     }
     return result;
   }
 
-  std::unordered_map< std::string, std::vector< unsigned > > Graph::get_inbound(const std::string& v) const
+  std::unordered_map< std::string, std::vector< unsigned > > Graph::get_inbound(const std::string& vertex) const
   {
     std::unordered_map< std::string, std::vector< unsigned > > result;
-    for (const auto& [from, inner_map]: edges)
+    for (std::unordered_map< std::string, std::unordered_map< std::string, std::vector< unsigned > > >::const_iterator
+         it = edges.begin(); it != edges.end(); ++it)
     {
-      auto jt = inner_map.find(v);
-      if (jt != inner_map.end())
+      const std::string& from = it->first;
+      const std::unordered_map< std::string, std::vector< unsigned > >& targets = it->second;
+
+      std::unordered_map< std::string, std::vector< unsigned > >::const_iterator jt = targets.find(vertex);
+      if (jt != targets.end())
       {
-        auto sorted = jt->second;
-        sort_vector(sorted);
-        result[from] = sorted;
+        result[from] = jt->second;
       }
     }
     return result;
@@ -93,46 +39,65 @@ namespace asafov
 
   void Graph::merge_from(const Graph& g)
   {
-    for (const auto& v: g.get_vertices())
+    for (std::unordered_map< std::string, std::unordered_map< std::string, std::vector< unsigned > > >::const_iterator
+         it = g.edges.begin(); it != g.edges.end(); ++it)
     {
-      add_vertex(v);
-    }
+      const std::string& from = it->first;
+      const std::unordered_map< std::string, std::vector< unsigned > >& targets = it->second;
 
-    for (const auto& [from, targets]: g.edges)
-    {
-      for (const auto& [to, weights]: targets)
+      for (std::unordered_map< std::string, std::vector< unsigned > >::const_iterator jt = targets.begin(); jt !=
+           targets.end(); ++jt)
       {
-        for (auto w: weights)
-          add_edge(from, to, w);
+        const std::string& to = jt->first;
+        const std::vector< unsigned >& weights = jt->second;
+        for (size_t i = 0; i < weights.size(); ++i)
+        {
+          add_edge(from, to, weights[i]);
+        }
       }
     }
   }
 
-  Graph Graph::extract(const std::vector< std::string >& subset) const
+  Graph Graph::extract(const std::vector< std::string >& nodes) const
   {
-    Graph newg;
-    for (const auto& v: subset)
-    {
-      if (!has_vertex(v))
-        return Graph();
-      newg.add_vertex(v);
-    }
+    Graph g;
 
-    for (const auto& from: subset)
+    for (std::vector< std::string >::const_iterator ni = nodes.begin(); ni != nodes.end(); ++ni)
     {
-      auto it = edges.find(from);
-      if (it != edges.end())
+      const std::string& from = *ni;
+
+      std::unordered_map< std::string, std::unordered_map< std::string, std::vector< unsigned > > >::const_iterator it =
+        edges.find(from);
+      if (it == edges.end()) continue;
+
+      const std::unordered_map< std::string, std::vector< unsigned > >& targets = it->second;
+
+      for (std::unordered_map< std::string, std::vector< unsigned > >::const_iterator jt = targets.begin(); jt !=
+           targets.end(); ++jt)
       {
-        for (const auto& [to, weights]: it->second)
+        const std::string& to = jt->first;
+        const std::vector< unsigned >& weights = jt->second;
+
+        bool to_in_nodes = false;
+        for (std::vector< std::string >::const_iterator check = nodes.begin(); check != nodes.end(); ++check)
         {
-          if (std::find(subset.begin(), subset.end(), to) != subset.end())
+          if (*check == to)
           {
-            for (auto w: weights)
-              newg.add_edge(from, to, w);
+            to_in_nodes = true;
+            break;
+          }
+        }
+
+        if (to_in_nodes)
+        {
+          for (size_t i = 0; i < weights.size(); ++i)
+          {
+            g.add_edge(from, to, weights[i]);
           }
         }
       }
     }
-    return newg;
+
+    return g;
   }
 }
