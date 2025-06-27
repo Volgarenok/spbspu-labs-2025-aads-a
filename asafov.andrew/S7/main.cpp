@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
-#include <cctype>
 
 struct Edge
 {
@@ -241,7 +240,7 @@ public:
 
       if (command == "graphs")
       {
-        cmd_graphs(tokens);
+        cmd_graphs();
       }
       else if (command == "vertexes")
       {
@@ -280,14 +279,14 @@ public:
         throw std::runtime_error("Unknown command");
       }
     }
-    catch (const std::exception& e)
+    catch (...)
     {
-      std::cout << "<INVALID COMMAND>" << std::endl;
+      std::cout << "<INVALID COMMAND>" << '\n';
     }
   }
 
 private:
-  void cmd_graphs(const std::vector< std::string >& tokens)
+  void cmd_graphs()
   {
     std::vector< std::string > names;
     for (const auto& pair: graphs)
@@ -297,7 +296,7 @@ private:
     std::sort(names.begin(), names.end());
     for (const auto& name: names)
     {
-      std::cout << name << std::endl;
+      std::cout << name << '\n';
     }
   }
 
@@ -314,7 +313,7 @@ private:
     std::vector< std::string > vertices = graphs[graph_name].get_vertices();
     for (const auto& v: vertices)
     {
-      std::cout << v << std::endl;
+      std::cout << v << '\n';
     }
   }
 
@@ -362,7 +361,7 @@ private:
       {
         std::cout << " " << w;
       }
-      std::cout << std::endl;
+      std::cout << '\n';
     }
   }
 
@@ -410,7 +409,7 @@ private:
       {
         std::cout << " " << w;
       }
-      std::cout << std::endl;
+      std::cout << '\n';
     }
   }
 
@@ -550,7 +549,7 @@ void load_graphs_from_file(const std::string& filename, GraphManager& manager)
   std::ifstream file(filename);
   if (!file.is_open())
   {
-    std::cerr << "Failed to open file: " << filename << std::endl;
+    std::cerr << "Failed to open file: " << filename << '\n';
     return;
   }
 
@@ -564,7 +563,7 @@ void load_graphs_from_file(const std::string& filename, GraphManager& manager)
     size_t space1 = line.find(' ');
     if (space1 == std::string::npos)
     {
-      std::cerr << "Invalid graph header: " << line << std::endl;
+      std::cerr << "Invalid graph header: " << line << '\n';
       continue;
     }
 
@@ -577,7 +576,7 @@ void load_graphs_from_file(const std::string& filename, GraphManager& manager)
     }
     catch (...)
     {
-      std::cerr << "Invalid edge count: " << line << std::endl;
+      std::cerr << "Invalid edge count: " << line << '\n';
       continue;
     }
 
@@ -593,7 +592,7 @@ void load_graphs_from_file(const std::string& filename, GraphManager& manager)
       size_t space1 = line.find(' ');
       if (space1 == std::string::npos)
       {
-        std::cerr << "Invalid edge format: " << line << std::endl;
+        std::cerr << "Invalid edge format: " << line << '\n';
         --i; // Retry this edge
         continue;
       }
@@ -601,7 +600,7 @@ void load_graphs_from_file(const std::string& filename, GraphManager& manager)
       size_t space2 = line.find(' ', space1 + 1);
       if (space2 == std::string::npos)
       {
-        std::cerr << "Invalid edge format: " << line << std::endl;
+        std::cerr << "Invalid edge format: " << line << '\n';
         --i;
         continue;
       }
@@ -616,7 +615,7 @@ void load_graphs_from_file(const std::string& filename, GraphManager& manager)
       }
       catch (...)
       {
-        std::cerr << "Invalid weight: " << line << std::endl;
+        std::cerr << "Invalid weight: " << line << '\n';
         --i;
         continue;
       }
@@ -632,7 +631,7 @@ int main(int argc, char* argv[])
 {
   if (argc != 2)
   {
-    std::cerr << "Usage: " << argv[0] << " <graph-file>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <graph-file>" << '\n';
     return 1;
   }
 
