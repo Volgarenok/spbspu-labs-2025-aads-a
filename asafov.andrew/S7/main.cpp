@@ -420,10 +420,16 @@ void process_commands()
 
 int main(int argc, char* argv[])
 {
-  if (argc >= 2)
+  if (argc == 2)
   {
     read_graphs_from_file(argv[1]);
   }
+  else
+  {
+    std::cerr << "args err\n";
+    return 1;
+  }
   process_commands();
+  std::cout << '\n';
   return 0;
 }
