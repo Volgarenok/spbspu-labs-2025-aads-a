@@ -293,6 +293,7 @@ void process_commands()
         continue;
       }
       std::map< std::string, std::vector< unsigned > > m = graphs[parts[1]].get_outbound(parts[2]);
+      if (m.empty()) std::cout << '\n';
       for (std::map< std::string, std::vector< unsigned > >::iterator it = m.begin(); it != m.end(); ++it)
       {
         std::cout << it->first;
@@ -309,6 +310,7 @@ void process_commands()
         continue;
       }
       std::map< std::string, std::vector< unsigned > > m = graphs[parts[1]].get_inbound(parts[2]);
+      if (m.empty()) std::cout << '\n';
       for (std::map< std::string, std::vector< unsigned > >::iterator it = m.begin(); it != m.end(); ++it)
       {
         std::cout << it->first;
