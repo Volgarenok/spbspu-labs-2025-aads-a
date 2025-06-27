@@ -9,7 +9,7 @@
 
 struct pair_hash
 {
-  size_t operator()(const std::pair< std::string, std::string >& p) const
+  std::size_t operator()(const std::pair< std::string, std::string >& p) const
   {
     return std::hash< std::string >()(p.first) ^ (std::hash< std::string >()(p.second) << 1);
   }
@@ -22,7 +22,7 @@ struct Graph
 
   bool has_vertex(const std::string& v) const
   {
-    for (size_t i = 0; i < vertices.size(); ++i)
+    for (std::size_t i = 0; i < vertices.size(); ++i)
     {
       if (vertices[i] == v) return true;
     }
@@ -41,16 +41,16 @@ struct Graph
   {
     add_vertex(from);
     add_vertex(to);
-    edges[make_pair(from, to)].push_back(weight);
+    edges[std::make_pair(from, to)].push_back(weight);
   }
 
   bool remove_edge(const std::string& from, const std::string& to, unsigned weight)
   {
-    std::pair< std::string, std::string > key = make_pair(from, to);
+    std::pair< std::string, std::string > key = std::make_pair(from, to);
     if (edges.count(key))
     {
       std::vector< unsigned >& weights = edges[key];
-      for (size_t i = 0; i < weights.size(); ++i)
+      for (std::size_t i = 0; i < weights.size(); ++i)
       {
         if (weights[i] == weight)
         {
@@ -86,7 +86,7 @@ struct Graph
     {
       std::cout << it->first;
       sort_weights(it->second);
-      for (size_t i = 0; i < it->second.size(); ++i)
+      for (std::size_t i = 0; i < it->second.size(); ++i)
         std::cout << " " << it->second[i];
       std::cout << '\n';
     }
@@ -112,7 +112,7 @@ struct Graph
     {
       std::cout << it->first;
       sort_weights(it->second);
-      for (size_t i = 0; i < it->second.size(); ++i)
+      for (std::size_t i = 0; i < it->second.size(); ++i)
         std::cout << " " << it->second[i];
       std::cout << '\n';
     }
@@ -120,9 +120,9 @@ struct Graph
 
   static void sort_weights(std::vector< unsigned >& weights)
   {
-    for (size_t i = 0; i < weights.size(); ++i)
+    for (std::size_t i = 0; i < weights.size(); ++i)
     {
-      for (size_t j = i + 1; j < weights.size(); ++j)
+      for (std::size_t j = i + 1; j < weights.size(); ++j)
       {
         if (weights[j] < weights[i])
         {
@@ -139,9 +139,9 @@ std::map< std::string, Graph > graphs;
 
 void trim(std::string& s)
 {
-  while (!s.empty() && isspace(s[s.size() - 1])) s.pop_back();
-  size_t i = 0;
-  while (i < s.size() && isspace(s[i])) ++i;
+  while (!s.empty() && std::isspace(s[s.size() - 1])) s.pop_back();
+  std::size_t i = 0;
+  while (i < s.size() && std::isspace(s[i])) ++i;
   s = s.substr(i);
 }
 
@@ -149,7 +149,7 @@ std::vector< std::string > split(const std::string& s)
 {
   std::vector< std::string > result;
   std::string word;
-  for (size_t i = 0; i <= s.size(); ++i)
+  for (std::size_t i = 0; i <= s.size(); ++i)
   {
     if (i == s.size() || s[i] == ' ')
     {
@@ -173,11 +173,11 @@ void read_graphs_from_file(const std::string& filename)
   if (!fin)
   {
     std::cerr << "Cannot open file: " << filename << '\n';
-    exit(1);
+    std::exit(1);
   }
 
   std::string line;
-  while (getline(fin, line))
+  while (std::getline(fin, line))
   {
     trim(line);
     if (line.empty()) continue;
@@ -186,10 +186,10 @@ void read_graphs_from_file(const std::string& filename)
     if (parts.size() != 2) continue;
 
     std::string graph_name = parts[0];
-    int edge_count = atoi(parts[1].c_str());
+    int edge_count = std::atoi(parts[1].c_str());
     Graph g;
 
-    for (int i = 0; i < edge_count && getline(fin, line);)
+    for (int i = 0; i < edge_count && std::getline(fin, line);)
     {
       trim(line);
       if (line.empty()) continue;
@@ -197,7 +197,7 @@ void read_graphs_from_file(const std::string& filename)
       if (edge_parts.size() != 3) continue;
 
       std::string from = edge_parts[0], to = edge_parts[1];
-      unsigned weight = (unsigned)atoi(edge_parts[2].c_str());
+      unsigned weight = static_cast< unsigned >(std::atoi(edge_parts[2].c_str()));
       g.add_edge(from, to, weight);
       ++i;
     }
@@ -208,7 +208,7 @@ void read_graphs_from_file(const std::string& filename)
 void process_commands()
 {
   std::string line;
-  while (getline(std::cin, line))
+  while (std::getline(std::cin, line))
   {
     trim(line);
     if (line.empty()) continue;
@@ -230,9 +230,9 @@ void process_commands()
         continue;
       }
       std::vector< std::string > vs = graphs[parts[1]].vertices;
-      for (size_t i = 0; i < vs.size(); ++i)
+      for (std::size_t i = 0; i < vs.size(); ++i)
       {
-        for (size_t j = i + 1; j < vs.size(); ++j)
+        for (std::size_t j = i + 1; j < vs.size(); ++j)
         {
           if (vs[j] < vs[i])
           {
@@ -242,7 +242,7 @@ void process_commands()
           }
         }
       }
-      for (size_t i = 0; i < vs.size(); ++i) std::cout << vs[i] << '\n';
+      for (std::size_t i = 0; i < vs.size(); ++i) std::cout << vs[i] << '\n';
     }
     else if (cmd == "outbound" && parts.size() == 3)
     {
@@ -269,7 +269,7 @@ void process_commands()
         std::cout << "<INVALID COMMAND>" << '\n';
         continue;
       }
-      unsigned w = (unsigned)atoi(parts[4].c_str());
+      unsigned w = static_cast< unsigned >(std::atoi(parts[4].c_str()));
       graphs[parts[1]].add_edge(parts[2], parts[3], w);
     }
     else if (cmd == "cut" && parts.size() == 5)
@@ -277,7 +277,7 @@ void process_commands()
       if (!graphs.count(parts[1]) ||
         !graphs[parts[1]].has_vertex(parts[2]) ||
         !graphs[parts[1]].has_vertex(parts[3]) ||
-        !graphs[parts[1]].remove_edge(parts[2], parts[3], (unsigned)atoi(parts[4].c_str())))
+        !graphs[parts[1]].remove_edge(parts[2], parts[3], static_cast< unsigned >(std::atoi(parts[4].c_str()))))
       {
         std::cout << "<INVALID COMMAND>" << '\n';
         continue;
@@ -292,7 +292,7 @@ void process_commands()
         continue;
       }
       Graph g;
-      for (size_t i = 2; i < parts.size(); ++i)
+      for (std::size_t i = 2; i < parts.size(); ++i)
       {
         g.add_vertex(parts[i]);
       }
@@ -307,9 +307,9 @@ void process_commands()
         continue;
       }
       Graph g;
-      for (size_t i = 0; i < graphs[g1].vertices.size(); ++i)
+      for (std::size_t i = 0; i < graphs[g1].vertices.size(); ++i)
         g.add_vertex(graphs[g1].vertices[i]);
-      for (size_t i = 0; i < graphs[g2].vertices.size(); ++i)
+      for (std::size_t i = 0; i < graphs[g2].vertices.size(); ++i)
         g.add_vertex(graphs[g2].vertices[i]);
       for (auto it = graphs[g1].edges.begin(); it != graphs[g1].edges.end(); ++it)
       {
@@ -326,8 +326,8 @@ void process_commands()
     else if (cmd == "extract" && parts.size() >= 4)
     {
       std::string newg = parts[1], oldg = parts[2];
-      int k = atoi(parts[3].c_str());
-      if ((int)parts.size() != 4 + k || graphs.count(newg) == 1 || !graphs.count(oldg))
+      int k = std::atoi(parts[3].c_str());
+      if (static_cast< int >(parts.size()) != 4 + k || graphs.count(newg) == 1 || !graphs.count(oldg))
       {
         std::cout << "<INVALID COMMAND>" << '\n';
         continue;
