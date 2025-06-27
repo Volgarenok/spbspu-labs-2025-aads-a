@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
+#include <cctype>
 
 struct Edge
 {
@@ -214,11 +215,19 @@ private:
 
     while (end != std::string::npos)
     {
-      tokens.push_back(s.substr(start, end - start));
+      std::string token = s.substr(start, end - start);
+      if (!token.empty())
+      {
+        tokens.push_back(token);
+      }
       start = end + 1;
       end = s.find(' ', start);
     }
-    tokens.push_back(s.substr(start));
+    std::string last_token = s.substr(start);
+    if (!last_token.empty())
+    {
+      tokens.push_back(last_token);
+    }
 
     return tokens;
   }
@@ -279,7 +288,7 @@ public:
         throw std::runtime_error("Unknown command");
       }
     }
-    catch (...)
+    catch (const std::exception& e)
     {
       std::cout << "<INVALID COMMAND>" << '\n';
     }
@@ -482,9 +491,28 @@ private:
     }
 
     Graph g;
-    for (size_t i = 2; i < tokens.size(); ++i)
+    if (tokens.size() > 2)
     {
-      g.add_vertex(tokens[i]);
+      try
+      {
+        int count = std::stoi(tokens[2]);
+        if (count < 0 || tokens.size() < 3 + static_cast< size_t >(count))
+        {
+          throw std::runtime_error("Invalid vertex count");
+        }
+        for (int i = 0; i < count; ++i)
+        {
+          g.add_vertex(tokens[3 + i]);
+        }
+      }
+      catch (...)
+      {
+        // If count is not a number, treat all remaining tokens as vertices
+        for (size_t i = 2; i < tokens.size(); ++i)
+        {
+          g.add_vertex(tokens[i]);
+        }
+      }
     }
 
     graphs[graph_name] = g;
