@@ -98,6 +98,7 @@ namespace asafov
         }
         for (size_t i = 0; i < v.size(); ++i)
           std::cout << v[i] << '\n';
+        std::cout << '\n';
       }
       else if (parts[0] == "outbound" && parts.size() == 3)
       {
