@@ -5,9 +5,9 @@
 #include <initializer_list>
 #include <memory>
 #include <utility>
-#include "forward-list-comparison.hpp"
-#include "forward-list-iterator.hpp"
-#include "forward-list-swap.hpp"
+#include "internal/forward-list-comparison.hpp"
+#include "internal/forward-list-iterator.hpp"
+#include "internal/forward-list-swap.hpp"
 #include "type-utils.hpp"
 
 namespace kizhin {

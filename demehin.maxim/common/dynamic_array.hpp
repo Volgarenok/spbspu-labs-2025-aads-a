@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include "data_utils.hpp"
 #include "dynamic_array_iterator.hpp"
+#include "dynamic_array_citerator.hpp"
 
 namespace demehin
 {
@@ -13,6 +14,7 @@ namespace demehin
   {
   public:
     using Iter = DynamicArrayIterator< T >;
+    using cIter = DynamicArraycIterator< T >;
 
     DynamicArray();
     explicit DynamicArray(size_t);
@@ -32,6 +34,8 @@ namespace demehin
     void pop_back();
     void pop_front();
 
+    Iter erase(cIter);
+
     const T& front() const;
     T& front();
     const T& back() const;
@@ -39,6 +43,8 @@ namespace demehin
 
     Iter begin() const noexcept;
     Iter end() const noexcept;
+    cIter cbegin() const noexcept;
+    cIter cend() const noexcept;
 
     bool empty() const noexcept;
     size_t size() const noexcept;
@@ -76,7 +82,7 @@ namespace demehin
 
   template< typename T >
   DynamicArray< T >::DynamicArray(const DynamicArray& other):
-    data_(details::copyData(other.data_, other.size_)),
+    data_(details::copyData(other.data_ + other.begin_, other.size_)),
     size_(other.size_),
     capacity_(other.capacity_),
     begin_(other.begin_)
@@ -89,6 +95,29 @@ namespace demehin
     capacity_(std::exchange(other.capacity_, 0)),
     begin_(std::exchange(other.begin_, 0))
   {}
+
+  template< typename T >
+  typename DynamicArray< T >::Iter DynamicArray< T >::erase(cIter pos)
+  {
+    if (pos == cend())
+    {
+      return end();
+    }
+
+    size_t ind = pos - cbegin();
+    if (ind >= size_)
+    {
+      throw std::out_of_range("Iterator out of range");
+    }
+
+    for (size_t i = begin_ + ind; i < begin_ + size_ - 1; i++)
+    {
+      data_[i] = std::move(data_[i + 1]);
+    }
+
+    size_--;
+    return Iter(data_ + begin_ + ind);
+  }
 
   template< typename T >
   DynamicArray< T >& DynamicArray< T >::operator=(const DynamicArray< T >& rhs)
@@ -133,7 +162,7 @@ namespace demehin
   template< typename T >
   void DynamicArray< T >::push(const T& value)
   {
-    if (size_ == capacity_)
+    if (size_ + begin_ >= capacity_)
     {
       resize();
     }
@@ -211,6 +240,18 @@ namespace demehin
   typename DynamicArray< T >::Iter DynamicArray< T >::end() const noexcept
   {
     return Iter(data_ + begin_ + size_);
+  }
+
+  template< typename T >
+  typename DynamicArray< T >::cIter DynamicArray< T >::cbegin() const noexcept
+  {
+    return cIter(data_ + begin_);
+  }
+
+  template< typename T >
+  typename DynamicArray< T >::cIter DynamicArray< T >::cend() const noexcept
+  {
+    return cIter(data_ + begin_ + size_);
   }
 
   template< typename T >

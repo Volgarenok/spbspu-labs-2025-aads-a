@@ -2,7 +2,7 @@
 #define IO_STACK_HPP
 
 #include <iostream>
-#include "stack.hpp"
+#include <stack.hpp>
 #include "postfix_token.hpp"
 
 namespace maslevtsov {

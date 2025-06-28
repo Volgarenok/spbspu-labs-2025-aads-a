@@ -2,7 +2,7 @@
 #define COMMANDS_HPP
 
 #include <iostream>
-#include "AVLtree.hpp"
+#include <AVLtree.hpp>
 
 namespace tkach
 {

@@ -6,19 +6,17 @@
 #include <utility>
 #include <initializer_list>
 #include <algorithm>
-#include "listNode.hpp"
+#include "iterators.hpp"
 
 namespace alymova
 {
   template< typename T >
-  struct Iterator;
-  template< typename T >
-  struct ConstIterator;
-
-  template< typename T >
   class List
   {
   public:
+    using ListIterator = Iterator< T >;
+    using ListConstIterator = ConstIterator< T >;
+
     List();
     List(const List< T >& other);
     List(List< T >&& other) noexcept;
@@ -64,6 +62,7 @@ namespace alymova
     Iterator< T > insert(Iterator< T > position, InputIterator first, InputIterator last);
     Iterator< T > insert(Iterator< T > position, std::initializer_list< T > il);
     Iterator< T > erase(Iterator< T > position);
+    Iterator< T > erase(ConstIterator< T > position);
     Iterator< T > erase(Iterator< T > first, Iterator< T > last);
     template< typename... Args >
     Iterator< T > emplace_front(Args&&... args);
@@ -472,6 +471,13 @@ namespace alymova
       delete node;
     }
     return return_it;
+  }
+
+  template< typename T >
+  Iterator< T > List< T >::erase(ConstIterator< T > position)
+  {
+    Iterator< T > it(position);
+    return erase(it);
   }
 
   template< typename T >

@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
-#include "stack.hpp"
+#include <stack.hpp>
 #include "print.hpp"
 using namespace tkach;
 
