@@ -4,7 +4,7 @@
 
 namespace asafov
 {
-  template<class T>
+  template< class T >
   class Stack : public Deque<T>
   {
   public:
