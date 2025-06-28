@@ -2,7 +2,7 @@
 #define GRAPH_MANAGER_H
 #include "graph.h"
 #include <string>
-#include <unordered_map>
+#include <unordered_map.hpp>
 
 namespace asafov
 {
