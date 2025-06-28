@@ -15,6 +15,9 @@ namespace asafov
   class UnorderedMap
   {
   public:
+    class Iterator;
+    class ConstIterator;
+
     UnorderedMap()
     {
       buckets_.resize(default_bucket_count_);
@@ -426,6 +429,50 @@ namespace asafov
         }
       }
       return cend();
+    }
+
+    T& operator[](const Key& key)
+    {
+      ensure_capacity();
+      size_t index = bucket_index(key);
+      for (auto& pair: buckets_[index])
+      {
+        if (key_equal_(pair.first, key))
+        {
+          return pair.second;
+        }
+      }
+      buckets_[index].emplace_back(key, T{});
+      ++size_;
+      return buckets_[index].back().second;
+    }
+
+    const T& at(const Key& key) const
+    {
+      size_t index = bucket_index(key);
+      const auto& bucket = buckets_[index];
+      for (const auto& pair: bucket)
+      {
+        if (key_equal_(pair.first, key))
+        {
+          return pair.second;
+        }
+      }
+      throw std::out_of_range("UnorderedMap::at: key not found");
+    }
+
+    T& at(const Key& key)
+    {
+      size_t index = bucket_index(key);
+      auto& bucket = buckets_[index];
+      for (auto& pair: bucket)
+      {
+        if (key_equal_(pair.first, key))
+        {
+          return pair.second;
+        }
+      }
+      throw std::out_of_range("UnorderedMap::at: key not found");
     }
 
   private:
