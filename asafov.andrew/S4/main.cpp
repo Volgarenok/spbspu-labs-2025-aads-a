@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
       continue;
     }
     std::istringstream ss(line);
+
     std::string name;
     ss >> name;
 
