@@ -1,5 +1,5 @@
-#ifndef PARSING_FUNCTIONS_H
-#define PARSING_FUNCTIONS_H
+#ifndef COUNT_FUNCTIONS_H
+#define COUNT_FUNCTIONS_H
 
 #include <string>
 #include <iostream>

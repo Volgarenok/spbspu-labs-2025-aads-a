@@ -5,7 +5,10 @@ int asafov::evaluateExpressionFromString(std::istream& is, asafov::stack_num_t& 
 {
   std::string str;
   std::getline(is, str);
-  if (str.empty()) return 0;
+  if (str.empty())
+  {
+    return 0;
+  }
   asafov::queue_str_t queue;
   asafov::parseStringToQueue(queue, str);
   asafov::convertInfixToPostfix(queue);
