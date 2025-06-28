@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <iosfwd>
-#include <forward-list.hpp>
+#include <forward-list-fwd.hpp>
 
 namespace kizhin {
   using NumbersT = ForwardList< std::uint64_t >;
