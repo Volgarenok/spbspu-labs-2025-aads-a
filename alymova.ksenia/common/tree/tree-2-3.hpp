@@ -554,7 +554,10 @@ namespace alymova
     }
     --pos;
     Iterator pos_instead = find_to_erase(pos);
-    std::swap(*pos, *pos_instead);
+    if (pos != pos_instead)
+    {
+      std::swap(*pos, *pos_instead);
+    }
     pos_instead.node_->remove(pos_instead.point_);
     if (pos_instead.node_->type == NodeType::Empty)
     {

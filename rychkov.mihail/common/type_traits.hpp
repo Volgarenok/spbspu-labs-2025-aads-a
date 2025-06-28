@@ -26,6 +26,15 @@ namespace rychkov
   {};
   template< class T >
   constexpr bool is_nothrow_swappable_v = is_nothrow_swappable< T >::value;
+
+  template< class Cmp, class = void >
+  struct is_transparent: std::false_type
+  {};
+  template< class Cmp >
+  struct is_transparent< Cmp, void_t< typename Cmp::is_transparent > >: std::true_type
+  {};
+  template< class Cmp >
+  constexpr bool is_transparent_v = is_transparent< Cmp >::value;
 }
 
 #endif

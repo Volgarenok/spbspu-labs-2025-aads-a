@@ -7,9 +7,14 @@
 
 namespace duhanina
 {
-  template < typename T >
+  template< typename Key, typename Value, typename Hash, typename Equal >
+  class HashTable;
+
+  template< typename T >
   class DynamicArray
   {
+    template< typename Key, typename Value, typename Hash, typename Equal >
+    friend class HashTable;
   public:
     DynamicArray() noexcept;
     ~DynamicArray();
@@ -21,6 +26,9 @@ namespace duhanina
 
     DynamicArray& operator=(const DynamicArray&);
     DynamicArray& operator=(DynamicArray&& other) noexcept;
+
+    T& operator[](size_t) noexcept;
+    const T& operator[](size_t) const noexcept;
 
     void push_back(const T& value);
     void pop_back();
@@ -41,6 +49,7 @@ namespace duhanina
     size_t head_;
     T* data_;
     void resize();
+    explicit DynamicArray(size_t);
   };
 
   template < typename T >
@@ -49,6 +58,14 @@ namespace duhanina
     length_(0),
     head_(0),
     data_(new T[capacity_])
+  {}
+
+  template< typename T >
+  DynamicArray< T >::DynamicArray(size_t size):
+    capacity_(size),
+    length_(size),
+    head_(0),
+    data_(new T[size])
   {}
 
   template < typename T >
@@ -114,6 +131,18 @@ namespace duhanina
     DynamicArray< T > temp(std::move(other));
     swap(temp);
     return *this;
+  }
+
+  template< typename T >
+  T& DynamicArray< T >::operator[](size_t pos) noexcept
+  {
+    return data_[pos + head_];
+  }
+
+  template< typename T >
+  const T& DynamicArray< T >::operator[](size_t pos) const noexcept
+  {
+    return data_[pos + head_];
   }
 
   template < typename T >

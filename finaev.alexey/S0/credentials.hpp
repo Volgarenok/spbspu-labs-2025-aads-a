@@ -1,5 +1,5 @@
 #ifndef CREDENTIALS_HPP
-#define CREANTIALS_HPP
+#define CREDENTIALS_HPP
 
 #include <iosfwd>
 
