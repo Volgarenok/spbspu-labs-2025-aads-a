@@ -17,6 +17,8 @@ namespace asafov
   public:
     class Iterator;
     class ConstIterator;
+    using iterator = Iterator;
+    using const_iterator = ConstIterator;
 
     UnorderedMap()
     {
