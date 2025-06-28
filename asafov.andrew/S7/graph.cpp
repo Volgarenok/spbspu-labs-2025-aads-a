@@ -15,7 +15,7 @@ namespace asafov
   std::vector< std::string > Graph::get_vertices() const
   {
     std::vector< std::string > result;
-    for (std::unordered_map< std::string, std::vector< unsigned > >::const_iterator it = vertex_map.begin(); it !=
+    for (asafov::UnorderedMap< std::string, std::vector< unsigned > >::const_iterator it = vertex_map.begin(); it !=
          vertex_map.end(); ++it)
     {
       result.push_back(it->first);
@@ -68,13 +68,13 @@ namespace asafov
     return false;
   }
 
-  std::unordered_map< std::string, std::vector< unsigned > > Graph::get_outbound(const std::string& v) const
+  asafov::UnorderedMap< std::string, std::vector< unsigned > > Graph::get_outbound(const std::string& v) const
   {
-    std::unordered_map< std::string, std::vector< unsigned > > result;
+    asafov::UnorderedMap< std::string, std::vector< unsigned > > result;
     if (edges.find(v) != edges.end())
     {
-      const std::unordered_map< std::string, std::vector< unsigned > >& out = edges.at(v);
-      for (std::unordered_map< std::string, std::vector< unsigned > >::const_iterator it = out.begin(); it != out.end();
+      const asafov::UnorderedMap< std::string, std::vector< unsigned > >& out = edges.at(v);
+      for (asafov::UnorderedMap< std::string, std::vector< unsigned > >::const_iterator it = out.begin(); it != out.end();
            ++it)
       {
         std::vector< unsigned > sorted = it->second;
@@ -96,13 +96,13 @@ namespace asafov
     return result;
   }
 
-  std::unordered_map< std::string, std::vector< unsigned > > Graph::get_inbound(const std::string& v) const
+  asafov::UnorderedMap< std::string, std::vector< unsigned > > Graph::get_inbound(const std::string& v) const
   {
-    std::unordered_map< std::string, std::vector< unsigned > > result;
-    for (std::unordered_map< std::string, std::unordered_map< std::string, std::vector< unsigned > > >::const_iterator
+    asafov::UnorderedMap< std::string, std::vector< unsigned > > result;
+    for (asafov::UnorderedMap< std::string, asafov::UnorderedMap< std::string, std::vector< unsigned > > >::const_iterator
          from_it = edges.begin(); from_it != edges.end(); ++from_it)
     {
-      std::unordered_map< std::string, std::vector< unsigned > >::const_iterator it = from_it->second.find(v);
+      asafov::UnorderedMap< std::string, std::vector< unsigned > >::const_iterator it = from_it->second.find(v);
       if (it != from_it->second.end())
       {
         std::vector< unsigned > sorted = it->second;
@@ -132,10 +132,10 @@ namespace asafov
       add_vertex(v[i]);
     }
 
-    for (std::unordered_map< std::string, std::unordered_map< std::string, std::vector< unsigned > > >::const_iterator
+    for (asafov::UnorderedMap< std::string, asafov::UnorderedMap< std::string, std::vector< unsigned > > >::const_iterator
          it = g.edges.begin(); it != g.edges.end(); ++it)
     {
-      for (std::unordered_map< std::string, std::vector< unsigned > >::const_iterator jt = it->second.begin(); jt != it
+      for (asafov::UnorderedMap< std::string, std::vector< unsigned > >::const_iterator jt = it->second.begin(); jt != it
            ->second.end(); ++jt)
       {
         for (size_t k = 0; k < jt->second.size(); ++k)
@@ -163,8 +163,8 @@ namespace asafov
     {
       if (edges.find(subset[i]) != edges.end())
       {
-        const std::unordered_map< std::string, std::vector< unsigned > >& outgoing = edges.at(subset[i]);
-        for (std::unordered_map< std::string, std::vector< unsigned > >::const_iterator jt = outgoing.begin(); jt !=
+        const asafov::UnorderedMap< std::string, std::vector< unsigned > >& outgoing = edges.at(subset[i]);
+        for (asafov::UnorderedMap< std::string, std::vector< unsigned > >::const_iterator jt = outgoing.begin(); jt !=
              outgoing.end(); ++jt)
         {
           bool found = false;

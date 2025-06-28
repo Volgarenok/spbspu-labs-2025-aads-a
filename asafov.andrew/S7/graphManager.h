@@ -9,7 +9,7 @@ namespace asafov
   class GraphManager
   {
   private:
-    std::unordered_map< std::string, Graph > graphs;
+    asafov::UnorderedMap< std::string, Graph > graphs;
 
   public:
     void read_from_file(const std::string& filename);

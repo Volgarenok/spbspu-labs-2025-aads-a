@@ -66,7 +66,7 @@ namespace asafov
       if (parts[0] == "graphs")
       {
         std::vector< std::string > names;
-        for (std::unordered_map< std::string, Graph >::iterator it = graphs.begin(); it != graphs.end(); ++it)
+        for (asafov::UnorderedMap< std::string, Graph >::iterator it = graphs.begin(); it != graphs.end(); ++it)
           names.push_back(it->first);
         for (size_t i = 0; i < names.size(); ++i)
         {
@@ -110,9 +110,9 @@ namespace asafov
           std::cout << "<INVALID COMMAND>\n";
           continue;
         }
-        std::unordered_map< std::string, std::vector< unsigned > > m = graphs[parts[1]].get_outbound(parts[2]);
+        asafov::UnorderedMap< std::string, std::vector< unsigned > > m = graphs[parts[1]].get_outbound(parts[2]);
         std::vector< std::string > keys;
-        for (std::unordered_map< std::string, std::vector< unsigned > >::iterator it = m.begin(); it != m.end(); ++it)
+        for (asafov::UnorderedMap< std::string, std::vector< unsigned > >::iterator it = m.begin(); it != m.end(); ++it)
           keys.push_back(it->first);
         for (size_t i = 0; i < keys.size(); ++i)
         {
@@ -146,9 +146,9 @@ namespace asafov
           std::cout << "<INVALID COMMAND>\n";
           continue;
         }
-        std::unordered_map< std::string, std::vector< unsigned > > m = graphs[parts[1]].get_inbound(parts[2]);
+        asafov::UnorderedMap< std::string, std::vector< unsigned > > m = graphs[parts[1]].get_inbound(parts[2]);
         std::vector< std::string > keys;
-        for (std::unordered_map< std::string, std::vector< unsigned > >::iterator it = m.begin(); it != m.end(); ++it)
+        for (asafov::UnorderedMap< std::string, std::vector< unsigned > >::iterator it = m.begin(); it != m.end(); ++it)
           keys.push_back(it->first);
         for (size_t i = 0; i < keys.size(); ++i)
         {
