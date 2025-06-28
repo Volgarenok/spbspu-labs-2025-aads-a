@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
-#include "stack.hpp"
-#include "mem_checker.hpp"
+#include <stack.hpp>
+#include <mem_checker.hpp>
 
 BOOST_AUTO_TEST_SUITE(S2_stack_test)
 

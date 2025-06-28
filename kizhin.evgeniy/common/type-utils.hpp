@@ -89,6 +89,53 @@ namespace kizhin {
 
   template < typename T >
   constexpr bool is_nothrow_swappable_v = detail::is_nothrow_swappable_v< T >;
+
+  namespace detail {
+    template < typename, typename = void >
+    struct is_nothrow_copy_constructible: std::false_type
+    {};
+
+    template < typename T >
+    struct is_nothrow_copy_constructible< T,
+        void_t< decltype(T(std::declval< T& >())) > >:
+      bool_constant< noexcept(T(std::declval< T& >())) >
+    {};
+  }
+
+  template < typename T >
+  constexpr bool is_nothrow_copy_constructible_v =
+      detail::is_nothrow_copy_constructible< T >::value;
+
+  namespace detail {
+    template < typename, typename = void >
+    struct is_nothrow_move_constructible: std::false_type
+    {};
+
+    template < typename T >
+    struct is_nothrow_move_constructible< T, void_t< decltype(T(std::declval< T >())) > >:
+      bool_constant< noexcept(T(std::declval< T >())) >
+    {};
+  }
+
+  template < typename T >
+  constexpr bool is_nothrow_move_constructible_v =
+      detail::is_nothrow_move_constructible< T >::value;
+
+  namespace detail {
+    template < typename, typename = void >
+    struct is_nothrow_move_assignable: std::false_type
+    {};
+
+    template < typename T >
+    struct is_nothrow_move_assignable< T,
+        void_t< decltype(std::declval< T& >() = std::declval< T >()) > >:
+      bool_constant< noexcept(std::declval< T& >() = std::declval< T >()) >
+    {};
+  }
+
+  template < typename T >
+  constexpr bool is_nothrow_move_assignable_v =
+      detail::is_nothrow_move_assignable< T >::value;
 }
 
 #endif
