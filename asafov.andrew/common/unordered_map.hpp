@@ -37,13 +37,22 @@ namespace asafov
     }
 
     UnorderedMap(const UnorderedMap& other):
-      buckets_(other.buckets_),
-      size_(other.size_),
+      size_(0),
       max_load_factor_(other.max_load_factor_),
       hash_(other.hash_),
       key_equal_(other.key_equal_)
     {
+      buckets_.resize(other.buckets_.size());
+      for (size_t i = 0; i < other.buckets_.size(); ++i)
+      {
+        for (const auto& pair : other.buckets_[i])
+        {
+          buckets_[i].emplace_back(pair.first, pair.second);
+          ++size_;
+        }
+      }
     }
+
 
     UnorderedMap(UnorderedMap&& other) noexcept:
       buckets_(std::move(other.buckets_)),
@@ -59,14 +68,26 @@ namespace asafov
     {
       if (this != &other)
       {
-        buckets_ = other.buckets_;
-        size_ = other.size_;
+        clear();
+
+        size_ = 0;
         max_load_factor_ = other.max_load_factor_;
         hash_ = other.hash_;
         key_equal_ = other.key_equal_;
+
+        buckets_.resize(other.buckets_.size());
+        for (size_t i = 0; i < other.buckets_.size(); ++i)
+        {
+          for (const auto& pair : other.buckets_[i])
+          {
+            buckets_[i].emplace_back(pair.first, pair.second);
+            ++size_;
+          }
+        }
       }
       return *this;
     }
+
 
     UnorderedMap& operator=(UnorderedMap&& other) noexcept
     {
