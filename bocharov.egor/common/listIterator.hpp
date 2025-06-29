@@ -1,10 +1,10 @@
-#ifndef ITERATOR_HPP
-#define ITERATOR_HPP
+#ifndef LISTITERATOR_HPP
+#define LISTITERATOR_HPP
 
 #include <iterator>
 #include <type_traits>
 #include <cassert>
-#include "node.hpp"
+#include "listNode.hpp"
 
 namespace bocharov
 {
