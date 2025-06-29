@@ -124,6 +124,7 @@ namespace bocharov
     void balanceUpper(Node *) noexcept;
     int getBalanceFactor(Node *) const noexcept;
     void updateHeight(Node *) noexcept;
+    void clearTree(Node *) noexcept;
   };
 
   template< typename Key, typename T, typename Cmp >
@@ -217,11 +218,25 @@ namespace bocharov
   template< typename Key, typename T, typename Cmp >
   void Tree< Key, T, Cmp >::clear() noexcept
   {
-    erase(cbegin(), cend());
+    clearTree(root_);
     fakeRoot_->left = fakeRoot_->right = fakeRoot_;
     root_ = fakeRoot_;
     size_ = 0;
   }
+
+  template< typename Key, typename T, typename Cmp >
+  void Tree< Key, T, Cmp >::clearTree(Node * root) noexcept
+  {
+    if (!root || root == fakeRoot_)
+    {
+      return;
+    }
+    clearTree(root->left);
+    clearTree(root->right);
+    delete root;
+  }
+
+
 
   template< typename Key, typename T, typename Cmp >
   std::pair< TreeIterator< Key, T, Cmp >, bool > Tree< Key, T, Cmp >::insert(const DataPair & value)
@@ -239,12 +254,10 @@ namespace bocharov
   template< typename InputIt >
   void Tree< Key, T, Cmp >::insert(InputIt first, InputIt last)
   {
-    Tree< Key, T, Cmp > temp(*this);
     for (; first != last; first++)
     {
-      temp.insert(*first);
+      insert(*first);
     }
-    swap(temp);
   }
 
   template< typename Key, typename T, typename Cmp >

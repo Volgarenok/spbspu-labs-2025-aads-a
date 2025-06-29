@@ -156,7 +156,7 @@ namespace
       throw std::runtime_error("Modulus by zero");
     }
     long long result = a % b;
-    if (result < 0)
+    if (result <= 0 && a < 0)
     {
       return result + b;
     }

@@ -2,8 +2,8 @@
 #include <fstream>
 #include <limits>
 #include <cstddef>
-#include "queue.hpp"
-#include "stack.hpp"
+#include <queue.hpp>
+#include <stack.hpp>
 #include "print.hpp"
 
 namespace

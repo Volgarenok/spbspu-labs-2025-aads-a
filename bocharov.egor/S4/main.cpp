@@ -12,7 +12,7 @@ namespace
 
   void inputTrees(std::istream & in, MapOfTrees & mapOfTrees)
   {
-    while(!in.eof())
+    while (!in.eof())
     {
       in.clear();
       TreeMap map;

@@ -2,7 +2,7 @@
 #define PRINT_HPP
 
 #include <iostream>
-#include "stack.hpp"
+#include <stack.hpp>
 
 namespace tkach
 {

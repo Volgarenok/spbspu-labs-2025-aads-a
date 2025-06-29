@@ -73,13 +73,8 @@ namespace bocharov
 
   template< typename T >
   Array< T >::Array():
-    data_(nullptr),
-    capacity_(5),
-    size_(0),
-    begin_(0)
-  {
-    data_ = new T [capacity_];
-  }
+    Array(5)
+  {}
 
   template< typename T >
   Array< T >::Array(const Array< T > & arr):
@@ -122,7 +117,6 @@ namespace bocharov
   Array< T >::~Array()
   {
     delete[] data_;
-    capacity_ = 0;
   }
 
   template< typename T >
