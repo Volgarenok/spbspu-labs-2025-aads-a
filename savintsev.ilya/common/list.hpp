@@ -15,6 +15,8 @@ namespace savintsev
     using iterator = Iterator< T >;
     using const_iterator = ConstIterator< T >;
 
+    using value_type = T;
+
     List();
     ~List();
     List(const List & rhs);

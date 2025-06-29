@@ -1,5 +1,5 @@
-#ifndef ITERATOR_HPP
-#define ITERATOR_HPP
+#ifndef LISTITERATOR_HPP
+#define LISTITERATOR_HPP
 #include <cassert>
 #include <iterator>
 #include "node.hpp"

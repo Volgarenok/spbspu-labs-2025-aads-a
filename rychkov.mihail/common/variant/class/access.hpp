@@ -58,7 +58,7 @@ template< class T, class... Types >
 constexpr std::enable_if_t< rychkov::exactly_once< T, Types... >, const T& >
     rychkov::get(const Variant< Types... >& variant)
 {
-  return get< find_unique_v< T, Types... >() >(variant);
+  return get< find_unique_v< T, Types... > >(variant);
 }
 template< class T, class... Types >
 constexpr std::enable_if_t< rychkov::exactly_once< T, Types... >, T&& >

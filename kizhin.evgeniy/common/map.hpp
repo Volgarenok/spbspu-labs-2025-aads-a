@@ -107,8 +107,8 @@ namespace kizhin {
 
     std::pair< iterator, bool > insert(const_reference);
     std::pair< iterator, bool > insert(value_type&&);
-    std::pair< iterator, bool > insert(const_iterator, const_reference);
-    std::pair< iterator, bool > insert(const_iterator, value_type&&);
+    iterator insert(const_iterator, const_reference);
+    iterator insert(const_iterator, value_type&&);
     template < typename InputIt >
     void insert(InputIt, InputIt);
     void insert(std::initializer_list< value_type >);
@@ -123,7 +123,7 @@ namespace kizhin {
     template < typename... Args >
     std::pair< iterator, bool > emplace(Args&&...);
     template < typename... Args >
-    std::pair< iterator, bool > emplaceHint(const_iterator, Args&&...);
+    iterator emplaceHint(const_iterator, Args&&...);
 
     key_compare keyComp() const;
     value_compare valueComp() const;
@@ -163,7 +163,7 @@ namespace kizhin {
     template < typename... Args >
     Node* emplaceToNode(Node*, Args&&...);
     template < typename... Args >
-    std::pair< iterator, bool > emplaceToEmpty(Args&&...);
+    iterator emplaceToEmpty(Args&&...);
     Node* eraseFromNode(Node*, const_pointer);
     void swapVals(Node* lhs, pointer lhsPtr, Node* rhs, pointer rhsPtr);
 
@@ -853,15 +853,15 @@ std::pair< typename kizhin::Map< K, T, C >::iterator, bool > kizhin::Map< K, T,
 }
 
 template < typename K, typename T, typename C >
-std::pair< typename kizhin::Map< K, T, C >::iterator, bool > kizhin::Map< K, T,
-    C >::insert(const_iterator hint, const_reference value)
+typename kizhin::Map< K, T, C >::iterator kizhin::Map< K, T, C >::insert(
+    const_iterator hint, const_reference value)
 {
   return emplaceHint(hint, value);
 }
 
 template < typename K, typename T, typename C >
-std::pair< typename kizhin::Map< K, T, C >::iterator, bool > kizhin::Map< K, T,
-    C >::insert(const_iterator hint, value_type&& value)
+typename kizhin::Map< K, T, C >::iterator kizhin::Map< K, T, C >::insert(
+    const_iterator hint, value_type&& value)
 {
   return emplaceHint(hint, std::move(value));
 }
@@ -961,13 +961,15 @@ std::pair< typename kizhin::Map< K, T, C >::iterator, bool > kizhin::Map< K, T,
     C >::emplace(Args&&... args)
 {
   const_iterator rootPos{ root_ };
-  return emplaceHint(rootPos, std::forward< Args >(args)...);
+  value_type value(std::forward< Args >(args)...);
+  const bool result = count(value.first);
+  return std::make_pair(emplaceHint(rootPos, std::move(value)), !result);
 }
 
 template < typename K, typename T, typename C >
 template < typename... Args >
-std::pair< typename kizhin::Map< K, T, C >::iterator, bool > kizhin::Map< K, T,
-    C >::emplaceHint(const_iterator hint, Args&&... args)
+typename kizhin::Map< K, T, C >::iterator kizhin::Map< K, T, C >::emplaceHint(
+    const_iterator hint, Args&&... args)
 {
   if (empty()) {
     return emplaceToEmpty(std::forward< Args >(args)...);
@@ -977,7 +979,7 @@ std::pair< typename kizhin::Map< K, T, C >::iterator, bool > kizhin::Map< K, T,
   Node* target = findTarget(hint.node_, value.first);
   pointer valuePtr = findKey(target, value.first);
   if (valuePtr != target->end) {
-    return std::make_pair(iterator(target, valuePtr), false);
+    return iterator(target, valuePtr);
   }
   const key_type key = value.first;
   target = emplaceToNode(target, std::move(value));
@@ -986,7 +988,7 @@ std::pair< typename kizhin::Map< K, T, C >::iterator, bool > kizhin::Map< K, T,
     target = split(target);
   }
   guard.join();
-  return std::make_pair(find(key), true);
+  return find(key);
 }
 
 template < typename K, typename T, typename C >
@@ -1192,8 +1194,8 @@ typename kizhin::Map< K, T, C >::Node* kizhin::Map< K, T, C >::emplaceToNode(Nod
 
 template < typename K, typename T, typename C >
 template < typename... Args >
-std::pair< typename kizhin::Map< K, T, C >::iterator, bool > kizhin::Map< K, T,
-    C >::emplaceToEmpty(Args&&... args)
+typename kizhin::Map< K, T, C >::iterator kizhin::Map< K, T, C >::emplaceToEmpty(
+    Args&&... args)
 {
   assert(empty() && "emplaceToEmpty called on non empty Map");
   root_ = new Node;
@@ -1202,7 +1204,7 @@ std::pair< typename kizhin::Map< K, T, C >::iterator, bool > kizhin::Map< K, T,
   endNode->parent = root_;
   root_->children.fill(endNode);
   ++size_;
-  return std::make_pair(begin(), true);
+  return begin();
 }
 
 template < typename K, typename T, typename C >
@@ -1229,11 +1231,9 @@ template < typename K, typename T, typename C >
 void kizhin::Map< K, T, C >::swapVals(Node* lhs, pointer lhsPtr, Node* rhs,
     pointer rhsPtr)
 {
-  static_assert(is_nothrow_move_constructible_v< value_type >,
-      "swapVals requires value_type to have a noexcept move constructor");
   assert(lhs && lhsPtr && rhs && rhsPtr && "SwapVals: nullptr node given");
-  value_type temp1(std::move(*lhsPtr));
-  value_type temp2(std::move(*rhsPtr));
+  value_type temp1(*lhsPtr);
+  value_type temp2(*rhsPtr);
   lhsPtr->~value_type();
   rhsPtr->~value_type();
   new (lhsPtr) value_type(std::move(temp2));

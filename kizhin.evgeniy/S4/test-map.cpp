@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(insert_shuffled_hints)
   for (const auto& key: keys) {
     std::uniform_int_distribution<> distr(0, map.size());
     auto pos = std::next(map.begin(), distr(gen));
-    BOOST_TEST(map.insert(pos, std::make_pair(key, "")).second);
+    map.insert(pos, std::make_pair(key, ""));
     testMapInvariants(map);
   }
   std::sort(keys.begin(), keys.end(), map.keyComp());
