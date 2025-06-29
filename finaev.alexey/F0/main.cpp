@@ -12,8 +12,8 @@ int main(int argc, char* argv[])
     std::cerr << "Uncorrect input\n";
     return 1;
   }
-  finaev::hashTable< std::string, finaev::OpenningInfo > globalOpenings;
-  finaev::hashTable< std::string, finaev::hashTable< std::string, bool > > bases;
+  finaev::HashTable< std::string, finaev::OpenningInfo > globalOpenings;
+  finaev::HashTable< std::string, finaev::HashTable< std::string, bool > > bases;
   if (argc > 1)
   {
     std::string mode = argv[1];

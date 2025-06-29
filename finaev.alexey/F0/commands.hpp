@@ -1,16 +1,15 @@
 #ifndef COMMANDS_HPP
 #define COMMANDS_HPP
-#include <map>
-#include <unordered_map>
+#include <AVLtree.hpp>
+#include <hashTable.hpp>
 #include <string>
 #include <functional>
-#include <algorithm>
 #include "openningInfo.hpp"
 
 namespace finaev
 {
-  using globalDebuts = hashTable< std::string, finaev::OpenningInfo >;
-  using debutsBases = hashTable< std::string, hashTable< std::string, bool > >;
+  using globalDebuts = HashTable< std::string, finaev::OpenningInfo >;
+  using debutsBases = HashTable< std::string, HashTable< std::string, bool > >;
   using mapOfCommands = AVLtree< std::string, std::function< void() > >;
 
   void loadDebutsFromFile(const std::string& filename, globalDebuts& debuts, std::ostream& out);
