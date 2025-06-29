@@ -165,7 +165,7 @@ namespace bocharov
     swap(copied_rhs);
     return *this;
   }
- 
+
   template< typename T >
   List< T >& List< T >::operator=(std::initializer_list< T > ilist)
   {
