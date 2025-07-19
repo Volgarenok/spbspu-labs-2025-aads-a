@@ -7,24 +7,20 @@ namespace aleksandrov
 {
   namespace detail
   {
-    enum class NodeType
-    {
-      Empty,
-      Double,
-      Triple
-    };
+    enum class NodeType;
 
-    template< typename K, typename V >
+    template< class K, class V >
     struct Node
     {
-      using ValueType = std::pair< const K, V >;
+      using ValueType = std::pair< K, V >;
 
       ValueType data[2];
       NodeType type;
-      Node* left;
-      Node* middle;
-      Node* right;
-      Node* parent;
+
+      Node* left = nullptr;
+      Node* middle = nullptr;
+      Node* right = nullptr;
+      Node* parent = nullptr;
 
       Node();
       explicit Node(const ValueType&);
@@ -33,56 +29,54 @@ namespace aleksandrov
       bool isLeaf() const noexcept;
       bool isDouble() const noexcept;
       bool isTriple() const noexcept;
+
+      Node* fallLeft() noexcept;
+      Node* fallRight() noexcept;
     };
-
-    template< typename K, typename V >
-    Node< K, V >::Node():
-      data{std::make_pair< K, V >(), std::make_pair< K, V >()},
-      type(NodeType::Empty),
-      left(nullptr),
-      middle(nullptr),
-      right(nullptr),
-      parent(nullptr)
-    {}
-
-    template< typename K, typename V >
-    Node< K, V >::Node(const ValueType& pair):
-      data{pair, std::make_pair< K, V >()},
-      type(NodeType::Empty),
-      left(nullptr),
-      middle(nullptr),
-      right(nullptr),
-      parent(nullptr)
-    {}
-
-    template< typename K, typename V >
-    Node< K, V >::Node(const ValueType& pair1, const ValueType& pair2):
-      data{pair1, pair2},
-      type(NodeType::Empty),
-      left(nullptr),
-      middle(nullptr),
-      right(nullptr),
-      parent(nullptr)
-    {}
-
-    template< typename K, typename V >
-    bool Node< K, V >::isLeaf() const noexcept
-    {
-      return !left && !middle && !right;
-    }
-
-    template< typename K, typename V >
-    bool Node< K, V >::isDouble() const noexcept
-    {
-      return type == NodeType::Double;
-    }
-
-    template< typename K, typename V >
-    bool Node< K, V >::isTriple() const noexcept
-    {
-      return type == NodeType::Triple;
-    }
   }
+}
+
+enum class aleksandrov::detail::NodeType
+{
+  Null,
+  Double,
+  Triple
+};
+
+template< class K, class V >
+aleksandrov::detail::Node< K, V >::Node():
+  data{ValueType(), ValueType()},
+  type(NodeType::Null)
+{}
+
+template< class K, class V >
+aleksandrov::detail::Node< K, V >::Node(const ValueType& p):
+  data{p, ValueType()},
+  type(NodeType::Double)
+{}
+
+template< class K, class V >
+aleksandrov::detail::Node< K, V >::Node(const ValueType& p1, const ValueType& p2):
+  data{p1, p2},
+  type(NodeType::Triple)
+{}
+
+template< class K, class V >
+bool aleksandrov::detail::Node< K, V >::isLeaf() const noexcept
+{
+  return !left && !middle && !right;
+}
+
+template< class K, class V >
+bool aleksandrov::detail::Node< K, V >::isDouble() const noexcept
+{
+  return type == NodeType::Double;
+}
+
+template< class K, class V >
+bool aleksandrov::detail::Node< K, V >::isTriple() const noexcept
+{
+  return type == NodeType::Triple;
 }
 
 #endif
