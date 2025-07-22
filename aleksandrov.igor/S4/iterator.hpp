@@ -67,9 +67,9 @@ namespace aleksandrov
   {}
 
   template< class K, class V, class C, bool isConst >
-  Iterator< K, V, C, isConst >::Iterator(Node* node, PointsTo p):
+  Iterator< K, V, C, isConst >::Iterator(Node* node, PointsTo dir):
     node_(node),
-    dir_(p)
+    dir_(dir)
   {}
 
   template< class K, class V, class C, bool isConst >

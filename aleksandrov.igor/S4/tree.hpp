@@ -38,11 +38,14 @@ namespace aleksandrov
     bool empty() const noexcept;
 
     void insert(const ValueType&);
+    void erase(Iter);
 
     void clear() noexcept;
     void swap(Tree&) noexcept;
 
     Iter find(const K&);
+    ConstIter find(const K&) const;
+    size_t count(const K&) const;
 
   private:
     template< class, class, class, bool >
@@ -55,9 +58,14 @@ namespace aleksandrov
 
     Node* copyRecursive(Node* root, Node* parent = nullptr);
     void clearRecursive(Node*) noexcept;
-    Iter findRecursive(Node*, const K&);
-    Node* findInsertionLeaf(const K&);
+    std::pair< Node*, PointsTo > findRecursive(Node*, const K&) const;
+    Node* findInsertionLeaf(const K&) const;
     void insertUpper(Node* node, Node* left, Node* right, const ValueType& median);
+    Node* fixAfterErase(Node*);
+    Node* redistributeData(Node*);
+    Node* mergeData(Node*);
+    void insertToNode(Node*, const ValueType&);
+    void removeFromNode(Node*, const ValueType&);
   };
 
   template< class K, class V, class C >
@@ -160,7 +168,7 @@ namespace aleksandrov
   template< class K, class V, class C >
   void Tree< K, V, C >::insert(const ValueType& p)
   {
-    if (findRecursive(root_, p.first) != end())
+    if (find(p.first) != end())
     {
       return;
     }
@@ -201,6 +209,43 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  void Tree< K, V, C >::erase(Iter pos)
+  {
+    assert(pos != end());
+    Node* node = pos.node_;
+
+    Node* min = node->right;
+    if (node->isTriple() && pos.dir_ == PointsTo::Left)
+    {
+      min = node->middle;
+    }
+    while (min && min->left)
+    {
+      min = min->left;
+    }
+    if (min)
+    {
+      std::swap(*pos, min->data[0]);
+      node = min;
+    }
+
+    if (node->isTriple())
+    {
+      if (min || (!min && pos.dir_ == PointsTo::Left))
+      {
+        std::swap(node->data[0], node->data[1]);
+      }
+      node->type = detail::NodeType::Double;
+      node = fixAfterErase(node);
+      --size_;
+      return;
+    }
+    node->type = detail::NodeType::Empty;
+    node = fixAfterErase(node);
+    --size_;
+  }
+
+  template< class K, class V, class C >
   void Tree< K, V, C >::clear() noexcept
   {
     clearRecursive(root_);
@@ -217,9 +262,23 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  size_t Tree< K, V, C >::count(const K& key) const
+  {
+    return find(key) != cend();
+  }
+
+  template< class K, class V, class C >
   typename Tree< K, V, C >::Iter Tree< K, V, C >::find(const K& key)
   {
-    return findRecursive(root_, key);
+    auto pair = findRecursive(root_, key);
+    return Iter(pair.first, pair.second);
+  }
+
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::ConstIter Tree< K, V, C >::find(const K& key) const
+  {
+    auto pair = findRecursive(root_, key);
+    return ConstIter(pair.first, pair.second);
   }
 
   template< class K, class V, class C >
@@ -259,52 +318,52 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  typename Tree< K, V, C >::Iter Tree< K, V, C >::findRecursive(Node* root, const K& key)
+  std::pair< typename Tree< K, V, C >::Node*, PointsTo > Tree< K, V, C >::findRecursive(Node* node, const K& key) const
   {
-    if (!root)
+    if (!node)
     {
-      return Iter();
+      return { nullptr, PointsTo::None };
     }
 
-    if (comp_(key, root->data[0].first))
+    if (comp_(key, node->data[0].first))
     {
-      return findRecursive(root->left, key);
+      return findRecursive(node->left, key);
     }
-    else if (root->isDouble())
+    else if (node->isDouble())
     {
-      if (!comp_(root->data[0].first, key) && !comp_(key, root->data[0].first))
+      if (!comp_(node->data[0].first, key) && !comp_(key, node->data[0].first))
       {
-        return Iter(root);
+        return { node, PointsTo::Left };
       }
-      return findRecursive(root->right, key);
+      return findRecursive(node->right, key);
     }
-    else if (root->isTriple() && comp_(root->data[1].first, key))
+    else if (node->isTriple() && comp_(node->data[1].first, key))
     {
-      return findRecursive(root->right, key);
+      return findRecursive(node->right, key);
     }
-    else if (root->isTriple() && comp_(root->data[0].first, key) && comp_(key, root->data[1].first))
+    else if (node->isTriple() && comp_(node->data[0].first, key) && comp_(key, node->data[1].first))
     {
-      return findRecursive(root->middle, key);
+      return findRecursive(node->middle, key);
     }
     else
     {
-      if (!comp_(root->data[0].first, key) && !comp_(key, root->data[0].first))
+      if (!comp_(node->data[0].first, key) && !comp_(key, node->data[0].first))
       {
-        return Iter(root);
+        return { node, PointsTo::Left };
       }
-      else if (root->isTriple() && !comp_(root->data[1].first, key) && !comp_(key, root->data[1].first))
+      else if (node->isTriple() && !comp_(node->data[1].first, key) && !comp_(key, node->data[1].first))
       {
-        return Iter(root, PointsTo::Right);
+        return { node, PointsTo::Right };
       }
       else
       {
-        return Iter();
+        return { nullptr, PointsTo::None };
       }
     }
   }
 
   template< class K, class V, class C >
-  typename Tree< K, V, C >::Node* Tree< K, V, C >::findInsertionLeaf(const K& key)
+  typename Tree< K, V, C >::Node* Tree< K, V, C >::findInsertionLeaf(const K& key) const
   {
     Node* node = root_;
     while (!node->isLeaf())
@@ -415,6 +474,380 @@ namespace aleksandrov
     else
     {
       throw std::logic_error("Could not insert upper for some reason...");
+    }
+  }
+
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::Node* Tree< K, V, C >::fixAfterErase(Node* leaf)
+  {
+    using namespace detail;
+    if (!leaf->parent && (leaf->isDouble() || leaf->isEmpty()))
+    {
+      return nullptr;
+    }
+    if (!leaf->isEmpty())
+    {
+      if (leaf->parent)
+      {
+        fixAfterErase(leaf->parent);
+      }
+      return leaf;
+    }
+    Node* parent = leaf->parent;
+    if (parent->isTriple() || parent->left->isTriple() || parent->right->isTriple())
+    {
+      leaf = redistributeData(leaf);
+    }
+    else if (parent->isTriple() && parent->middle->isTriple())
+    {
+      leaf = redistributeData(leaf);
+    }
+    else
+    {
+      leaf = mergeData(leaf);
+    }
+    return fixAfterErase(leaf);
+  }
+
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::Node* Tree< K, V, C >::redistributeData(Node* leaf)
+  {
+    using namespace detail;
+    Node* parent = leaf->parent;
+    Node* left = parent->left;
+    Node* middle = parent->middle;
+    Node* right = parent->right;
+
+    if (parent->isTriple() && !left->isTriple() && !middle->isTriple() && !right->isTriple())
+    {
+      if (left == leaf)
+      {
+        parent->left = parent->middle;
+        parent->middle = nullptr;
+        insertToNode(parent->left, parent->data[0]);
+        left->middle = left->left;
+        left->left = leaf->right;
+        removeFromNode(parent, parent->data[0]);
+        if (leaf->left)
+        {
+          parent->left->left = leaf->left;
+        }
+        else if (leaf->middle)
+        {
+          parent->left->left = leaf->middle;
+        }
+        if (parent->left->left)
+        {
+          parent->left->left->parent = parent->left;
+        }
+        delete left;
+      }
+      else if (middle == leaf)
+      {
+        insertToNode(left, parent->data[0]);
+        removeFromNode(parent, parent->data[0]);
+        left->middle = left->right;
+        if (leaf->left)
+        {
+          left->right = leaf->left;
+        }
+        else if (leaf->right)
+        {
+          left->right = leaf->right;
+        }
+        if (left->right)
+        {
+          left->right->parent = left;
+        }
+        delete middle;
+      }
+      else if (right == leaf)
+      {
+        insertToNode(middle, parent->data[1]);
+        parent->right = parent->middle;
+        parent->right->middle = parent->right->right;
+        parent->middle = nullptr;
+        removeFromNode(parent, parent->data[1]);
+        if (leaf->left)
+        {
+          middle->right = leaf->left;
+        }
+        else if (leaf->right)
+        {
+          middle->right = leaf->right;
+        }
+        if (middle->right)
+        {
+          middle->right->parent = middle;
+        }
+        delete right;
+      }
+    }
+    else if (parent->isTriple() && (left->isTriple() || middle->isTriple() || right->isTriple()))
+    {
+      if (right == leaf)
+      {
+        if (leaf->left)
+        {
+          leaf->middle = leaf->left;
+          leaf->left = nullptr;
+        }
+        insertToNode(leaf, parent->data[1]);
+        if (middle->isTriple())
+        {
+          parent->data[1] = middle->data[1];
+          removeFromNode(middle, middle->data[1]);
+          leaf->left = middle->right;
+          middle->right = nullptr;
+          if (leaf->left)
+          {
+            leaf->left->parent = leaf;
+          }
+        }
+        else if (left->isTriple())
+        {
+          parent->data[1] = middle->data[0];
+          leaf->left = middle->middle;
+          middle->middle = middle->left;
+          if (leaf->left)
+          {
+            leaf->left->parent = leaf;
+          }
+          middle->data[0] = parent->data[0];
+          parent->data[0] = left->data[1];
+          removeFromNode(left, left->data[1]);
+          middle->left = left->right;
+          if (middle->left)
+          {
+            left->right = nullptr;
+	  }
+        }
+      }
+      else if (middle == leaf)
+      {
+        if (right->isTriple())
+        {
+          if (!leaf->left)
+          {
+            leaf->left = leaf->right;
+          }
+          insertToNode(middle, parent->data[1]);
+          parent->data[1] = right->data[0];
+          removeFromNode(right, right->data[0]);
+          middle->right = right->left;
+          if (middle->right)
+          {
+            middle->right->parent = middle;
+          }
+          right->left = right->middle;
+          right->middle = nullptr;
+        }
+        else if (left->isTriple())
+        {
+          if (!leaf->right)
+          {
+            leaf->right = leaf->left;
+          }
+          insertToNode(middle, parent->data[0]);
+          parent->data[0] = left->data[1];
+          removeFromNode(left, left->data[1]);
+          middle->left = left->right;
+          if (middle->left)
+          {
+            middle->left->parent = middle;
+          }
+          left->right = left->middle;
+          left->middle = nullptr;
+        }
+      }
+      else if (left == leaf)
+      {
+        if (!leaf->left)
+        {
+          leaf->left = leaf->middle;
+          leaf->middle = nullptr;
+        }
+        insertToNode(left, parent->data[0]);
+        if (middle->isTriple())
+        {
+          parent->data[0] = middle->data[0];
+          removeFromNode(middle, middle->data[0]);
+          left->middle = middle->left;
+          if (left->middle)
+          {
+            left->middle->parent = left;
+          }
+          middle->left = middle->middle;
+          middle->middle = middle->right;
+          middle->right = nullptr;
+        }
+        else if (right->isTriple())
+        {
+          parent->data[0] = middle->data[0];
+          middle->data[0] = parent->data[1];
+          parent->data[1] = right->data[0];
+          removeFromNode(right, right->data[0]);
+          left->middle = middle->left;
+          if (left->middle)
+          {
+            left->middle->parent = left;
+          }
+          middle->left = middle->middle;
+          middle->middle = right->left;
+          if (middle->middle)
+          {
+            middle->middle->parent = middle;
+          }
+          right->left = right->middle;
+          right->middle = right->right;
+          right->right = nullptr;
+        }
+      }
+    }
+    else if (parent->isDouble())
+    {
+      insertToNode(leaf, parent->data[0]);
+      if (left == leaf && right->isTriple())
+      {
+        parent->data[0] = right->data[0];
+        removeFromNode(right, right->data[0]);
+        if (!leaf->left)
+        {
+          leaf->left = leaf->middle;
+        }
+        leaf->right = right->left;
+        right->left = right->middle;
+        right->middle = nullptr;
+        if (leaf->right)
+        {
+          leaf->right->parent = leaf;
+        }
+      }
+      else if (right == leaf && left->isTriple())
+      {
+        parent->data[0] = left->data[1];
+        removeFromNode(left, left->data[1]);
+        if (!leaf->right)
+        {
+          leaf->right = leaf->left;
+        }
+        leaf->left = left->right;
+        left->right = left->middle;
+        left->middle = nullptr;
+        if (leaf->left)
+        {
+          leaf->left->parent = leaf;
+        }
+      }
+    }
+    return parent;
+  }
+
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::Node* Tree< K, V, C >::mergeData(Node* leaf)
+  {
+    Node* parent = leaf->parent;
+
+    if (parent->left == leaf)
+    {
+      insertToNode(parent->right, parent->data[0]);
+      parent->right->middle = parent->right->left;
+      if (leaf->left)
+      {
+        parent->right->left = leaf->left;
+      }
+      else if (leaf->right)
+      {
+        parent->right->left = leaf->right;
+      }
+      if (parent->right->left)
+      {
+        parent->right->left->parent = parent->right;
+      }
+      removeFromNode(parent, parent->data[0]);
+      delete parent->left;
+      parent->left = nullptr;
+    }
+    else if (parent->right == leaf)
+    {
+      insertToNode(parent->left, parent->data[0]);
+      parent->left->middle = parent->left->right;
+      if (leaf->left)
+      {
+        parent->left->right = leaf->left;
+      }
+      else if (leaf->right)
+      {
+        parent->left->right = leaf->right;
+      }
+      if (parent->left->right)
+      {
+        parent->left->right->parent = parent->left;
+      }
+      removeFromNode(parent, parent->data[0]);
+      delete parent->right;
+      parent->right = nullptr;
+    }
+    if (!parent->parent)
+    {
+      Node* temp = parent->left ? parent->left : parent->right;
+      temp->parent = nullptr;
+      return root_ = temp;
+    }
+    return parent;
+  }
+
+  template< class K, class V, class C >
+  void Tree< K, V, C >::insertToNode(Node* node, const ValueType& value)
+  {
+    using namespace detail;
+    if (node->isEmpty())
+    {
+      node->data[0] = value;
+      node->type = NodeType::Double;
+    }
+    else if (node->isDouble())
+    {
+      node->data[1] = value;
+      node->type = NodeType::Triple;
+      if (comp_(value.first, node->data[0].first))
+      {
+        std::swap(node->data[0], node->data[1]);
+      }
+    }
+    else
+    {
+      throw std::logic_error("Cannot insert into triple node!");
+    }
+  }
+
+  template< class K, class V, class C >
+  void Tree< K, V, C >::removeFromNode(Node* node, const ValueType& value)
+  {
+    using namespace detail;
+    if (node->isDouble())
+    {
+      node->type = NodeType::Empty;
+    }
+    else if (node->isTriple())
+    {
+      if (!comp_(node->data[0].first, value.first) && !comp_(value.first, node->data[0].first))
+      {
+        std::swap(node->data[0], node->data[1]);
+        node->type = NodeType::Double;
+      }
+      else if (!comp_(node->data[1].first, value.first) && !comp_(value.first, node->data[1].first))
+      {
+        node->type = NodeType::Double;
+      }
+      else
+      {
+        throw std::logic_error("Cannot find a given value in a node!");
+      }
+    }
+    else
+    {
+      throw std::logic_error("Cannot remove from a null-node!");
     }
   }
 }
