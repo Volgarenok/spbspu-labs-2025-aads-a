@@ -620,7 +620,7 @@ namespace aleksandrov
           if (middle->left)
           {
             left->right = nullptr;
-	  }
+          }
         }
       }
       else if (middle == leaf)
