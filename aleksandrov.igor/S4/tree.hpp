@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <stdexcept>
+#include <initializer_list>
 #include "iterator.hpp"
 
 namespace aleksandrov
@@ -20,7 +21,10 @@ namespace aleksandrov
 
     Tree();
     Tree(const Tree&);
+    template< class InputIt >
+    Tree(InputIt, InputIt);
     Tree(Tree&&) noexcept;
+    Tree(std::initializer_list< ValueType >);
     ~Tree() noexcept;
 
     Tree& operator=(const Tree&);
@@ -38,14 +42,24 @@ namespace aleksandrov
     bool empty() const noexcept;
 
     void insert(const ValueType&);
+    template< class InputIt >
+    void insert(InputIt, InputIt);
+    void insert(std::initializer_list< ValueType >);
     void erase(Iter);
+    void erase(Iter, Iter);
 
     void clear() noexcept;
     void swap(Tree&) noexcept;
 
+    size_t count(const K&) const;
     Iter find(const K&);
     ConstIter find(const K&) const;
-    size_t count(const K&) const;
+    std::pair< Iter, Iter > equalRange(const K&);
+    std::pair< ConstIter, ConstIter > equalRange(const K&) const;
+    Iter lowerBound(const K&);
+    ConstIter lowerBound(const K&) const;
+    Iter upperBound(const K&);
+    ConstIter upperBound(const K&) const;
 
   private:
     template< class, class, class, bool >
@@ -82,10 +96,23 @@ namespace aleksandrov
   {}
 
   template< class K, class V, class C >
+  template< class InputIt >
+  Tree< K, V, C >::Tree(InputIt first, InputIt last):
+    Tree()
+  {
+    insert(first, last);
+  }
+
+  template< class K, class V, class C >
   Tree< K, V, C >::Tree(Tree&& rhs) noexcept:
     root_(std::exchange(rhs.root_, nullptr)),
     size_(std::exchange(rhs.size_, 0)),
     comp_(std::exchange(rhs.comp_, std::less< K >{}))
+  {}
+
+  template< class K, class V, class C >
+  Tree< K, V, C >::Tree(std::initializer_list< ValueType > ilist):
+    Tree(ilist.begin(), ilist.end())
   {}
 
   template< class K, class V, class C >
@@ -113,15 +140,13 @@ namespace aleksandrov
   template< class K, class V, class C >
   typename Tree< K, V, C >::Iter Tree< K, V, C >::begin() noexcept
   {
-    assert(root_ != nullptr && "ERROR: Tree is empty!");
-    return Iter(root_).fallLeft();
+    return root_ ? Iter(root_).fallLeft() : Iter();
   }
 
   template< class K, class V, class C >
   typename Tree< K, V, C >::ConstIter Tree< K, V, C >::cbegin() const noexcept
   {
-    assert(root_ != nullptr && "ERROR: Tree is empty!");
-    return ConstIter(root_).fallLeft();
+    return root_ ? ConstIter(root_).fallLeft() : ConstIter();
   }
 
   template< class K, class V, class C >
@@ -209,6 +234,22 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  template< class InputIt >
+  void Tree< K, V, C >::insert(InputIt first, InputIt last)
+  {
+    for (auto it = first; it != last; ++it)
+    {
+      insert(*it);
+    }
+  }
+
+  template< class K, class V, class C >
+  void Tree< K, V, C >::insert(std::initializer_list< ValueType > ilist)
+  {
+    insert(ilist.begin(), ilist.end());
+  }
+
+  template< class K, class V, class C >
   void Tree< K, V, C >::erase(Iter pos)
   {
     assert(pos != end());
@@ -279,6 +320,54 @@ namespace aleksandrov
   {
     auto pair = findRecursive(root_, key);
     return ConstIter(pair.first, pair.second);
+  }
+
+  template< class K, class V, class C >
+  std::pair< Iterator< K, V, C, false >, Iterator< K, V, C, false > > Tree< K, V, C >::equalRange(const K& key)
+  {
+    return { lowerBound(key), upperBound(key) };
+  }
+
+  template< class K, class V, class C >
+  std::pair< Iterator< K, V, C, true >, Iterator< K, V, C, true > > Tree< K, V, C >::equalRange(const K& key) const
+  {
+    return { lowerBound(key), upperBound(key) };
+  }
+
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::Iter Tree< K, V, C >::lowerBound(const K& key)
+  {
+    Iter it = begin();
+    while (it != end() && comp_((*it).first, key))
+    {
+      ++it;
+    }
+    return it;
+  }
+
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::ConstIter Tree< K, V, C >::lowerBound(const K& key) const
+  {
+    Iter it = lowerBound(key);
+    return ConstIter(it.node_, it.dir_);
+  }
+
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::Iter Tree< K, V, C >::upperBound(const K& key)
+  {
+    Iter it = begin();
+    while (it != end() && !comp_(key, (*it).first))
+    {
+      ++it;
+    }
+    return it;
+  }
+
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::ConstIter Tree< K, V, C >::upperBound(const K& key) const
+  {
+    Iter it = upperBound(key);
+    return ConstIter(it.node_, it.dir_);
   }
 
   template< class K, class V, class C >
