@@ -24,7 +24,6 @@ namespace aleksandrov
 
       Node();
       explicit Node(const ValueType&);
-      explicit Node(const ValueType&, const ValueType&);
 
       bool isLeaf() const noexcept;
       bool isEmpty() const noexcept;
@@ -51,12 +50,6 @@ template< class K, class V >
 aleksandrov::detail::Node< K, V >::Node(const ValueType& p):
   data{p, ValueType()},
   type(NodeType::Double)
-{}
-
-template< class K, class V >
-aleksandrov::detail::Node< K, V >::Node(const ValueType& p1, const ValueType& p2):
-  data{p1, p2},
-  type(NodeType::Triple)
 {}
 
 template< class K, class V >

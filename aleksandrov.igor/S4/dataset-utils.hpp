@@ -1,14 +1,14 @@
 #ifndef DATASET_UTILS_HPP
 #define DATASET_UTILS_HPP
 
-#include <map>
+#include "tree.hpp"
 #include <string>
 #include <iostream>
 
 namespace aleksandrov
 {
-  using Dataset = std::map< int, std::string >;
-  using DatasetCollection = std::map< std::string, Dataset >;
+  using Dataset = Tree< int, std::string >;
+  using DatasetCollection = Tree< std::string, Dataset >;
   using str = const std::string&;
 
   DatasetCollection readDatasets(std::istream&);

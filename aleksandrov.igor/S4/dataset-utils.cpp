@@ -35,7 +35,7 @@ namespace aleksandrov
   void printDataset(str name, const DatasetCollection& datasets)
   {
     auto it = datasets.find(name);
-    if (it == datasets.end())
+    if (it == datasets.cend())
     {
       std::cout << "<INVALID COMMAND>\n";
       return;
@@ -49,7 +49,7 @@ namespace aleksandrov
     }
 
     std::cout << name;
-    for (auto it = dataset.begin(); it != dataset.end(); ++it)
+    for (auto it = dataset.cbegin(); it != dataset.cend(); ++it)
     {
       std::cout << " " << it->first << " " << it->second;
     }
@@ -71,9 +71,9 @@ namespace aleksandrov
     const Dataset& set1 = it1->second;
     const Dataset& set2 = it2->second;
 
-    for (auto it = set1.begin(); it != set1.end(); ++it)
+    for (auto it = set1.cbegin(); it != set1.cend(); ++it)
     {
-      if (set2.find(it->first) == set2.end())
+      if (set2.find(it->first) == set2.cend())
       {
         result.insert(std::make_pair(it->first, it->second));
       }
@@ -96,9 +96,9 @@ namespace aleksandrov
     const Dataset& set1 = it1->second;
     const Dataset& set2 = it2->second;
 
-    for (auto it = set1.begin(); it != set1.end(); ++it)
+    for (auto it = set1.cbegin(); it != set1.cend(); ++it)
     {
-      if (set2.find(it->first) != set2.end())
+      if (set2.find(it->first) != set2.cend())
       {
         result.insert(std::make_pair(it->first, it->second));
       }
@@ -119,7 +119,7 @@ namespace aleksandrov
 
     Dataset result = it1->second;
     const Dataset& set2 = it2->second;
-    for (auto it = set2.begin(); it != set2.end(); ++it)
+    for (auto it = set2.cbegin(); it != set2.cend(); ++it)
     {
       result.insert(std::make_pair(it->first, it->second));
     }

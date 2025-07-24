@@ -92,8 +92,9 @@ BOOST_AUTO_TEST_CASE(begin)
 BOOST_AUTO_TEST_CASE(element_access)
 {
   Tree< int, char > tree;
-  tree.insert({1, 'a'});
+  char a = tree[1] = 'a';
   BOOST_TEST(tree[1] == 'a');
+  BOOST_TEST(a == 'a');
   BOOST_TEST(tree.at(1) == 'a');
   tree.insert({2, 'b'});
   BOOST_TEST(tree[2] == 'b');

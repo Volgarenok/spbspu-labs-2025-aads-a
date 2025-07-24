@@ -212,13 +212,23 @@ namespace aleksandrov
   template< class K, class V, class C >
   V& Tree< K, V, C >::operator[](const K& key)
   {
-    return (*find(key)).second;
+    Iter it = find(key);
+    if (it != end())
+    {
+      return it->second;
+    }
+    return insert({ key, V() }).first->second;
   }
 
   template< class K, class V, class C >
   V& Tree< K, V, C >::operator[](K&& key)
   {
-    return (*find(key)).second;
+    Iter it = find(key);
+    if (it != end())
+    {
+      return it->second;
+    }
+    return insert({ std::move(key), V() }).first->second;
   }
 
   template< class K, class V, class C >
