@@ -184,6 +184,23 @@ BOOST_AUTO_TEST_CASE(insert_initializer_list)
   BOOST_TEST(tree[1] == 'a');
 }
 
+BOOST_AUTO_TEST_CASE(emplace)
+{
+  Tree< int, char > tree;
+  tree.emplace(1, 'a');
+  BOOST_TEST(tree.size() == 1);
+  tree.emplace(std::pair< int, char >(3, 'c'));
+  BOOST_TEST(tree.size() == 2);
+}
+
+BOOST_AUTO_TEST_CASE(emplace_hint)
+{
+  Tree< int, char > tree;
+  tree = { {1, 'a'}, {3, 'b'}, {4, 'd'}, {5, 'e'} };
+  tree.emplaceHint(++tree.begin(), 2, 'b');
+  BOOST_TEST(tree.size() == 5);
+}
+
 BOOST_AUTO_TEST_CASE(erase)
 {
   Tree< int, char > tree;

@@ -50,6 +50,10 @@ namespace aleksandrov
     template< class InputIt >
     void insert(InputIt, InputIt);
     void insert(std::initializer_list< ValueType >);
+    template< class... Args >
+    std::pair< Iter, bool > emplace(Args&&...);
+    template< class... Args >
+    Iter emplaceHint(Iter, Args&&...);
     Iter erase(Iter);
     Iter erase(ConstIter);
     Iter erase(Iter, Iter);
@@ -247,13 +251,47 @@ namespace aleksandrov
   std::pair< Iterator< K, V, C, false >, bool > Tree< K, V, C >::insert(const ValueType& p)
   {
     Iter it = find(p.first);
-    Iter toReturn = insert(end(), p);
+    Iter toReturn = emplaceHint(end(), p);
     return { toReturn, toReturn != it };
   }
 
   template< class K, class V, class C >
   typename Tree< K, V, C >::Iter Tree< K, V, C >::insert(Iter hint, const ValueType& p)
   {
+    return emplaceHint(hint, p);
+  }
+
+  template< class K, class V, class C >
+  template< class InputIt >
+  void Tree< K, V, C >::insert(InputIt first, InputIt last)
+  {
+    for (auto it = first; it != last; ++it)
+    {
+      insert(*it);
+    }
+  }
+
+  template< class K, class V, class C >
+  void Tree< K, V, C >::insert(std::initializer_list< ValueType > ilist)
+  {
+    insert(ilist.begin(), ilist.end());
+  }
+
+  template< class K, class V, class C >
+  template< class... Args >
+  std::pair< Iterator< K, V, C, false >, bool > Tree< K, V, C >::emplace(Args&&... args)
+  {
+    ValueType p(std::forward< Args >(args)...);
+    Iter it = find(p.first);
+    Iter toReturn = emplaceHint(end(), std::forward< Args >(args)...);
+    return { toReturn, toReturn != it };
+  }
+
+  template< class K, class V, class C >
+  template< class... Args >
+  typename Tree< K, V, C >::Iter Tree< K, V, C >::emplaceHint(Iter hint, Args&&... args)
+  {
+    ValueType p(std::forward< Args >(args)...);
     if (!root_)
     {
       root_ = new Node(p);
@@ -292,22 +330,6 @@ namespace aleksandrov
       ++size_;
       return find(p.first);
     }
-  }
-
-  template< class K, class V, class C >
-  template< class InputIt >
-  void Tree< K, V, C >::insert(InputIt first, InputIt last)
-  {
-    for (auto it = first; it != last; ++it)
-    {
-      insert(*it);
-    }
-  }
-
-  template< class K, class V, class C >
-  void Tree< K, V, C >::insert(std::initializer_list< ValueType > ilist)
-  {
-    insert(ilist.begin(), ilist.end());
   }
 
   template< class K, class V, class C >
