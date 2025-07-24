@@ -20,6 +20,7 @@ namespace aleksandrov
     using ValueType = std::pair< K, V >;
 
     Tree();
+    explicit Tree(const C&);
     Tree(const Tree&);
     template< class InputIt >
     Tree(InputIt, InputIt);
@@ -29,6 +30,7 @@ namespace aleksandrov
 
     Tree& operator=(const Tree&);
     Tree& operator=(Tree&&) noexcept;
+    Tree& operator=(std::initializer_list< ValueType >);
 
     Iter begin() noexcept;
     ConstIter cbegin() const noexcept;
@@ -36,17 +38,23 @@ namespace aleksandrov
     ConstIter cend() const noexcept;
 
     V& at(const K&);
+    const V& at(const K&) const;
     V& operator[](const K&);
+    V& operator[](K&&);
 
     size_t size() const noexcept;
     bool empty() const noexcept;
 
-    void insert(const ValueType&);
+    std::pair< Iter, bool > insert(const ValueType&);
+    Iter insert(Iter, const ValueType&);
     template< class InputIt >
     void insert(InputIt, InputIt);
     void insert(std::initializer_list< ValueType >);
-    void erase(Iter);
-    void erase(Iter, Iter);
+    Iter erase(Iter);
+    Iter erase(ConstIter);
+    Iter erase(Iter, Iter);
+    Iter erase(ConstIter, ConstIter);
+    size_t erase(const K&);
 
     void clear() noexcept;
     void swap(Tree&) noexcept;
@@ -61,6 +69,9 @@ namespace aleksandrov
     Iter upperBound(const K&);
     ConstIter upperBound(const K&) const;
 
+    bool operator==(const Tree&) const noexcept;
+    bool operator!=(const Tree&) const noexcept;
+
   private:
     template< class, class, class, bool >
     friend class Iterator;
@@ -73,7 +84,7 @@ namespace aleksandrov
     Node* copyRecursive(Node* root, Node* parent = nullptr);
     void clearRecursive(Node*) noexcept;
     std::pair< Node*, PointsTo > findRecursive(Node*, const K&) const;
-    Node* findInsertionLeaf(const K&) const;
+    Node* findInsertionLeaf(Iter hint, const K&);
     void insertUpper(Node* node, Node* left, Node* right, const ValueType& median);
     Node* fixAfterErase(Node*);
     Node* redistributeData(Node*);
@@ -86,6 +97,13 @@ namespace aleksandrov
   Tree< K, V, C >::Tree():
     root_(nullptr),
     size_(0)
+  {}
+
+  template< class K, class V, class C >
+  Tree< K, V, C >::Tree(const C& comp):
+    root_(nullptr),
+    size_(0),
+    comp_(comp)
   {}
 
   template< class K, class V, class C >
@@ -138,6 +156,14 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  Tree< K, V, C >& Tree< K, V, C >::operator=(std::initializer_list< ValueType > ilist)
+  {
+    Tree copy(ilist);
+    swap(copy);
+    return *this;
+  }
+
+  template< class K, class V, class C >
   typename Tree< K, V, C >::Iter Tree< K, V, C >::begin() noexcept
   {
     return root_ ? Iter(root_).fallLeft() : Iter();
@@ -173,7 +199,24 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  const V& Tree< K, V, C >::at(const K& key) const
+  {
+    ConstIter it(find(key));
+    if (it == end())
+    {
+      throw std::out_of_range("ERROR: No such element exists!");
+    }
+    return (*it).second;
+  }
+
+  template< class K, class V, class C >
   V& Tree< K, V, C >::operator[](const K& key)
+  {
+    return (*find(key)).second;
+  }
+
+  template< class K, class V, class C >
+  V& Tree< K, V, C >::operator[](K&& key)
   {
     return (*find(key)).second;
   }
@@ -191,33 +234,44 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  void Tree< K, V, C >::insert(const ValueType& p)
+  std::pair< Iterator< K, V, C, false >, bool > Tree< K, V, C >::insert(const ValueType& p)
   {
-    if (find(p.first) != end())
-    {
-      return;
-    }
+    Iter it = find(p.first);
+    Iter toReturn = insert(end(), p);
+    return { toReturn, toReturn != it };
+  }
 
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::Iter Tree< K, V, C >::insert(Iter hint, const ValueType& p)
+  {
     if (!root_)
     {
       root_ = new Node(p);
       ++size_;
-      return;
+      return Iter(root_);
     }
 
-    Node* leaf = findInsertionLeaf(p.first);
+    Iter it = find(p.first);
+    if (it != end())
+    {
+      return it;
+    }
+
+    Node* leaf = findInsertionLeaf(hint, p.first);
     if (leaf->isDouble())
     {
       leaf->data[1] = p;
+      Iter toReturn(leaf, PointsTo::Right);
       if (comp_(p.first, leaf->data[0].first))
       {
         std::swap(leaf->data[0], leaf->data[1]);
+        toReturn.dir_ = PointsTo::Left;
       }
       leaf->type = detail::NodeType::Triple;
       ++size_;
-      return;
+      return toReturn;
     }
-    else if (leaf->isTriple())
+    else
     {
       const ValueType& min = comp_(p.first, leaf->data[0].first) ? p : leaf->data[0];
       Node* left = new Node(min);
@@ -226,10 +280,7 @@ namespace aleksandrov
       const ValueType& median = p == min ? leaf->data[0] : (p == max ? leaf->data[1] : p);
       insertUpper(leaf, left, right, median);
       ++size_;
-    }
-    else
-    {
-      throw std::logic_error("Could not insert an element for some reason...");
+      return find(p.first);
     }
   }
 
@@ -250,10 +301,11 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  void Tree< K, V, C >::erase(Iter pos)
+  typename Tree< K, V, C >::Iter Tree< K, V, C >::erase(Iter pos)
   {
     assert(pos != end());
     Node* node = pos.node_;
+    K key = pos->first;
 
     Node* min = node->right;
     if (node->isTriple() && pos.dir_ == PointsTo::Left)
@@ -279,11 +331,58 @@ namespace aleksandrov
       node->type = detail::NodeType::Double;
       node = fixAfterErase(node);
       --size_;
-      return;
+      return lowerBound(key);
     }
     node->type = detail::NodeType::Empty;
     node = fixAfterErase(node);
     --size_;
+    return size_ ? lowerBound(key) : Iter();
+  }
+
+  template< class K, class V, class C >
+  typename Tree< K, V, C >::Iter Tree< K, V, C >::erase(Iter first, Iter last)
+  {
+    if (last == end())
+    {
+      Iter beforeLast = first;
+      for (size_t i = 0; i < size_ - 1; ++i, ++beforeLast);
+      K key = beforeLast->first;
+      while (first != beforeLast)
+      {
+        first = erase(first);
+        if (beforeLast != end())
+        {
+          beforeLast = find(key);
+        }
+      }
+      erase(first);
+      first = end();
+    }
+    else
+    {
+      K key = last->first;
+      while (first != last)
+      {
+        first = erase(first);
+        if (last != end())
+        {
+          last = find(key);
+        }
+      }
+    }
+    return first;
+  }
+
+  template< class K, class V, class C >
+  size_t Tree< K, V, C >::erase(const K& key)
+  {
+    Iter it = find(key);
+    if (it == end())
+    {
+      return 0;
+    }
+    erase(it);
+    return 1;
   }
 
   template< class K, class V, class C >
@@ -338,10 +437,7 @@ namespace aleksandrov
   typename Tree< K, V, C >::Iter Tree< K, V, C >::lowerBound(const K& key)
   {
     Iter it = begin();
-    while (it != end() && comp_((*it).first, key))
-    {
-      ++it;
-    }
+    for (; it != end() && comp_((*it).first, key); ++it);
     return it;
   }
 
@@ -356,10 +452,7 @@ namespace aleksandrov
   typename Tree< K, V, C >::Iter Tree< K, V, C >::upperBound(const K& key)
   {
     Iter it = begin();
-    while (it != end() && !comp_(key, (*it).first))
-    {
-      ++it;
-    }
+    for (; it != end() && !comp_(key, (*it).first); ++it);
     return it;
   }
 
@@ -368,6 +461,35 @@ namespace aleksandrov
   {
     Iter it = upperBound(key);
     return ConstIter(it.node_, it.dir_);
+  }
+
+  template< class K, class V, class C >
+  bool Tree< K, V, C >::operator==(const Tree& rhs) const noexcept
+  {
+    if (size_ != rhs.size_)
+    {
+      return false;
+    }
+    auto first1 = cbegin();
+    auto first2 = rhs.cbegin();
+    auto last1 = cend();
+    auto last2 = rhs.cend();
+    while (first1 != last1 && first2 != last2)
+    {
+      if (*first1 != *first2)
+      {
+        return false;
+      }
+      ++first1;
+      ++first2;
+    }
+    return true;
+  }
+
+  template< class K, class V, class C >
+  bool Tree< K, V, C >::operator!=(const Tree& rhs) const noexcept
+  {
+    return !(*this == rhs);
   }
 
   template< class K, class V, class C >
@@ -452,9 +574,9 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  typename Tree< K, V, C >::Node* Tree< K, V, C >::findInsertionLeaf(const K& key) const
+  typename Tree< K, V, C >::Node* Tree< K, V, C >::findInsertionLeaf(Iter hint, const K& key)
   {
-    Node* node = root_;
+    Node* node = hint == end() ? root_ : hint.node_;
     while (!node->isLeaf())
     {
       if (comp_(key, node->data[0].first))
@@ -463,14 +585,7 @@ namespace aleksandrov
       }
       else if (node->isTriple())
       {
-        if (comp_(node->data[1].first, key))
-        {
-          node = node->right;
-        }
-        else
-        {
-          node = node->middle;
-        }
+        node = comp_(node->data[1].first, key) ? node->right : node->middle;
       }
       else
       {
@@ -517,7 +632,7 @@ namespace aleksandrov
       }
       delete node;
     }
-    else if (parent->isTriple())
+    else
     {
       const ValueType min = comp_(median.first, parent->data[0].first) ? median : parent->data[0];
       Node* currLeft = new Node(min);
@@ -560,10 +675,6 @@ namespace aleksandrov
       delete node;
       insertUpper(parent, currLeft, currRight, newMedian);
     }
-    else
-    {
-      throw std::logic_error("Could not insert upper for some reason...");
-    }
   }
 
   template< class K, class V, class C >
@@ -602,6 +713,7 @@ namespace aleksandrov
   typename Tree< K, V, C >::Node* Tree< K, V, C >::redistributeData(Node* leaf)
   {
     using namespace detail;
+
     Node* parent = leaf->parent;
     Node* left = parent->left;
     Node* middle = parent->middle;
@@ -904,10 +1016,6 @@ namespace aleksandrov
         std::swap(node->data[0], node->data[1]);
       }
     }
-    else
-    {
-      throw std::logic_error("Cannot insert into triple node!");
-    }
   }
 
   template< class K, class V, class C >
@@ -929,14 +1037,6 @@ namespace aleksandrov
       {
         node->type = NodeType::Double;
       }
-      else
-      {
-        throw std::logic_error("Cannot find a given value in a node!");
-      }
-    }
-    else
-    {
-      throw std::logic_error("Cannot remove from a null-node!");
     }
   }
 }

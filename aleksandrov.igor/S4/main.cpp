@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
   while (std::cin >> command)
   {
     processCommand(command, std::cin, datasets);
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   }
 }
 

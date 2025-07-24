@@ -10,6 +10,12 @@ BOOST_AUTO_TEST_CASE(default_construction)
   BOOST_TEST(tree.empty());
 }
 
+BOOST_AUTO_TEST_CASE(with_comparator_construction)
+{
+  Tree< int, char > tree(std::less< int >{});
+  BOOST_TEST(tree.empty());
+}
+
 BOOST_AUTO_TEST_CASE(copy_construction)
 {
   Tree< int, char > t1;
@@ -111,6 +117,9 @@ BOOST_AUTO_TEST_CASE(insert)
 {
   Tree< int, char > tree;
   tree.insert({12, 'a'});
+  auto pair = tree.insert({12, 'a'});
+  BOOST_TEST(bool(pair.first == tree.find(12)));
+  BOOST_TEST(!pair.second);
   tree.insert({1, 'b'});
   tree.insert({13, 'c'});
   tree.insert({14, 'd'});
@@ -123,7 +132,9 @@ BOOST_AUTO_TEST_CASE(insert)
   tree.insert({2, 'k'});
   tree.insert({3, 'l'});
   tree.insert({8, 'm'});
-  tree.insert({10, 'n'});
+  pair = tree.insert({10, 'n'});
+  BOOST_TEST(bool(pair.first == tree.find(10)));
+  BOOST_TEST(pair.second);
   tree.insert({11, 'o'});
 
   std::vector< int > expected;
@@ -137,6 +148,21 @@ BOOST_AUTO_TEST_CASE(insert)
     }
   };
   BOOST_TEST(std::equal(tree.begin(), tree.end(), expected.begin(), Pred{}));
+}
+
+BOOST_AUTO_TEST_CASE(insert_hint)
+{
+  Tree< int, char > tree;
+  tree = {{1, 'a'}, {3, 'c'}, {4, 'd'}, {7, 'g'}};
+  auto it = tree.insert(++tree.begin(), {1, 'a'});
+  BOOST_TEST(tree.size() == 4);
+  BOOST_TEST(it->first == 1);
+  it = tree.insert(tree.find(7), {5, 'e'});
+  BOOST_TEST(tree.size() == 5);
+  BOOST_TEST(it->first == 5);
+  it = tree.insert(tree.end(), {2, 'b'});
+  BOOST_TEST(tree.size() == 6);
+  BOOST_TEST(it->first == 2);
 }
 
 BOOST_AUTO_TEST_CASE(insert_range)
@@ -166,12 +192,31 @@ BOOST_AUTO_TEST_CASE(erase)
   {
     tree.insert({keys[i], '0'});
   }
-  tree.erase(tree.find(50));
+  auto it = tree.erase(tree.find(50));
+  BOOST_TEST(it->first == 60);
   tree.erase(tree.find(20));
   tree.erase(tree.find(15));
-  tree.erase(tree.find(10));
+  it = tree.erase(tree.find(10));
+  BOOST_TEST(it->first == 25);
   tree.erase(tree.find(80));
   BOOST_TEST(tree.size() == 14);
+
+  tree = {{10, '0' }};
+  it = tree.erase(tree.begin());
+  BOOST_TEST(tree.empty());
+  BOOST_TEST(bool(it == tree.end()));
+}
+
+BOOST_AUTO_TEST_CASE(erase_range)
+{
+  Tree< int, char > tree;
+  tree.insert({ {1, 'a'}, {2, 'b'}, {3, 'c'}, {4, 'd'}, {5, 'e'}});
+  auto it = tree.erase(tree.find(2), tree.find(4));
+  BOOST_TEST(tree.size() == 3);
+  BOOST_TEST(it->first == 4);
+  it = tree.erase(tree.begin(), tree.end());
+  BOOST_TEST(tree.empty());
+  BOOST_TEST(bool(it == tree.end()));
 }
 
 BOOST_AUTO_TEST_CASE(insert_erase)
@@ -262,5 +307,18 @@ BOOST_AUTO_TEST_CASE(lower_upper_bound)
   BOOST_TEST((*tree.lowerBound(4)).first == 4);
   BOOST_TEST((*tree.upperBound(13)).first == 14);
   BOOST_TEST((*tree.upperBound(12)).first == 14);
+}
+
+BOOST_AUTO_TEST_CASE(bool_operators)
+{
+  Tree< int, char > t1;
+  Tree< int, char > t2;
+  BOOST_TEST(bool(t1 == t2));
+  t1 = {{1, 'a'}, {2, 'b'}};
+  BOOST_TEST(bool(t1 != t2));
+  t2 = t1;
+  BOOST_TEST(bool(t1 == t2));
+  t2.insert({3, 'c'});
+  BOOST_TEST(bool(t1 != t2));
 }
 
