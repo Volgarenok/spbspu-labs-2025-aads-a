@@ -1,142 +1,98 @@
 #include "dataset-utils.hpp"
-#include <sstream>
 #include <iostream>
 
 namespace aleksandrov
 {
-  DatasetCollection readDatasets(std::istream& in)
+  void readDatasets(std::istream& in, Datasets& datasets)
   {
-    DatasetCollection datasets;
-    std::string line;
-    while (std::getline(in, line))
+    while (!in.eof())
     {
-      if (line.empty())
-      {
-        continue;
-      }
-      std::istringstream iss(line);
-      std::string name;
-      if (!(iss >> name))
-      {
-        continue;
-      }
+      in.clear();
       Dataset dataset;
       int key = 0;
-      std::string value;
-      while (iss >> key >> value)
+      std::string name;
+      in >> name;
+      while (in >> key)
       {
-        dataset.insert(std::make_pair(key, value));
+        std::string value;
+        in >> value;
+        dataset.insert({ key, value });
       }
-      datasets.insert(std::make_pair(name, dataset));
+      datasets.insert({ name, dataset });
     }
-    return datasets;
   }
 
-  void printDataset(str name, const DatasetCollection& datasets)
+  void printDataset(std::ostream& out, const std::string& name, const Datasets& datasets)
   {
     auto it = datasets.find(name);
     if (it == datasets.cend())
     {
-      std::cout << "<INVALID COMMAND>\n";
+      out << "<INVALID COMMAND>";
       return;
     }
 
     const Dataset& dataset = it->second;
     if (dataset.empty())
     {
-      std::cout << "<EMPTY>\n";
+      out << "<EMPTY>";
       return;
     }
 
-    std::cout << name;
+    out << name;
     for (auto it = dataset.cbegin(); it != dataset.cend(); ++it)
     {
-      std::cout << " " << it->first << " " << it->second;
+      out << ' ' << it->first << ' ' << it->second;
     }
-    std::cout << "\n";
   }
 
-  void complementDataset(str newName, str name1, str name2, DatasetCollection& datasets)
+  void complement(const std::string& name, const Dataset& a, const Dataset& b, Datasets& datasets)
   {
-    auto it1 = datasets.find(name1);
-    auto it2 = datasets.find(name2);
-
-    if (it1 == datasets.end() || it2 == datasets.end())
-    {
-      std::cout << "<INVALID COMMAND>\n";
-      return;
-    }
-
     Dataset result;
-    const Dataset& set1 = it1->second;
-    const Dataset& set2 = it2->second;
-
-    for (auto it = set1.cbegin(); it != set1.cend(); ++it)
+    for (auto it = a.cbegin(); it != a.cend(); ++it)
     {
-      if (set2.find(it->first) == set2.cend())
+      if (b.find(it->first) == b.cend())
       {
-        result.insert(std::make_pair(it->first, it->second));
+        result.insert({ it->first, it->second });
       }
     }
-    datasets[newName] = result;
+    datasets[name] = result;
   }
 
-  void intersectDataset(str newName, str name1, str name2, DatasetCollection& datasets)
+  void intersect(const std::string& name, const Dataset& a, const Dataset& b, Datasets& datasets)
   {
-    auto it1 = datasets.find(name1);
-    auto it2 = datasets.find(name2);
-
-    if (it1 == datasets.end() || it2 == datasets.end())
-    {
-      std::cout << "<INVALID COMMAND>\n";
-      return;
-    }
-
     Dataset result;
-    const Dataset& set1 = it1->second;
-    const Dataset& set2 = it2->second;
-
-    for (auto it = set1.cbegin(); it != set1.cend(); ++it)
+    for (auto it = a.cbegin(); it != a.cend(); ++it)
     {
-      if (set2.find(it->first) != set2.cend())
+      if (b.find(it->first) != b.cend())
       {
-        result.insert(std::make_pair(it->first, it->second));
+        result.insert({ it->first, it->second });
       }
     }
-    datasets[newName] = result;
+    datasets[name] = result;
   }
 
-  void unionDataset(str newName, str name1, str name2, DatasetCollection& datasets)
+  void unionCmd(const std::string& name, const Dataset& a, const Dataset& b, Datasets& datasets)
   {
-    auto it1 = datasets.find(name1);
-    auto it2 = datasets.find(name2);
-
-    if (it1 == datasets.end() || it2 == datasets.end())
+    Dataset result = a;
+    for (auto it = b.cbegin(); it != b.cend(); ++it)
     {
-      std::cout << "<INVALID COMMAND>\n";
-      return;
+      result.insert({ it->first, it->second });
     }
-
-    Dataset result = it1->second;
-    const Dataset& set2 = it2->second;
-    for (auto it = set2.cbegin(); it != set2.cend(); ++it)
-    {
-      result.insert(std::make_pair(it->first, it->second));
-    }
-    datasets[newName] = result;
+    datasets[name] = result;
   }
 
-  void processCommand(str command, std::istream& in, DatasetCollection& datasets)
+  void processCommand(const std::string& command, std::istream& in, std::ostream& out, Datasets& datasets)
   {
     if (command == "print")
     {
       std::string name;
       if (!(in >> name))
       {
-        std::cout << "<INVALID COMMAND>\n";
+        out << "<INVALID COMMAND>\n";
         return;
       }
-      printDataset(name, datasets);
+      printDataset(out, name, datasets);
+      out << '\n';
       return;
     }
 
@@ -145,25 +101,37 @@ namespace aleksandrov
     std::string name2;
     if (!(in >> newName >> name1 >> name2))
     {
-      std::cout << "<INVALID COMMAND>\n";
+      out << "<INVALID COMMAND>\n";
       return;
     }
 
+    auto it1 = datasets.find(name1);
+    auto it2 = datasets.find(name2);
+
+    if (it1 == datasets.end() || it2 == datasets.end())
+    {
+      out << "<INVALID COMMAND>\n";
+      return;
+    }
+
+    const Dataset& a = it1->second;
+    const Dataset& b = it2->second;
+
     if (command == "complement")
     {
-      complementDataset(newName, name1, name2, datasets);
+      complement(newName, a, b, datasets);
     }
     else if (command == "intersect")
     {
-      intersectDataset(newName, name1, name2, datasets);
+      intersect(newName, a, b, datasets);
     }
     else if (command == "union")
     {
-      unionDataset(newName, name1, name2, datasets);
+      unionCmd(newName, a, b, datasets);
     }
     else
     {
-      std::cout << "<INVALID COMMAND>\n";
+      out << "<INVALID COMMAND>\n";
     }
   }
 }

@@ -1,22 +1,21 @@
 #ifndef DATASET_UTILS_HPP
 #define DATASET_UTILS_HPP
 
-#include "tree.hpp"
+#include <ios>
 #include <string>
-#include <iostream>
+#include "tree.hpp"
 
 namespace aleksandrov
 {
   using Dataset = Tree< int, std::string >;
-  using DatasetCollection = Tree< std::string, Dataset >;
-  using str = const std::string&;
+  using Datasets = Tree< std::string, Dataset >;
 
-  DatasetCollection readDatasets(std::istream&);
-  void processCommand(str, std::istream& in, DatasetCollection&);
-  void printDataset(str, const DatasetCollection&);
-  void complementDataset(str, str, str, DatasetCollection&);
-  void intersectDataset(str, str, str, DatasetCollection&);
-  void unionDataset(str, str, str, DatasetCollection&);
+  void readDatasets(std::istream& in, Datasets& dest);
+  void processCommand(const std::string& cmd, std::istream&, std::ostream&, Datasets& src);
+  void printDataset(std::ostream& out, const std::string& name, const Datasets& src);
+  void complement(const std::string& name, Dataset&, Dataset&, Datasets& src);
+  void intersect(const std::string& name, Dataset&, Dataset&, Datasets& src);
+  void unionCmd(const std::string& name, Dataset&, Dataset&, Datasets& src);
 }
 
 #endif

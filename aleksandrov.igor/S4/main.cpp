@@ -20,13 +20,22 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  DatasetCollection datasets = readDatasets(file);
-
-  std::string command;
-  while (std::cin >> command)
+  Datasets datasets;
+  try
   {
-    processCommand(command, std::cin, datasets);
-    std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+    readDatasets(file, datasets);
+
+    std::string command;
+    while (std::cin >> command)
+    {
+      processCommand(command, std::cin, std::cout, datasets);
+      std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+    }
+  }
+  catch (const std::bad_alloc&)
+  {
+    std::cerr << "ERROR: Out of memory!\n";
+    return 1;
   }
 }
 

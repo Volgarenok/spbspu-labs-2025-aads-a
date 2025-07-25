@@ -29,6 +29,9 @@ namespace aleksandrov
       bool isEmpty() const noexcept;
       bool isDouble() const noexcept;
       bool isTriple() const noexcept;
+
+      void insert(const ValueType&);
+      void erase(const ValueType&);
     };
   }
 }
@@ -47,8 +50,8 @@ aleksandrov::detail::Node< K, V >::Node():
 {}
 
 template< class K, class V >
-aleksandrov::detail::Node< K, V >::Node(const ValueType& p):
-  data{p, ValueType()},
+aleksandrov::detail::Node< K, V >::Node(const ValueType& value):
+  data{value, ValueType()},
   type(NodeType::Double)
 {}
 
