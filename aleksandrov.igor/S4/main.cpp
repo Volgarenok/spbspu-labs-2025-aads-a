@@ -30,11 +30,17 @@ int main(int argc, char* argv[])
     {
       processCommand(command, std::cin, std::cout, datasets);
       std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+      std::cin.clear();
     }
   }
   catch (const std::bad_alloc&)
   {
     std::cerr << "ERROR: Out of memory!\n";
+    return 1;
+  }
+  catch (const std::exception& e)
+  {
+    std::cerr << e.what() << '\n';
     return 1;
   }
 }

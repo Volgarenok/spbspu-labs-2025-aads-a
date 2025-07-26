@@ -7,18 +7,23 @@ namespace aleksandrov
   {
     while (!in.eof())
     {
-      in.clear();
       Dataset dataset;
       int key = 0;
       std::string name;
-      in >> name;
-      while (in >> key)
+      if (in >> name)
       {
-        std::string value;
-        in >> value;
-        dataset.insert({ key, value });
+        while (in >> key)
+        {
+          std::string value;
+          in >> value;
+          dataset.insert({ key, value });
+        }
+        datasets.insert({ name, dataset });
       }
-      datasets.insert({ name, dataset });
+      if (in.fail())
+      {
+        in.clear(in.rdstate() ^ std::ios::failbit);
+      }
     }
   }
 
