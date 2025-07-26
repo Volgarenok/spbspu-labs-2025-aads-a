@@ -383,6 +383,12 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  auto Tree< K, V, C >::erase(ConstIter pos) -> Iter
+  {
+    return erase(Iter(pos.node_, pos.dir_));
+  }
+
+  template< class K, class V, class C >
   auto Tree< K, V, C >::erase(Iter first, Iter last) -> Iter
   {
     if (first == last)
@@ -414,6 +420,12 @@ namespace aleksandrov
       }
       return last;
     }
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::erase(ConstIter first, ConstIter last) -> Iter
+  {
+    return erase(Iter(first.node_, first.dir_), Iter(last.node_, last.dir_));
   }
 
   template< class K, class V, class C >
@@ -572,7 +584,7 @@ namespace aleksandrov
     }
     clearRecursive(root->right);
 
-    delete root; 
+    delete root;
   }
 
   template< class K, class V, class C >
