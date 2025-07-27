@@ -29,29 +29,26 @@ namespace aleksandrov
       bool isEmpty() const noexcept;
       bool isDouble() const noexcept;
       bool isTriple() const noexcept;
-
-      void insert(const ValueType&);
-      void erase(const ValueType&);
     };
   }
 }
 
 enum class aleksandrov::detail::NodeType
 {
-  Empty,
   Double,
-  Triple
+  Triple,
+  Empty
 };
 
 template< class K, class V >
 aleksandrov::detail::Node< K, V >::Node():
-  data{ValueType(), ValueType()},
+  data{ ValueType{}, ValueType{} },
   type(NodeType::Empty)
 {}
 
 template< class K, class V >
 aleksandrov::detail::Node< K, V >::Node(const ValueType& value):
-  data{value, ValueType()},
+  data{ value, ValueType{} },
   type(NodeType::Double)
 {}
 

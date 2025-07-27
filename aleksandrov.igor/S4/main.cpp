@@ -36,12 +36,12 @@ int main(int argc, char* argv[])
   catch (const std::bad_alloc&)
   {
     std::cerr << "ERROR: Out of memory!\n";
-    return 1;
+    return 2;
   }
   catch (const std::exception& e)
   {
     std::cerr << e.what() << '\n';
-    return 1;
+    return 2;
   }
 }
 

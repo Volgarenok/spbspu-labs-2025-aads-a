@@ -332,7 +332,7 @@ BOOST_AUTO_TEST_CASE(erase)
     }
     for (size_t i = 0; i < keys.size(); ++i)
     {
-      poplar.erase(i);
+      poplar.erase(keys[i]);
     }
   }
   while (std::next_permutation(keys.begin(), keys.end()));

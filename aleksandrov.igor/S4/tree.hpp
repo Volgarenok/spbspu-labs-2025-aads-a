@@ -32,19 +32,20 @@ namespace aleksandrov
     Tree& operator=(Tree&&) noexcept;
     Tree& operator=(std::initializer_list< ValueType >);
 
+    V& at(const K&);
+    const V& at(const K&) const;
+    V& operator[](const K&);
+    V& operator[](K&&);
+    
     Iter begin() noexcept;
     ConstIter cbegin() const noexcept;
     Iter end() noexcept;
     ConstIter cend() const noexcept;
 
-    V& at(const K&);
-    const V& at(const K&) const;
-    V& operator[](const K&);
-    V& operator[](K&&);
-
-    size_t size() const noexcept;
     bool empty() const noexcept;
+    size_t size() const noexcept;
 
+    void clear() noexcept;
     std::pair< Iter, bool > insert(const ValueType&);
     Iter insert(Iter, const ValueType&);
     template< class InputIt >
@@ -59,8 +60,6 @@ namespace aleksandrov
     Iter erase(Iter, Iter);
     Iter erase(ConstIter, ConstIter);
     size_t erase(const K&);
-
-    void clear() noexcept;
     void swap(Tree&) noexcept;
 
     size_t count(const K&) const;
@@ -149,7 +148,7 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  Tree< K, V, C >& Tree< K, V, C >::operator=(const Tree& rhs)
+  auto Tree< K, V, C >::operator=(const Tree& rhs) -> Tree&
   {
     Tree copy(rhs);
     swap(copy);
@@ -157,7 +156,7 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  Tree< K, V, C >& Tree< K, V, C >::operator=(Tree&& rhs) noexcept
+  auto Tree< K, V, C >::operator=(Tree&& rhs) noexcept -> Tree&
   {
     Tree copy(std::move(rhs));
     swap(copy);
@@ -165,35 +164,11 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  Tree< K, V, C >& Tree< K, V, C >::operator=(std::initializer_list< ValueType > ilist)
+  auto Tree< K, V, C >::operator=(std::initializer_list< ValueType > ilist) -> Tree&
   {
     Tree copy(ilist);
     swap(copy);
     return *this;
-  }
-
-  template< class K, class V, class C >
-  auto Tree< K, V, C >::begin() noexcept -> Iter
-  {
-    return root_ ? Iter(root_).fallLeft() : Iter();
-  }
-
-  template< class K, class V, class C >
-  auto Tree< K, V, C >::cbegin() const noexcept -> ConstIter
-  {
-    return root_ ? ConstIter(root_).fallLeft() : ConstIter();
-  }
-
-  template< class K, class V, class C >
-  auto Tree< K, V, C >::end() noexcept -> Iter
-  {
-    return Iter();
-  }
-
-  template< class K, class V, class C >
-  auto Tree< K, V, C >::cend() const noexcept -> ConstIter
-  {
-    return ConstIter();
   }
 
   template< class K, class V, class C >
@@ -241,15 +216,50 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  size_t Tree< K, V, C >::size() const noexcept
+  auto Tree< K, V, C >::begin() noexcept -> Iter
   {
-    return size_;
+    return root_ ? Iter(root_).fallLeft() : Iter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cbegin() const noexcept -> ConstIter
+  {
+    return root_ ? ConstIter(root_).fallLeft() : ConstIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::end() noexcept -> Iter
+  {
+    return Iter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cend() const noexcept -> ConstIter
+  {
+    return ConstIter();
   }
 
   template< class K, class V, class C >
   bool Tree< K, V, C >::empty() const noexcept
   {
     return !size_;
+  }
+
+  template< class K, class V, class C >
+  size_t Tree< K, V, C >::size() const noexcept
+  {
+    return size_;
+  }
+
+  template< class K, class V, class C >
+  void Tree< K, V, C >::clear() noexcept
+  {
+    if (!empty())
+    {
+      clearRecursive(root_);
+      root_ = nullptr;
+      size_ = 0;
+    }
   }
 
   template< class K, class V, class C >
@@ -348,7 +358,7 @@ namespace aleksandrov
   {
     assert(pos != end());
     Node* node = pos.node_;
-    K key = pos->first;
+    const K key = pos->first;
 
     Node* min = node->right;
     if (node->isTriple() && pos.dir_ == PointsTo::Left)
@@ -405,7 +415,7 @@ namespace aleksandrov
     }
     else
     {
-      K key = last->first;
+      const K key = last->first;
       while (first != last)
       {
         first = erase(first);
@@ -441,14 +451,6 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  void Tree< K, V, C >::clear() noexcept
-  {
-    clearRecursive(root_);
-    root_ = nullptr;
-    size_ = 0;
-  }
-
-  template< class K, class V, class C >
   void Tree< K, V, C >::swap(Tree& rhs) noexcept
   {
     std::swap(root_, rhs.root_);
@@ -465,14 +467,14 @@ namespace aleksandrov
   template< class K, class V, class C >
   auto Tree< K, V, C >::find(const K& key) -> Iter
   {
-    auto pair = findIterative(root_, key);
+    const auto pair = findIterative(root_, key);
     return Iter(pair.first, pair.second);
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::find(const K& key) const -> ConstIter
   {
-    auto pair = findIterative(root_, key);
+    const auto pair = findIterative(root_, key);
     return ConstIter(pair.first, pair.second);
   }
 

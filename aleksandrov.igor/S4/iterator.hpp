@@ -3,7 +3,6 @@
 
 #include <iterator>
 #include <cassert>
-#include <iostream>
 #include "node.hpp"
 
 namespace aleksandrov
@@ -13,9 +12,9 @@ namespace aleksandrov
 
   enum class PointsTo
   {
-    None,
     Left,
-    Right
+    Right,
+    None
   };
 
   template< class K, class V, class C, bool isConst >
