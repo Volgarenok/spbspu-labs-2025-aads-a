@@ -36,7 +36,7 @@ namespace aleksandrov
     const V& at(const K&) const;
     V& operator[](const K&);
     V& operator[](K&&);
-    
+
     Iter begin() noexcept;
     ConstIter cbegin() const noexcept;
     Iter end() noexcept;
