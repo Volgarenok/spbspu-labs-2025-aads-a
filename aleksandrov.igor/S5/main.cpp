@@ -1,10 +1,12 @@
 #include <functional>
 #include <iostream>
 #include <fstream>
-#include <map>
+#include <tree/tree.hpp>
 
 int main(int argc, char* argv[])
 {
+  using namespace aleksandrov;
+
   if (argc != 3)
   {
     std::cerr << "ERROR: Incorrect arguments!\n";
@@ -12,7 +14,7 @@ int main(int argc, char* argv[])
   }
 
   std::string command(argv[1]);
-  
+
   std::ifstream file(argv[2]);
   if (!file)
   {
@@ -20,10 +22,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  std::map< std::string, std::function< void() > > commands;
-  commands["ascending"] = std::bind(ascending,);
-  commands["descending"] = std::bind(descending,);
-  commands["breadth"] = std::bind(breadth,);
+  Tree< std::string, std::function< void() > > commands;
 
   try
   {
