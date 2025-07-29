@@ -1,13 +1,15 @@
 #include <functional>
 #include <iostream>
 #include <fstream>
+#include <limits>
 #include <tree/tree.hpp>
+#include "accumulator.hpp"
 
 namespace
 {
-  using namespace aleksandrov;
+  using Dataset = aleksandrov::Tree< int, std::string >;
 
-  void readDataset(std::istream& in, Tree< int, std::string >& dest)
+  void readDataset(std::istream& in, Dataset& dest)
   {
     int key = 0;
     while (!(in >> key).eof())
@@ -45,7 +47,9 @@ int main(int argc, char* argv[])
   }
 
   Tree< int, std::string > dataset;
-  Tree< std::string, std::function< void() > > commands;
+  Accumulator acc{};
+  Tree< std::string, std::function< Accumulator() > > commands;
+  commands["ascending"] = std::bind(&Dataset::traverseLNR< Accumulator >, std::addressof(dataset), acc);
 
   try
   {
@@ -58,8 +62,8 @@ int main(int argc, char* argv[])
     }
     else
     {
-      commands.at(command)();
-      std::cout << '\n';
+      acc = commands.at(command)();
+      std::cout << acc.key << ' ' << acc.value << '\n';
     }
   }
   catch (const std::out_of_range&)

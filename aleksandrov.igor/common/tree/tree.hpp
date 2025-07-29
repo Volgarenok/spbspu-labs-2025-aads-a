@@ -50,6 +50,9 @@ namespace aleksandrov
     LnrIter endLNR() noexcept;
     ConstLnrIter cendLNR() const noexcept;
 
+    template< class F >
+    F traverseLNR(F) const;
+
     bool empty() const noexcept;
     size_t size() const noexcept;
 
@@ -272,6 +275,17 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  template< class F >
+  F Tree< K, V, C >::traverseLNR(F f) const
+  {
+    for (auto it = cbeginLNR(); it != cendLNR(); ++it)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< class K, class V, class C >
   bool Tree< K, V, C >::empty() const noexcept
   {
     return !size_;
@@ -372,7 +386,15 @@ namespace aleksandrov
       left = new Node(min);
       const ValueType& max = comp_(leaf->data[1].first, p.first) ? p : leaf->data[1];
       right = new Node(max);
-      const ValueType& median = p == min ? leaf->data[0] : (p == max ? leaf->data[1] : p);
+      ValueType& median = p;
+      if (p.first == min.first)
+      {
+        median = leaf->data[0];
+      }
+      else if (p.first == max.first)
+      {
+        median = leaf->data[1];
+      }
       insertUpper(leaf, left, right, median);
     }
     catch (...)
@@ -720,7 +742,15 @@ namespace aleksandrov
       currLeft = new Node(min);
       const ValueType max = comp_(parent->data[1].first, median.first) ? median : parent->data[1];
       currRight = new Node(max);
-      const ValueType newMedian = median == min ? parent->data[0] : (median == max ? parent->data[1] : median);
+      ValueType newMedian = median;
+      if (median.first == min.first)
+      {
+        newMedian = parent->data[0];
+      }
+      else if (median.first == max.first)
+      {
+        newMedian = parent->data[1];
+      }
       if (node->parent->left == node)
       {
         currLeft->left = left;
