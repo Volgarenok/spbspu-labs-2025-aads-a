@@ -8,12 +8,12 @@
 
 namespace aleksandrov
 {
-  constexpr long long int min = std::numeric_limits< long long int >::min();
-  constexpr long long int max = std::numeric_limits< long long int >::max();
+  constexpr int min = std::numeric_limits< int >::min();
+  constexpr int max = std::numeric_limits< int >::max();
 
   struct Accumulator
   {
-    void operator()(const std::pair< long long int, std::string >& pair)
+    void operator()(const std::pair< int, std::string >& pair)
     {
       const bool isUnderflow = pair.first < 0 && key < min - pair.first;
       const bool isOverflow = pair.first > 0 && key > max - pair.first;
@@ -25,7 +25,7 @@ namespace aleksandrov
       value += (value.empty() ? pair.second : ' ' + pair.second);
     }
 
-    long long int key = 0;
+    int key = 0;
     std::string value;
   };
 }

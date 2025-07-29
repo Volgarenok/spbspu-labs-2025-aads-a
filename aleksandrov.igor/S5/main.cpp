@@ -12,17 +12,10 @@ namespace
   void readDataset(std::istream& in, Dataset& dest)
   {
     int key = 0;
-    while (!(in >> key).eof())
+    std::string value;
+    while (in >> key >> value)
     {
-      std::string value;
-      if (in >> value)
-      {
-        dest.insert({ key, value });
-      }
-      if (in.fail())
-      {
-        in.clear(in.rdstate() ^ std::ios::failbit);
-      }
+      dest.insert({ key, value });
     }
   }
 }
