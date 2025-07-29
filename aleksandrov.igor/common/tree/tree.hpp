@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <initializer_list>
 #include "iterator.hpp"
+#include "lnr-iterator.hpp"
 
 namespace aleksandrov
 {
@@ -17,6 +18,8 @@ namespace aleksandrov
   public:
     using Iter = Iterator< K, V, C, false >;
     using ConstIter = Iterator< K, V, C, true >;
+    using LnrIter = LnrIterator< K, V, C, false >;
+    using ConstLnrIter = LnrIterator< K, V, C, true >;
     using ValueType = std::pair< K, V >;
 
     Tree();
@@ -41,6 +44,11 @@ namespace aleksandrov
     ConstIter cbegin() const noexcept;
     Iter end() noexcept;
     ConstIter cend() const noexcept;
+
+    LnrIter beginLNR() noexcept;
+    ConstLnrIter cbeginLNR() const noexcept;
+    LnrIter endLNR() noexcept;
+    ConstLnrIter cendLNR() const noexcept;
 
     bool empty() const noexcept;
     size_t size() const noexcept;
@@ -237,6 +245,30 @@ namespace aleksandrov
   auto Tree< K, V, C >::cend() const noexcept -> ConstIter
   {
     return ConstIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::beginLNR() noexcept -> LnrIter
+  {
+    return root_ ? ++LnrIter(root_) : LnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cbeginLNR() const noexcept -> ConstLnrIter
+  {
+    return root_ ? ++ConstLnrIter(root_) : ConstLnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::endLNR() noexcept -> LnrIter
+  {
+    return LnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cendLNR() const noexcept -> ConstLnrIter
+  {
+    return ConstLnrIter();
   }
 
   template< class K, class V, class C >
