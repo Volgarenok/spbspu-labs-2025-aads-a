@@ -7,6 +7,7 @@
 #include "iterator.hpp"
 #include "lnr-iterator.hpp"
 #include "rnl-iterator.hpp"
+#include "bfs-iterator.hpp"
 
 namespace aleksandrov
 {
@@ -23,6 +24,8 @@ namespace aleksandrov
     using ConstLnrIter = LnrIterator< K, V, C, true >;
     using RnlIter = RnlIterator< K, V, C, false >;
     using ConstRnlIter = RnlIterator< K, V, C, true >;
+    using BfsIter = BfsIterator< K, V, C, false >;
+    using ConstBfsIter = BfsIterator< K, V, C, true >;
     using ValueType = std::pair< K, V >;
 
     Tree();
@@ -58,10 +61,17 @@ namespace aleksandrov
     RnlIter endRNL() noexcept;
     ConstRnlIter cendRNL() const noexcept;
 
+    BfsIter beginBFS() noexcept;
+    ConstBfsIter cbeginBFS() const noexcept;
+    BfsIter endBFS() noexcept;
+    ConstBfsIter cendBFS() const noexcept;
+
     template< class F >
     F traverseLNR(F) const;
     template< class F >
     F traverseRNL(F) const;
+    template< class F >
+    F traverseBFS(F) const;
 
     bool empty() const noexcept;
     size_t size() const noexcept;
@@ -309,6 +319,30 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  auto Tree< K, V, C >::beginBFS() noexcept -> BfsIter
+  {
+    return BfsIter(root_);
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cbeginBFS() const noexcept -> ConstBfsIter
+  {
+    return ConstBfsIter(root_);
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::endBFS() noexcept -> BfsIter
+  {
+    return BfsIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cendBFS() const noexcept -> ConstBfsIter
+  {
+    return ConstBfsIter();
+  }
+
+  template< class K, class V, class C >
   template< class F >
   F Tree< K, V, C >::traverseLNR(F f) const
   {
@@ -324,6 +358,17 @@ namespace aleksandrov
   F Tree< K, V, C >::traverseRNL(F f) const
   {
     for (auto it = cbeginRNL(); it != cendRNL(); ++it)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< class K, class V, class C >
+  template< class F >
+  F Tree< K, V, C >::traverseBFS(F f) const
+  {
+    for (auto it = cbeginBFS(); it != cendBFS(); ++it)
     {
       f(*it);
     }
