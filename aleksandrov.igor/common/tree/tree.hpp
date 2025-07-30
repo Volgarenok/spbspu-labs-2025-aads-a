@@ -6,6 +6,7 @@
 #include <initializer_list>
 #include "iterator.hpp"
 #include "lnr-iterator.hpp"
+#include "rnl-iterator.hpp"
 
 namespace aleksandrov
 {
@@ -20,6 +21,8 @@ namespace aleksandrov
     using ConstIter = Iterator< K, V, C, true >;
     using LnrIter = LnrIterator< K, V, C, false >;
     using ConstLnrIter = LnrIterator< K, V, C, true >;
+    using RnlIter = RnlIterator< K, V, C, false >;
+    using ConstRnlIter = RnlIterator< K, V, C, true >;
     using ValueType = std::pair< K, V >;
 
     Tree();
@@ -50,8 +53,15 @@ namespace aleksandrov
     LnrIter endLNR() noexcept;
     ConstLnrIter cendLNR() const noexcept;
 
+    RnlIter beginRNL() noexcept;
+    ConstRnlIter cbeginRNL() const noexcept;
+    RnlIter endRNL() noexcept;
+    ConstRnlIter cendRNL() const noexcept;
+
     template< class F >
     F traverseLNR(F) const;
+    template< class F >
+    F traverseRNL(F) const;
 
     bool empty() const noexcept;
     size_t size() const noexcept;
@@ -275,10 +285,45 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  auto Tree< K, V, C >::beginRNL() noexcept -> RnlIter
+  {
+    return root_ ? ++RnlIter(root_) : RnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cbeginRNL() const noexcept -> ConstRnlIter
+  {
+    return root_ ? ++ConstRnlIter(root_) : ConstRnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::endRNL() noexcept -> RnlIter
+  {
+    return RnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cendRNL() const noexcept -> ConstRnlIter
+  {
+    return ConstRnlIter();
+  }
+
+  template< class K, class V, class C >
   template< class F >
   F Tree< K, V, C >::traverseLNR(F f) const
   {
     for (auto it = cbeginLNR(); it != cendLNR(); ++it)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< class K, class V, class C >
+  template< class F >
+  F Tree< K, V, C >::traverseRNL(F f) const
+  {
+    for (auto it = cbeginRNL(); it != cendRNL(); ++it)
     {
       f(*it);
     }

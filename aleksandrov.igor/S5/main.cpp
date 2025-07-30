@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
   Accumulator acc{};
   Tree< std::string, std::function< Accumulator() > > commands;
   commands["ascending"] = std::bind(&Dataset::traverseLNR< Accumulator >, std::addressof(dataset), acc);
+  commands["descending"] = std::bind(&Dataset::traverseRNL< Accumulator >, std::addressof(dataset), acc);
 
   try
   {
