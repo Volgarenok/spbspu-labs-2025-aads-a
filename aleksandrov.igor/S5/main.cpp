@@ -7,11 +7,11 @@
 
 namespace
 {
-  using Dataset = aleksandrov::Tree< int, std::string >;
+  using Dataset = aleksandrov::Tree< long long int, std::string >;
 
   void readDataset(std::istream& in, Dataset& dest)
   {
-    int key = 0;
+    long long int key = 0;
     std::string value;
     while (in >> key >> value)
     {
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  Tree< int, std::string > dataset;
+  Tree< long long int, std::string > dataset;
   Accumulator acc{};
   Tree< std::string, std::function< Accumulator() > > commands;
   commands["ascending"] = std::bind(&Dataset::traverseLNR< Accumulator >, std::addressof(dataset), acc);
