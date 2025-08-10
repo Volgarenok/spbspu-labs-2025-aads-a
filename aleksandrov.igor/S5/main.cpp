@@ -18,6 +18,24 @@ namespace
       dest.insert({ key, value });
     }
   }
+
+  template< class F >
+  F ascending(const Dataset& dataset, F f)
+  {
+    return dataset.traverseLNR(f);
+  }
+
+  template< class F >
+  F descending(const Dataset& dataset, F f)
+  {
+    return dataset.traverseRNL(f);
+  }
+
+  template< class F >
+  F breadth(const Dataset& dataset, F f)
+  {
+    return dataset.traverseBFS(f);
+  }
 }
 
 int main(int argc, char* argv[])
@@ -42,9 +60,9 @@ int main(int argc, char* argv[])
   Tree< long long int, std::string > dataset;
   Accumulator acc{};
   Tree< std::string, std::function< Accumulator() > > commands;
-  commands["ascending"] = std::bind(&Dataset::traverseLNR< Accumulator >, std::addressof(dataset), acc);
-  commands["descending"] = std::bind(&Dataset::traverseRNL< Accumulator >, std::addressof(dataset), acc);
-  commands["breadth"] = std::bind(&Dataset::traverseBFS< Accumulator >, std::addressof(dataset), acc);
+  commands["ascending"] = std::bind(ascending< Accumulator >, std::cref(dataset), acc);
+  commands["descending"] = std::bind(descending< Accumulator >, std::cref(dataset), acc);
+  commands["breadth"] = std::bind(breadth< Accumulator >, std::cref(dataset), acc);
 
   try
   {

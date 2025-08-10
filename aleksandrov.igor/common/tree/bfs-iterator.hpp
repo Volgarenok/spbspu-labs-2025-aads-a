@@ -2,89 +2,188 @@
 #define BFS_ITERATOR_HPP
 
 #include "heavy-iterator.hpp"
-#include "../queue.hpp"
+#include "../../S5/deque.hpp"
 
 namespace aleksandrov
 {
-  template< class K, class V, class C, bool isConst >
-  class BfsIterator final: public HeavyIterator< K, V, C, isConst >
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  class BfsIterator final: public HeavyIterator< K, V, C, isConst, isReversive >
   {
   public:
+    using LiteIter = Iterator< K, V, C, isConst, isReversive >;
+
     BfsIterator();
 
+    LiteIter makeLite() noexcept;
+
     BfsIterator& operator++();
-    BfsIterator& operator++(int);
+    BfsIterator operator++(int);
+    BfsIterator& operator--();
+    BfsIterator operator--(int);
 
   private:
     friend class Tree< K, V, C >;
+    friend class Iterator< K, V, C, isConst, isReversive >;
     using Node = detail::Node< K, V >;
-    using Base = HeavyIterator< K, V, C, isConst >;
+    using Base = HeavyIterator< K, V, C, isConst, isReversive >;
 
-    Queue< std::pair< Node*, PointsTo > > queue_;
-    Node* curr_;
+    Deque< Node* > deque_;
 
     explicit BfsIterator(Node*);
+
+    BfsIterator& shiftForward();
+    BfsIterator& shiftBackward();
   };
 
-  template< class K, class V, class C, bool isConst >
-  BfsIterator< K, V, C, isConst >::BfsIterator():
-    curr_(nullptr)
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  BfsIterator< K, V, C, isConst, isReversive >::BfsIterator():
+    Base()
   {}
 
-  template< class K, class V, class C, bool isConst >
-  BfsIterator< K, V, C, isConst >::BfsIterator(Node* node):
-    Base(node),
-    curr_(node)
-  {}
-
-  template< class K, class V, class C, bool isConst >
-  auto BfsIterator< K, V, C, isConst >::operator++() -> BfsIterator&
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  BfsIterator< K, V, C, isConst, isReversive >::BfsIterator(Node* node):
+    Base(node)
   {
-    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
-
-    Node* curr = this->node_;
-    if (curr->isTriple() && this->dir_ == PointsTo::Left)
+    if (node && isReversive)
     {
-      this->dir_ = PointsTo::Right;
-      return *this;
-    }
-    if (curr->left)
-    {
-      queue_.push({ curr->left, PointsTo::Left });
-    }
-    if (curr->isTriple() && curr->middle)
-    {
-      queue_.push({ curr->middle, PointsTo::Left });
-    }
-    if (curr->right)
-    {
-      queue_.push({ curr->right, PointsTo::Left });
-    }
-
-    while (!queue_.empty())
-    {
-      auto node = queue_.front().first;
-      auto dir = queue_.front().second;
-      queue_.pop();
-      if (node)
+      Deque< Node* > deque;
+      deque.pushBack(node);
+      while (!deque.empty())
       {
-        this->node_ = node;
-        this->dir_ = dir;
-        return *this;
+        Node* curr = deque.front();
+        deque.popFront();
+        deque_.pushBack(curr);
+        if (!curr->isLeaf())
+        {
+          deque.pushBack(curr->left);
+          if (curr->isTriple())
+          {
+            deque.pushBack(curr->middle);
+          }
+          deque.pushBack(curr->right);
+        }
       }
     }
-    this->node_ = nullptr;
-    this->dir_ = PointsTo::None;
-    return *this;
+    if (!deque_.empty())
+    {
+      if (isReversive)
+      {
+        this->node_ = deque_.back();
+        deque_.popBack();
+        if (this->node_->isTriple())
+        {
+          this->dir_ = PointsTo::Right;
+        }
+        else
+        {
+          this->dir_ = PointsTo::Left;
+        }
+      }
+      else
+      {
+        this->node_ = deque_.front();
+        deque_.popFront();
+        this->dir_ = PointsTo::Left;
+      }
+    }
   }
 
-  template< class K, class V, class C, bool isConst >
-  auto BfsIterator< K, V, C, isConst >::operator++(int) -> BfsIterator&
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  auto BfsIterator< K, V, C, isConst, isReversive >::makeLite() noexcept -> LiteIter
+  {
+    return LiteIter(this->node_, this->dir_);
+  }
+
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  auto BfsIterator< K, V, C, isConst, isReversive >::operator++() -> BfsIterator&
+  {
+    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    return isReversive ? shiftBackward() : shiftForward();
+  }
+
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  auto BfsIterator< K, V, C, isConst, isReversive >::operator++(int) -> BfsIterator
   {
     assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
     auto result(*this);
     ++(*this);
     return result;
+  }
+
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  auto BfsIterator< K, V, C, isConst, isReversive >::operator--() -> BfsIterator&
+  {
+    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    return isReversive ? shiftForward() : shiftBackward();
+  }
+
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  auto BfsIterator< K, V, C, isConst, isReversive >::operator--(int) -> BfsIterator
+  {
+    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    auto result(*this);
+    --(*this);
+    return result;
+  }
+
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  auto BfsIterator< K, V, C, isConst, isReversive >::shiftForward() -> BfsIterator&
+  {
+    if (this->node_->isTriple() && this->dir_ == PointsTo::Left)
+    {
+      this->dir_ = PointsTo::Right;
+      return *this;
+    }
+    if (!this->node_->isLeaf())
+    {
+      deque_.pushBack(this->node_->left);
+      if (this->node_->isTriple())
+      {
+        deque_.pushBack(this->node_->middle);
+      }
+      deque_.pushBack(this->node_->right);
+    }
+    if (!deque_.empty())
+    {
+      this->node_ = deque_.front();
+      deque_.popFront();
+      this->dir_ = PointsTo::Left;
+    }
+    else
+    {
+      this->node_ = nullptr;
+      this->dir_ = PointsTo::None;
+    }
+    return *this;
+  }
+
+  template< class K, class V, class C, bool isConst, bool isReversive >
+  auto BfsIterator< K, V, C, isConst, isReversive >::shiftBackward() -> BfsIterator&
+  {
+    if (this->node_->isTriple() && this->dir_ == PointsTo::Right)
+    {
+      this->dir_ = PointsTo::Left;
+      return *this;
+    }
+    if (!deque_.empty())
+    {
+      this->node_ = deque_.back();
+      deque_.popBack();
+      if (this->node_->isTriple())
+      {
+        this->dir_ = PointsTo::Right;
+      }
+      else
+      {
+        this->dir_ = PointsTo::Left;
+      }
+    }
+    else
+    {
+      this->node_ = nullptr;
+      this->dir_ = PointsTo::None;
+    }
+    return *this;
   }
 }
 
