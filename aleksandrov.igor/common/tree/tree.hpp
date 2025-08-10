@@ -5,18 +5,33 @@
 #include <stdexcept>
 #include <initializer_list>
 #include "iterator.hpp"
+#include "lnr-iterator.hpp"
+#include "rnl-iterator.hpp"
+#include "bfs-iterator.hpp"
 
 namespace aleksandrov
 {
-  template< class K, class V, class C, bool isConst >
+  template< class K, class V, class C, bool isConst, bool isReversive >
   class Iterator;
 
   template< class K, class V, class C = std::less< K > >
   class Tree
   {
   public:
-    using Iter = Iterator< K, V, C, false >;
-    using ConstIter = Iterator< K, V, C, true >;
+    using Iter = Iterator< K, V, C, false, false >;
+    using ConstIter = Iterator< K, V, C, true, false >;
+    using LnrIter = LnrIterator< K, V, C, false, false >;
+    using ReverLnrIter = LnrIterator< K, V, C, false, true >;
+    using ConstLnrIter = LnrIterator< K, V, C, true, false >;
+    using ConstReverLnrIter = LnrIterator< K, V, C, true, true >;
+    using RnlIter = RnlIterator< K, V, C, false, false >;
+    using ReverRnlIter = RnlIterator< K, V, C, false, true >;
+    using ConstRnlIter = RnlIterator< K, V, C, true, false >;
+    using ConstReverRnlIter = RnlIterator< K, V, C, true, true >;
+    using BfsIter = BfsIterator< K, V, C, false, false >;
+    using ReverBfsIter = BfsIterator< K, V, C, false, true >;
+    using ConstBfsIter = BfsIterator< K, V, C, true, false >;
+    using ConstReverBfsIter = BfsIterator< K, V, C, true, true >;
     using ValueType = std::pair< K, V >;
 
     Tree();
@@ -41,6 +56,46 @@ namespace aleksandrov
     ConstIter cbegin() const noexcept;
     Iter end() noexcept;
     ConstIter cend() const noexcept;
+
+    LnrIter beginLNR() noexcept;
+    ConstLnrIter cbeginLNR() const noexcept;
+    ReverLnrIter rbeginLNR() noexcept;
+    ConstReverLnrIter crbeginLNR() const noexcept;
+    LnrIter endLNR() noexcept;
+    ConstLnrIter cendLNR() const noexcept;
+    ReverLnrIter rendLNR() noexcept;
+    ConstReverLnrIter crendLNR() const noexcept;
+
+    RnlIter beginRNL() noexcept;
+    ConstRnlIter cbeginRNL() const noexcept;
+    ReverRnlIter rbeginRNL() noexcept;
+    ConstReverRnlIter crbeginRNL() const noexcept;
+    RnlIter endRNL() noexcept;
+    ConstRnlIter cendRNL() const noexcept;
+    ReverRnlIter rendRNL() noexcept;
+    ConstReverRnlIter crendRNL() const noexcept;
+
+    BfsIter beginBFS() noexcept;
+    ConstBfsIter cbeginBFS() const noexcept;
+    ReverBfsIter rbeginBFS() noexcept;
+    ConstReverBfsIter crbeginBFS() const noexcept;
+    BfsIter endBFS() noexcept;
+    ConstBfsIter cendBFS() const noexcept;
+    ReverBfsIter rendBFS() noexcept;
+    ConstReverBfsIter crendBFS() const noexcept;
+
+    template< class F >
+    F traverseLNR(F);
+    template< class F >
+    F traverseLNR(F) const;
+    template< class F >
+    F traverseRNL(F);
+    template< class F >
+    F traverseRNL(F) const;
+    template< class F >
+    F traverseBFS(F);
+    template< class F >
+    F traverseBFS(F) const;
 
     bool empty() const noexcept;
     size_t size() const noexcept;
@@ -76,7 +131,7 @@ namespace aleksandrov
     bool operator!=(const Tree&) const;
 
   private:
-    template< class, class, class, bool >
+    template< class, class, class, bool, bool >
     friend class Iterator;
     using Node = detail::Node< K, V >;
     using NodeType = detail::NodeType;
@@ -240,6 +295,216 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  auto Tree< K, V, C >::beginLNR() noexcept -> LnrIter
+  {
+    return root_ ? LnrIter(root_) : LnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cbeginLNR() const noexcept -> ConstLnrIter
+  {
+    return root_ ? ConstLnrIter(root_) : ConstLnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::rbeginLNR() noexcept -> ReverLnrIter
+  {
+    return root_ ? ReverLnrIter(root_) : ReverLnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::crbeginLNR() const noexcept -> ConstReverLnrIter
+  {
+    return root_ ? ConstReverLnrIter(root_) : ConstReverLnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::endLNR() noexcept -> LnrIter
+  {
+    return LnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cendLNR() const noexcept -> ConstLnrIter
+  {
+    return ConstLnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::rendLNR() noexcept -> ReverLnrIter
+  {
+    return ReverLnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::crendLNR() const noexcept -> ConstReverLnrIter
+  {
+    return ConstReverLnrIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::beginRNL() noexcept -> RnlIter
+  {
+    return root_ ? RnlIter(root_) : RnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cbeginRNL() const noexcept -> ConstRnlIter
+  {
+    return root_ ? ConstRnlIter(root_) : ConstRnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::rbeginRNL() noexcept -> ReverRnlIter
+  {
+    return root_ ? ReverRnlIter(root_) : ReverRnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::crbeginRNL() const noexcept -> ConstReverRnlIter
+  {
+    return root_ ? ConstReverRnlIter(root_) : ConstReverRnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::endRNL() noexcept -> RnlIter
+  {
+    return RnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cendRNL() const noexcept -> ConstRnlIter
+  {
+    return ConstRnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::rendRNL() noexcept -> ReverRnlIter
+  {
+    return ReverRnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::crendRNL() const noexcept -> ConstReverRnlIter
+  {
+    return ConstReverRnlIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::beginBFS() noexcept -> BfsIter
+  {
+    return root_ ? BfsIter(root_) : BfsIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cbeginBFS() const noexcept -> ConstBfsIter
+  {
+    return root_ ? ConstBfsIter(root_) : ConstBfsIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::rbeginBFS() noexcept -> ReverBfsIter
+  {
+    return root_ ? ReverBfsIter(root_) : ReverBfsIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::crbeginBFS() const noexcept -> ConstReverBfsIter
+  {
+    return root_ ? ConstReverBfsIter(root_) : ConstReverBfsIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::endBFS() noexcept -> BfsIter
+  {
+    return BfsIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::cendBFS() const noexcept -> ConstBfsIter
+  {
+    return ConstBfsIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::rendBFS() noexcept -> ReverBfsIter
+  {
+    return ReverBfsIter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::crendBFS() const noexcept -> ConstReverBfsIter
+  {
+    return ConstReverBfsIter();
+  }
+
+  template< class K, class V, class C >
+  template< class F >
+  F Tree< K, V, C >::traverseLNR(F f)
+  {
+    for (auto it = beginLNR(); it != endLNR(); ++it)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< class K, class V, class C >
+  template< class F >
+  F Tree< K, V, C >::traverseLNR(F f) const
+  {
+    for (auto it = cbeginLNR(); it != cendLNR(); ++it)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< class K, class V, class C >
+  template< class F >
+  F Tree< K, V, C >::traverseRNL(F f)
+  {
+    for (auto it = beginRNL(); it != endRNL(); ++it)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< class K, class V, class C >
+  template< class F >
+  F Tree< K, V, C >::traverseRNL(F f) const
+  {
+    for (auto it = cbeginRNL(); it != cendRNL(); ++it)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< class K, class V, class C >
+  template< class F >
+  F Tree< K, V, C >::traverseBFS(F f)
+  {
+    for (auto it = beginBFS(); it != endBFS(); ++it)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< class K, class V, class C >
+  template< class F >
+  F Tree< K, V, C >::traverseBFS(F f) const
+  {
+    for (auto it = cbeginBFS(); it != cendBFS(); ++it)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< class K, class V, class C >
   bool Tree< K, V, C >::empty() const noexcept
   {
     return !size_;
@@ -340,7 +605,15 @@ namespace aleksandrov
       left = new Node(min);
       const ValueType& max = comp_(leaf->data[1].first, p.first) ? p : leaf->data[1];
       right = new Node(max);
-      const ValueType& median = p == min ? leaf->data[0] : (p == max ? leaf->data[1] : p);
+      ValueType& median = p;
+      if (p.first == min.first)
+      {
+        median = leaf->data[0];
+      }
+      else if (p.first == max.first)
+      {
+        median = leaf->data[1];
+      }
       insertUpper(leaf, left, right, median);
     }
     catch (...)
@@ -688,7 +961,15 @@ namespace aleksandrov
       currLeft = new Node(min);
       const ValueType max = comp_(parent->data[1].first, median.first) ? median : parent->data[1];
       currRight = new Node(max);
-      const ValueType newMedian = median == min ? parent->data[0] : (median == max ? parent->data[1] : median);
+      ValueType newMedian = median;
+      if (median.first == min.first)
+      {
+        newMedian = parent->data[0];
+      }
+      else if (median.first == max.first)
+      {
+        newMedian = parent->data[1];
+      }
       if (node->parent->left == node)
       {
         currLeft->left = left;
