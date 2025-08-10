@@ -74,7 +74,7 @@ namespace aleksandrov
     ConstRnlIter cendRNL() const noexcept;
     ReverRnlIter rendRNL() noexcept;
     ConstReverRnlIter crendRNL() const noexcept;
-    
+
     BfsIter beginBFS() noexcept;
     ConstBfsIter cbeginBFS() const noexcept;
     ReverBfsIter rbeginBFS() noexcept;
