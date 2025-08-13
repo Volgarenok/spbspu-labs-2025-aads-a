@@ -18,7 +18,6 @@ namespace aleksandrov
 
   struct Vertex
   {
-    std::string name;
     AdjacentyList adjacentyList;
   };
 
@@ -26,8 +25,17 @@ namespace aleksandrov
 
   struct Graph
   {
+  public:
     std::string name;
     Vertices vertices;
+
+    void bind(const std::string& from, const std::string& to, size_t weight);
+    void cut(const std::string& from, const std::string& to, size_t weight);
+
+  private:
+    using AdjListIterator = AdjacentyList::iterator;
+
+    AdjListIterator findEdge(const std::string& from, const std::string& to, size_t weight);
   };
 }
 

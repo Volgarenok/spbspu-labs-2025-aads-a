@@ -99,9 +99,45 @@ void aleksandrov::inbound(const Graphs& graphs, std::istream& in, std::ostream& 
     {
       if (adjList[i].dest == vertexName)
       {
-        out << it->second.name << ' ' << adjList[i].weight << '\n';
+        out << it->first << ' ' << adjList[i].weight << '\n';
       }
     }
   }
+}
+
+void aleksandrov::bind(Graphs& graphs, std::istream& in)
+{
+  std::string graphName;
+  std::string from;
+  std::string to;
+  size_t weight = 0;
+  if (!(in >> graphName >> from >> to >> weight))
+  {
+    throw std::logic_error("Incorrect graph name or description!");
+  }
+  auto graphIt = graphs.find(graphName);
+  if (graphIt == graphs.end())
+  {
+    throw std::logic_error("No such graph exists!");
+  }
+  graphIt->second.bind(from, to, weight);
+}
+
+void aleksandrov::cut(Graphs& graphs, std::istream& in)
+{
+  std::string graphName;
+  std::string from;
+  std::string to;
+  size_t weight = 0;
+  if (!(in >> graphName >> from >> to >> weight))
+  {
+    throw std::logic_error("Incorrect graph name or description!");
+  }
+  auto graphIt = graphs.find(graphName);
+  if (graphIt == graphs.end())
+  {
+    throw std::logic_error("No such graph exists!");
+  }
+  graphIt->second.cut(from, to, weight);
 }
 

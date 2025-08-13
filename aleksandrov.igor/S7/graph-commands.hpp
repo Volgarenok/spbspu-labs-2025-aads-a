@@ -11,6 +11,8 @@ namespace aleksandrov
   void vertexes(const Graphs&, std::istream&, std::ostream&);
   void outbound(const Graphs&, std::istream&, std::ostream&);
   void inbound(const Graphs&, std::istream&, std::ostream&);
+  void bind(Graphs&, std::istream&);
+  void cut(Graphs&, std::istream&);
 }
 
 #endif
