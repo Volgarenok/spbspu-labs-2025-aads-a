@@ -9,6 +9,8 @@ namespace aleksandrov
 
   void graphs(const Graphs&, std::ostream&);
   void vertexes(const Graphs&, std::istream&, std::ostream&);
+  void outbound(const Graphs&, std::istream&, std::ostream&);
+  void inbound(const Graphs&, std::istream&, std::ostream&);
 }
 
 #endif

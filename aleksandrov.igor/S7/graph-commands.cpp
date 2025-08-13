@@ -20,13 +20,13 @@ void aleksandrov::vertexes(const Graphs& graphs, std::istream& in, std::ostream&
   {
     throw std::logic_error("Incorrect graph name!");
   }
-  auto it = graphs.find(graphName);
-  if (it == graphs.end())
+  auto graphIt = graphs.find(graphName);
+  if (graphIt == graphs.end())
   {
     throw std::logic_error("No such graph exists!");
   }
 
-  const Vertices& vertices = it->second.vertices;
+  const Vertices& vertices = graphIt->second.vertices;
   if (vertices.empty())
   {
     out << '\n';
@@ -34,6 +34,74 @@ void aleksandrov::vertexes(const Graphs& graphs, std::istream& in, std::ostream&
   for (auto it = vertices.cbegin(); it != vertices.cend(); ++it)
   {
     out << it->first << '\n';
+  }
+}
+
+void aleksandrov::outbound(const Graphs& graphs, std::istream& in, std::ostream& out)
+{
+  std::string graphName;
+  std::string vertexName;
+  if (!(in >> graphName >> vertexName))
+  {
+    throw std::logic_error("Incorrect graph or vertex name!");
+  }
+  auto graphIt = graphs.find(graphName);
+  if (graphIt == graphs.end())
+  {
+    throw std::logic_error("No such graph exists!");
+  }
+  const Vertices& vertices = graphIt->second.vertices;
+  auto vertexIt = vertices.find(vertexName);
+  if (vertexIt == vertices.end())
+  {
+    throw std::logic_error("No such vertex in graph exists!");
+  }
+
+  const AdjacentyList& adjList = vertexIt->second.adjacentyList;
+  if (adjList.empty())
+  {
+    out << '\n';
+  }
+  for (auto it = adjList.cbegin(); it != adjList.cend(); ++it)
+  {
+    out << it->dest << ' ' << it->weight << '\n';
+  }
+}
+
+void aleksandrov::inbound(const Graphs& graphs, std::istream& in, std::ostream& out)
+{
+  std::string graphName;
+  std::string vertexName;
+  if (!(in >> graphName >> vertexName))
+  {
+    throw std::logic_error("Incorrect graph or vertex name!");
+  }
+  auto graphIt = graphs.find(graphName);
+  if (graphIt == graphs.end())
+  {
+    throw std::logic_error("No such graph exists!");
+  }
+  const Vertices& vertices = graphIt->second.vertices;
+  auto vertexIt = vertices.find(vertexName);
+  if (vertexIt == vertices.end())
+  {
+    throw std::logic_error("No such vertex in graph exists!");
+  }
+
+  if (vertices.size() == 1)
+  {
+    out << '\n';
+  }
+  for (auto it = vertices.cbegin(); it != vertices.cend(); ++it)
+  {
+    const AdjacentyList& adjList = it->second.adjacentyList;
+    for (size_t i = 0; i < adjList.size(); ++i)
+    {
+      if (adjList[i].dest == vertexName)
+      {
+        out << it->second.name << ' ' << adjList[i].weight << '\n';
+      }
+    }
   }
 }
 
