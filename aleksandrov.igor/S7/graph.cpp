@@ -1,46 +1,68 @@
 #include "graph.hpp"
 #include <stdexcept>
 
-void aleksandrov::Graph::bind(const std::string& from, const std::string& to, size_t w)
+void aleksandrov::Graph::bind(const VertexName& from, const VertexName& to, unsigned int w)
 {
-  vertices.insert({ from, Vertex{} });
-  vertices.insert({ to, Vertex{} });
-  vertices[from].adjacentyList.push_back({ to, w });
+  vertices.insert({ from, true });
+  vertices.insert({ to, true });
+  VertexPair edgeKey = { from, to };
+  edges[edgeKey].push_back(w);
 }
 
-void aleksandrov::Graph::cut(const std::string& from, const std::string& to, size_t w)
+void aleksandrov::Graph::cut(const VertexName& from, const VertexName& to, unsigned int w)
 {
-  auto fromIt = vertices.find(from);
-  if (fromIt == vertices.end())
+  if (vertices.find(from) == vertices.end() || vertices.find(to) == vertices.end())
   {
-    throw std::logic_error("No such vertex in graph " + name + " exists!");
+    throw std::logic_error("One or both vertices do not exist!");
   }
-  auto edgeIt = findEdge(from, to, w);
-  if (edgeIt != fromIt->second.adjacentyList.end())
+  auto edgeIt = edges.find({ from, to });
+  if (edgeIt == edges.end())
   {
-    fromIt->second.adjacentyList.erase(edgeIt);
+    throw std::logic_error("No such edge exists!");
   }
-  else
+  Weights& weights = edgeIt->second;
+  for (auto it = weights.begin(); it != weights.end(); ++it)
   {
-    throw std::logic_error("No such edge in graph " + name + " exists!");
-  }
-}
-
-auto aleksandrov::Graph::findEdge(const std::string& from, const std::string& to, size_t w) -> AdjListIterator
-{
-  auto fromIt = vertices.find(from);
-  if (fromIt == vertices.end())
-  {
-    return fromIt->second.adjacentyList.end();
-  }
-  AdjacentyList& adjList = fromIt->second.adjacentyList;
-  for (auto it = adjList.begin(); it != adjList.end(); ++it)
-  {
-    if (it->dest == to && it->weight == w)
+    if (*it == w)
     {
-      return it;
+      weights.erase(it);
+      if (weights.empty())
+      {
+        edges.erase(edgeIt);
+      }
+      return;
     }
   }
-  return adjList.end();
+  throw std::logic_error("No such weight in edge exists!");
+}
+
+auto aleksandrov::Graph::getOutBounds(const VertexName& from) const -> Bounds
+{
+  Bounds result;
+  for (auto it = edges.cbegin(); it != edges.cend(); ++it)
+  {
+    if (it->first.first == from)
+    {
+      auto beginIt = it->second.begin();
+      auto endIt = it->second.end();
+      result[it->first.second].insert(result[it->first.second].end(), beginIt, endIt);
+    }
+  }
+  return result;
+}
+
+auto aleksandrov::Graph::getInBounds(const VertexName& to) const -> Bounds
+{
+  Bounds result;
+  for (auto it = edges.cbegin(); it != edges.cend(); ++it)
+  {
+    if (it->first.second == to)
+    {
+      auto beginIt = it->second.begin();
+      auto endIt = it->second.end();
+      result[it->first.first].insert(result[it->first.first].end(), beginIt, endIt);
+    }
+  }
+  return result;
 }
 

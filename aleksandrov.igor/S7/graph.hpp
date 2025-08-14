@@ -8,34 +8,32 @@
 
 namespace aleksandrov
 {
-  struct Edge
-  {
-    std::string dest;
-    size_t weight;
-  };
-
-  using AdjacentyList = std::vector< Edge >;
-
-  struct Vertex
-  {
-    AdjacentyList adjacentyList;
-  };
-
-  using Vertices = std::map< std::string, Vertex >;
-
   struct Graph
   {
-  public:
-    std::string name;
-    Vertices vertices;
+    using VertexName = std::string;
+    using VertexPair = std::pair< VertexName, VertexName >;
+    using Weights = std::vector< unsigned int >;
 
-    void bind(const std::string& from, const std::string& to, size_t weight);
-    void cut(const std::string& from, const std::string& to, size_t weight);
+    struct VertexPairHash
+    {
+      template< class T1, class T2 >
+      size_t operator()(const std::pair< T1, T2 >& p) const
+      {
+        auto h1 = std::hash< T1 >{}(p.first);
+        auto h2 = std::hash< T2 >{}(p.second);
+        return h1 ^ (h2 << 1);
+      }
+    };
 
-  private:
-    using AdjListIterator = AdjacentyList::iterator;
+    std::unordered_map< VertexPair, Weights, VertexPairHash > edges;
+    std::map< VertexName, bool > vertices;
 
-    AdjListIterator findEdge(const std::string& from, const std::string& to, size_t weight);
+    void bind(const VertexName& from, const VertexName& to, unsigned int w);
+    void cut(const VertexName& from, const VertexName& to, unsigned int w);
+
+    using Bounds = std::map< VertexName, std::vector< unsigned int > >;
+    Bounds getOutBounds(const VertexName& from) const;
+    Bounds getInBounds(const VertexName& to) const;
   };
 }
 
