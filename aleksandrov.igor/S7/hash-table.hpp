@@ -22,7 +22,7 @@ namespace aleksandrov
 
     float loadFactor() const noexcept;
     float maxLoadFactor() const noexcept;
-    void maxLoadFactor(float) const noexcept;
+    void maxLoadFactor(float) noexcept;
 
   private:
     using Slot = detail::Slot< K, V >;
@@ -73,7 +73,7 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
-  void HashTable< K, V, H, E >::maxLoadFactor(float ml) const noexcept
+  void HashTable< K, V, H, E >::maxLoadFactor(float ml) noexcept
   {
     maxLoadFactor_ = ml;
   }
