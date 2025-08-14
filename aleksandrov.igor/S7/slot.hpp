@@ -13,6 +13,7 @@ namespace aleksandrov
       using ValueType = std::pair< K, V >;
 
       ValueType data;
+      bool occupied;
     };
   }
 }
