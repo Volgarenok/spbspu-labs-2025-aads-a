@@ -44,6 +44,12 @@ namespace aleksandrov
   RnlIterator< K, V, C, isConst, isReversive >::RnlIterator(Node* node):
     Base(node)
   {
+    if (!node)
+    {
+      this->node_ = nullptr;
+      this->dir_ = PointsTo::None;
+      return;
+    }
     Node* curr = node;
     if (isReversive)
     {

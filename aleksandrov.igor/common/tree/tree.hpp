@@ -393,49 +393,49 @@ namespace aleksandrov
   template< class K, class V, class C >
   auto Tree< K, V, C >::beginBFS() noexcept -> BfsIter
   {
-    return root_ ? BfsIter(root_) : BfsIter();
+    return root_ ? BfsIter(root_, false) : BfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::cbeginBFS() const noexcept -> ConstBfsIter
   {
-    return root_ ? ConstBfsIter(root_) : ConstBfsIter();
+    return root_ ? ConstBfsIter(root_, false) : ConstBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::rbeginBFS() noexcept -> ReverBfsIter
   {
-    return root_ ? ReverBfsIter(root_) : ReverBfsIter();
+    return root_ ? ReverBfsIter(root_, false) : ReverBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::crbeginBFS() const noexcept -> ConstReverBfsIter
   {
-    return root_ ? ConstReverBfsIter(root_) : ConstReverBfsIter();
+    return root_ ? ConstReverBfsIter(root_, false) : ConstReverBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::endBFS() noexcept -> BfsIter
   {
-    return BfsIter();
+    return root_ ? BfsIter(root_, true) : BfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::cendBFS() const noexcept -> ConstBfsIter
   {
-    return ConstBfsIter();
+    return root_ ? ConstBfsIter(root_, true) : ConstBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::rendBFS() noexcept -> ReverBfsIter
   {
-    return ReverBfsIter();
+    return root_ ? ReverBfsIter(root_, true) : ReverBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::crendBFS() const noexcept -> ConstReverBfsIter
   {
-    return ConstReverBfsIter();
+    return root_ ? ConstReverBfsIter(root_, true) : ConstReverBfsIter();
   }
 
   template< class K, class V, class C >
