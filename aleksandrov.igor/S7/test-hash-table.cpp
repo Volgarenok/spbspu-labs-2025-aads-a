@@ -235,6 +235,41 @@ BOOST_AUTO_TEST_CASE(emplace)
   BOOST_TEST(pair.second == true);
 }
 
+BOOST_AUTO_TEST_CASE(erase)
+{
+  HashTable< int, int > ht = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+
+  auto it = ht.erase(ht.find(2));
+  BOOST_TEST(ht.size() == 2);
+  BOOST_TEST(ht.count(2) == 0);
+  BOOST_TEST(it->first == 3);
+
+  size_t i = ht.erase(3);
+  BOOST_TEST(i == 1);
+  BOOST_TEST(ht.size() == 1);
+  BOOST_TEST(ht.count(3) == 0);
+
+  i = ht.erase(0);
+  BOOST_TEST(i == 0);
+  BOOST_TEST(ht.size() == 1);
+}
+
+BOOST_AUTO_TEST_CASE(erase_range)
+{
+  HashTable< int, int > ht;
+  ht = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 } };
+
+  auto it = ht.erase(std::next(ht.cbegin()), std::next(ht.cbegin(), 3));
+  BOOST_TEST(ht.size() == 3);
+  BOOST_TEST(ht.count(2) == 0);
+  BOOST_TEST(ht.count(3) == 0);
+  BOOST_TEST(ht.count(4) == 1);
+
+  it = ht.erase(ht.cbegin(), ht.cend());
+  BOOST_TEST(ht.empty());
+  BOOST_CHECK(it == ht.end());
+}
+
 BOOST_AUTO_TEST_CASE(swap)
 {
   HashTable< int, int > ht1;
@@ -287,6 +322,25 @@ BOOST_AUTO_TEST_CASE(find)
   BOOST_CHECK(it != ht.end());
   BOOST_TEST(it->first == 4);
   BOOST_TEST(it->second == 4);
+}
+
+BOOST_AUTO_TEST_CASE(equal_range)
+{
+  HashTable< int, int > ht;
+  auto p1 = ht.equalRange(1);
+  BOOST_CHECK(p1.first == ht.end());
+  BOOST_CHECK(p1.second == ht.end());
+
+  ht = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+  auto p2 = ht.equalRange(2);
+  BOOST_CHECK(p2.first != ht.end());
+  BOOST_CHECK(p2.second != ht.end());
+  BOOST_CHECK(std::distance(p2.first, p2.second) == 1);
+  BOOST_CHECK(p2.first->first == 2);
+
+  auto p3 = ht.equalRange(0);
+  BOOST_CHECK(p3.first == ht.end());
+  BOOST_CHECK(p3.second == ht.end());
 }
 
 BOOST_AUTO_TEST_SUITE_END();

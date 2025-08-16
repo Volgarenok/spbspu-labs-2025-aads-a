@@ -10,7 +10,16 @@ namespace aleksandrov
   constexpr size_t minCapacity = 61;
   constexpr float maxLoadFactorValue = 0.75f;
 
-  template< class K, class V, class H = boost::hash< K >, class E = std::equal_to< K > >
+  template< class T >
+  struct XXH3Hasher
+  {
+    size_t operator()(const T& value) const
+    {
+      return boost::hash_value(value);
+    }
+  };
+
+  template< class K, class V, class H = XXH3Hasher< K >, class E = std::equal_to< K > >
   class HashTable
   {
   public:
@@ -46,6 +55,10 @@ namespace aleksandrov
     std::pair< Iter, bool > emplace(Args&&...);
     template< class... Args >
     Iter emplaceHint(ConstIter, Args&&...);
+    Iter erase(Iter);
+    Iter erase(ConstIter);
+    Iter erase(ConstIter, ConstIter);
+    size_t erase(const K&);
     void swap(HashTable&) noexcept;
 
     V& at(const K&);
@@ -55,6 +68,8 @@ namespace aleksandrov
     size_t count(const K&) const;
     Iter find(const K&);
     ConstIter find(const K&) const;
+    std::pair< Iter, Iter > equalRange(const K&);
+    std::pair< ConstIter, ConstIter > equalRange(const K&) const;
 
     Iter begin();
     ConstIter begin() const;
@@ -83,6 +98,8 @@ namespace aleksandrov
     H hasher_;
     E keyEqual_;
 
+    size_t getHomeIndex(const K&) const noexcept;
+    size_t getNextIndex(size_t) const noexcept;
     Slot* copyData(const HashTable&);
     Iter emplaceInternal(Slot);
     void rehashToCapacity(size_t);
@@ -240,11 +257,7 @@ namespace aleksandrov
   template< class... Args >
   auto HashTable< K, V, H, E >::emplace(Args&&... args) -> std::pair< Iter, bool >
   {
-    if (empty())
-    {
-      rehash();
-    }
-    else if (loadFactor() > maxLoadFactor())
+    if (loadFactor() > maxLoadFactor() || empty())
     {
       rehash();
     }
@@ -262,11 +275,7 @@ namespace aleksandrov
   template< class... Args >
   auto HashTable< K, V, H, E >::emplaceHint(ConstIter hint, Args&&... args) -> Iter
   {
-    if (empty())
-    {
-      rehash();
-    }
-    else if (loadFactor() > maxLoadFactor())
+    if (loadFactor() > maxLoadFactor() || empty())
     {
       rehash();
     }
@@ -277,6 +286,65 @@ namespace aleksandrov
       return it;
     }
     return emplaceInternal(std::move(newSlot));
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::erase(Iter pos) -> Iter
+  {
+    assert(pos != end() && "Trying to erase beyound hashtable's bounds!");
+    Iter next = std::next(Iter(pos.table_, pos.index_));
+    size_t i = pos.index_;
+    for (size_t j = getNextIndex(i); j != i; j = getNextIndex(j))
+    {
+      if (data_[j].occupied)
+      {
+        next = Iter(this, j);
+        break;
+      }
+    }
+    size_t j = (i + 1) % capacity_;
+    while (data_[j].occupied)
+    {
+      size_t h = getHomeIndex(data_[j].data.first);
+      if ((i < j && (h <= i || h > j)) || (i > j && (h <= i && h > j)))
+      {
+        data_[i] = std::move(data_[j]);
+        i = j;
+      }
+      j = getNextIndex(j);
+    }
+    data_[i].occupied = false;
+    --size_;
+    return next;
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::erase(ConstIter pos) -> Iter
+  {
+    return const_cast< HashTable* >(pos.table_)->erase(Iter(pos.table_, pos.index_));
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::erase(ConstIter first, ConstIter last) -> Iter
+  {
+    while (first != last)
+    {
+      Iter next = erase(first);
+      first = ConstIter(next.table_, next.index_);
+    }
+    return Iter(first.table_, first.index_);
+  }
+
+  template< class K, class V, class H, class E >
+  size_t HashTable< K, V, H, E >::erase(const K& key)
+  {
+    Iter pos = find(key);
+    if (pos == end())
+    {
+      return 0;
+    }
+    erase(pos);
+    return 1;
   }
 
   template< class K, class V, class H, class E >
@@ -358,13 +426,34 @@ namespace aleksandrov
         return ConstIter(this, curr);
       }
       ++psl;
-      curr = (curr + 1) % capacity_;
+      curr = getNextIndex(curr);
       if (curr == i)
       {
         return cend();
       }
     }
     return cend();
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::equalRange(const K& key) -> std::pair< Iter, Iter >
+  {
+    using ConstItPair = std::pair< ConstIter, ConstIter >;
+    ConstItPair p = static_cast< const HashTable& >(*this).equalRange(key);
+    Iter first(const_cast< HashTable* >(p.first.table_), p.first.index_);
+    Iter last(const_cast< HashTable* >(p.second.table_), p.second.index_);
+    return { first, last };
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::equalRange(const K& key) const -> std::pair< ConstIter, ConstIter >
+  {
+    ConstIter it = find(key);
+    if (it != cend())
+    {
+      return { it, std::next(it) };
+    }
+    return { cend(), cend() };
   }
 
   template< class K, class V, class H, class E >
@@ -446,6 +535,18 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
+  size_t HashTable< K, V, H, E >::getHomeIndex(const K& key) const noexcept
+  {
+    return hasher_(key) % capacity_;
+  }
+
+  template< class K, class V, class H, class E >
+  size_t HashTable< K, V, H, E >::getNextIndex(size_t index) const noexcept
+  {
+    return (index + 1) % capacity_;
+  }
+
+  template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::copyData(const HashTable& hashtable) -> Slot*
   {
     Slot* copy = new Slot[hashtable.capacity_];
@@ -470,7 +571,7 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::emplaceInternal(Slot newSlot) -> Iter
   {
-    size_t i = hasher_(newSlot.data.first) % capacity_;
+    size_t i = getHomeIndex(newSlot.data.first);
     while (data_[i].occupied)
     {
       if (newSlot.psl > data_[i].psl)
@@ -478,7 +579,7 @@ namespace aleksandrov
         std::swap(data_[i], newSlot);
       }
       ++newSlot.psl;
-      i = (i + 1) % capacity_;
+      i = getNextIndex(i);
     }
     data_[i] = newSlot;
     ++size_;
