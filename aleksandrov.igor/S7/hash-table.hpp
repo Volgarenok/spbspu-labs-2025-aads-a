@@ -2,7 +2,6 @@
 #define HASH_TABLE_HPP
 
 #include <boost/container_hash/hash.hpp>
-#include <cstddef>
 #include "slot.hpp"
 #include "iterator.hpp"
 
@@ -17,23 +16,43 @@ namespace aleksandrov
   public:
     using Iter = Iterator< K, V, H, E, false >;
     using ConstIter = Iterator< K, V, H, E, true >;
+    using ValueType = std::pair< K, V >;
 
     HashTable();
+    template< class InputIt >
+    HashTable(InputIt, InputIt);
+    HashTable(std::initializer_list< ValueType >);
     HashTable(const HashTable&);
     HashTable(HashTable&&);
     ~HashTable() noexcept;
 
     HashTable& operator=(const HashTable&);
     HashTable& operator=(HashTable&&);
+    HashTable& operator=(std::initializer_list< ValueType >);
 
     bool empty() const noexcept;
     size_t size() const noexcept;
+    size_t capacity() const noexcept;
 
     void clear() noexcept;
+    std::pair< Iter, bool > insert(const ValueType&);
+    std::pair< Iter, bool > insert(ValueType&&);
+    Iter insert(ConstIter, const ValueType&);
+    Iter insert(ConstIter, ValueType&&);
+    template< class InputIt >
+    void insert(InputIt, InputIt);
+    void insert(std::initializer_list< ValueType >);
+    template< class... Args >
+    std::pair< Iter, bool > emplace(Args&&...);
+    template< class... Args >
+    Iter emplaceHint(ConstIter, Args&&...);
     void swap(HashTable&) noexcept;
 
     V& at(const K&);
     const V& at(const K&) const;
+    V& operator[](const K&);
+    V& operator[](K&&);
+    size_t count(const K&) const;
     Iter find(const K&);
     ConstIter find(const K&) const;
 
@@ -47,6 +66,7 @@ namespace aleksandrov
     float loadFactor() const noexcept;
     float maxLoadFactor() const noexcept;
     void maxLoadFactor(float) noexcept;
+    void rehash(size_t);
 
     H hashFunction() const;
     E keyEq() const;
@@ -64,16 +84,35 @@ namespace aleksandrov
     E keyEqual_;
 
     Slot* copyData(const HashTable&);
+    Iter emplaceInternal(Slot);
+    void rehashToCapacity(size_t);
+    void rehash();
   };
 
   template< class K, class V, class H, class E >
   HashTable< K, V, H, E >::HashTable():
-    data_(new Slot[minCapacity]),
+    data_(nullptr),
     size_(0),
-    capacity_(minCapacity),
+    capacity_(0),
     maxLoadFactor_(maxLoadFactorValue),
     hasher_{},
     keyEqual_{}
+  {}
+
+  template< class K, class V, class H, class E >
+  template< class InputIt >
+  HashTable< K, V, H, E >::HashTable(InputIt first, InputIt last):
+    HashTable()
+  {
+    for (auto it = first; it != last; ++it)
+    {
+      emplace(*it);
+    }
+  }
+
+  template< class K, class V, class H, class E >
+  HashTable< K, V, H, E >::HashTable(std::initializer_list< ValueType > ilist):
+    HashTable(ilist.begin(), ilist.end())
   {}
 
   template< class K, class V, class H, class E >
@@ -113,6 +152,14 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::operator=(std::initializer_list< ValueType > ilist) -> HashTable&
+  {
+    HashTable temp(ilist);
+    swap(temp);
+    return *this;
+  }
+
+  template< class K, class V, class H, class E >
   HashTable< K, V, H, E >::~HashTable() noexcept
   {
     delete[] data_;
@@ -131,6 +178,12 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
+  size_t HashTable< K, V, H, E >::capacity() const noexcept
+  {
+    return capacity_;
+  }
+
+  template< class K, class V, class H, class E >
   void HashTable< K, V, H, E >::clear() noexcept
   {
     if (!empty())
@@ -141,6 +194,89 @@ namespace aleksandrov
       }
       size_ = 0;
     }
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::insert(const ValueType& value) -> std::pair< Iter, bool >
+  {
+    return emplace(value);
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::insert(ValueType&& value) -> std::pair< Iter, bool >
+  {
+    return emplace(std::move(value));
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::insert(ConstIter hint, const ValueType& value) -> Iter
+  {
+    return emplaceHint(hint, value);
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::insert(ConstIter hint, ValueType&& value) -> Iter
+  {
+    return emplaceHint(hint, std::move(value));
+  }
+
+  template< class K, class V, class H, class E >
+  template< class InputIt >
+  void HashTable< K, V, H, E >::insert(InputIt first, InputIt last)
+  {
+    for (auto it = first; it != last; ++it)
+    {
+      insert(*it);
+    }
+  }
+
+  template< class K, class V, class H, class E >
+  void HashTable< K, V, H, E >::insert(std::initializer_list< ValueType > ilist)
+  {
+    insert(ilist.begin(), ilist.end());
+  }
+
+  template< class K, class V, class H, class E >
+  template< class... Args >
+  auto HashTable< K, V, H, E >::emplace(Args&&... args) -> std::pair< Iter, bool >
+  {
+    if (empty())
+    {
+      rehash();
+    }
+    else if (loadFactor() > maxLoadFactor())
+    {
+      rehash();
+    }
+    Slot newSlot(std::forward< Args >(args)...);
+    Iter it = find(newSlot.data.first);
+    if (it != end())
+    {
+      return { it, false };
+    }
+    Iter emplaced = emplaceInternal(std::move(newSlot));
+    return { emplaced, true };
+  }
+
+  template< class K, class V, class H, class E >
+  template< class... Args >
+  auto HashTable< K, V, H, E >::emplaceHint(ConstIter hint, Args&&... args) -> Iter
+  {
+    if (empty())
+    {
+      rehash();
+    }
+    else if (loadFactor() > maxLoadFactor())
+    {
+      rehash();
+    }
+    Slot newSlot(std::forward< Args >(args)...);
+    Iter it = find(newSlot.data.first);
+    if (it != end())
+    {
+      return it;
+    }
+    return emplaceInternal(std::move(newSlot));
   }
 
   template< class K, class V, class H, class E >
@@ -157,12 +293,7 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   V& HashTable< K, V, H, E >::at(const K& key)
   {
-    Iter it = find(key);
-    if (it == end())
-    {
-      throw std::out_of_range("ERROR: No such element exists!");
-    }
-    return it->second;
+    return const_cast< V& >(static_cast< const HashTable& >(*this).at(key));
   }
 
   template< class K, class V, class H, class E >
@@ -177,12 +308,35 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
+  V& HashTable< K, V, H, E >::operator[](const K& key)
+  {
+    return const_cast< V& >(static_cast< const HashTable& >(*this).operator[](key));
+  }
+
+  template< class K, class V, class H, class E >
+  V& HashTable< K, V, H, E >::operator[](K&& key)
+  {
+    Iter it = find(key);
+    if (it != end())
+    {
+      return it->second;
+    }
+    return insert({ std::move(key), V{} }).first->second;
+  }
+
+  template< class K, class V, class H, class E >
+  size_t HashTable< K, V, H, E >::count(const K& key) const
+  {
+    return find(key) != cend();
+  }
+
+  template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::find(const K& key) -> Iter
   {
     ConstIter it = static_cast< const HashTable& >(*this).find(key);
     if (it == cend())
     {
-      return Iter();
+      return end();
     }
     return Iter(this, it.index_);
   }
@@ -190,22 +344,33 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::find(const K& key) const -> ConstIter
   {
-    size_t currSlotIndex = hasher_(key) % capacity_;
-    while (data_[currSlotIndex].occupied)
+    if (empty())
     {
-      if (keyEqual_(data_[currSlotIndex].data.first, key))
-      {
-        return ConstIter(this, currSlotIndex);
-      }
-      currSlotIndex = (currSlotIndex + 1) % capacity_;
+      return cend();
     }
-    return ConstIter();
+    size_t i = hasher_(key) % capacity_;
+    size_t psl = 0;
+    size_t curr = i;
+    while (data_[curr].occupied && data_[curr].psl >= psl)
+    {
+      if (keyEqual_(data_[curr].data.first, key))
+      {
+        return ConstIter(this, curr);
+      }
+      ++psl;
+      curr = (curr + 1) % capacity_;
+      if (curr == i)
+      {
+        return cend();
+      }
+    }
+    return cend();
   }
 
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::begin() -> Iter
   {
-    return empty() ? Iter() : Iter(this);
+    return Iter(this);
   }
 
   template< class K, class V, class H, class E >
@@ -217,13 +382,13 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::cbegin() const -> ConstIter
   {
-    return empty() ? ConstIter() : ConstIter(this);
+    return ConstIter(this);
   }
 
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::end() -> Iter
   {
-    return Iter();
+    return Iter(this, capacity_);
   }
 
   template< class K, class V, class H, class E >
@@ -235,13 +400,16 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::cend() const -> ConstIter
   {
-    return ConstIter();
+    return ConstIter(this, capacity_);
   }
 
   template< class K, class V, class H, class E >
   float HashTable< K, V, H, E >::loadFactor() const noexcept
   {
-    assert(capacity_ != 0);
+    if (!capacity_)
+    {
+      return 0.0f;
+    }
     return static_cast< float >(size_) / capacity_;
   }
 
@@ -258,6 +426,14 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
+  void HashTable< K, V, H, E >::rehash(size_t count)
+  {
+    size_t minRequiredCapacity = static_cast< size_t >(size() / maxLoadFactor());
+    size_t newCapacity = std::max(count, minRequiredCapacity);
+    rehashToCapacity(newCapacity);
+  }
+
+  template< class K, class V, class H, class E >
   H HashTable< K, V, H, E >::hashFunction() const
   {
     return hasher_;
@@ -270,16 +446,16 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
-  auto HashTable< K, V, H, E >::copyData(const HashTable& rhs) -> Slot*
+  auto HashTable< K, V, H, E >::copyData(const HashTable& hashtable) -> Slot*
   {
-    Slot* copy = new Slot[rhs.capacity_];
+    Slot* copy = new Slot[hashtable.capacity_];
     try
     {
-      for (size_t i = 0; i < rhs.capacity_; ++i)
+      for (size_t i = 0; i < hashtable.capacity_; ++i)
       {
-        if (rhs.data_[i].occupied)
+        if (hashtable.data_[i].occupied)
         {
-          copy[i] = rhs.data_[i];
+          copy[i] = hashtable.data_[i];
         }
       }
     }
@@ -289,6 +465,53 @@ namespace aleksandrov
       throw;
     }
     return copy;
+  }
+
+  template< class K, class V, class H, class E >
+  auto HashTable< K, V, H, E >::emplaceInternal(Slot newSlot) -> Iter
+  {
+    size_t i = hasher_(newSlot.data.first) % capacity_;
+    while (data_[i].occupied)
+    {
+      if (newSlot.psl > data_[i].psl)
+      {
+        std::swap(data_[i], newSlot);
+      }
+      ++newSlot.psl;
+      i = (i + 1) % capacity_;
+    }
+    data_[i] = newSlot;
+    ++size_;
+    return Iter(this, i);
+  }
+
+  template< class K, class V, class H, class E >
+  void HashTable< K, V, H, E >::rehashToCapacity(size_t newCapacity)
+  {
+    if (newCapacity <= capacity_)
+    {
+      return;
+    }
+    HashTable temp;
+    temp.capacity_ = newCapacity;
+    temp.data_ = new Slot[newCapacity];
+    temp.size_ = 0;
+    temp.maxLoadFactor_ = maxLoadFactor_;
+    for (size_t i = 0; i < capacity_; ++i)
+    {
+      if (data_[i].occupied)
+      {
+        temp.emplaceInternal(std::move(data_[i].data));
+      }
+    }
+    swap(temp);
+  }
+
+  template< class K, class V, class H, class E >
+  void HashTable< K, V, H, E >::rehash()
+  {
+    size_t newCapacity = capacity_ ? capacity_ * 2 : minCapacity;
+    rehashToCapacity(newCapacity);
   }
 }
 
