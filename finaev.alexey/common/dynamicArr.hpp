@@ -10,6 +10,7 @@ namespace finaev
   {
   public:
     DynamicArr();
+    explicit DynamicArr(size_t size);
     ~DynamicArr();
     DynamicArr(const DynamicArr< T >&);
     DynamicArr(DynamicArr< T >&&) noexcept;
@@ -22,6 +23,8 @@ namespace finaev
     void push(const T&);
     void pop_back();
     void pop_front();
+    T& operator[](size_t index);
+    const T& operator[](size_t index) const;
 
     size_t size() const noexcept;
     bool empty() const noexcept;
@@ -42,10 +45,18 @@ namespace finaev
 
   template< class T >
   DynamicArr< T >::DynamicArr():
-    capacity_(1),
+    capacity_(10),
     size_(0),
     head_(0),
     data_(new T[capacity_])
+  {}
+
+  template< class T >
+  DynamicArr< T >::DynamicArr(size_t size):
+    capacity_(size + 10),
+    size_(size),
+    head_(0),
+    data_(new T[size])
   {}
 
   template< class T >
@@ -176,6 +187,26 @@ namespace finaev
     }
     head_ = (head_ + 1) % capacity_;
     --size_;
+  }
+
+  template< class T >
+  T& DynamicArr< T >::operator[](size_t index)
+  {
+    if (index >= size_)
+    {
+      throw std::out_of_range("out of range");
+    }
+    return data_[index];
+  }
+
+  template< class T >
+  const T& DynamicArr< T >::operator[](size_t index) const
+  {
+    if (index >= size_)
+    {
+      throw std::out_of_range("out of range");
+    }
+    return data_[index];
   }
 
   template< class T >

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <queue>
-#include "stack.hpp"
+#include <stack.hpp>
 
 namespace petrov
 {

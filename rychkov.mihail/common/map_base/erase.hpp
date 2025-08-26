@@ -19,7 +19,7 @@ typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::iterator
   {
     const_iterator erased = pos;
     --pos;
-    erased.node_->replace(erased.pointed_, std::move(*pos));
+    erased.node_->replace(erased.pointed_, std::move(pos.node_->operator[](pos.pointed_)));
   }
   if (pos.node_->size() > 1)
   {
@@ -169,7 +169,7 @@ typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::size_type
 {
   size_type result = 0;
   const_iterator iter = lower_bound(key);
-  for (; (iter != end()) && !compare_with_key(key, *iter); iter = erase(iter), result++)
+  for (; (iter != end()) && !compare_keys(key, get_key(*iter)); iter = erase(iter), result++)
   {}
   return result;
 }
@@ -181,7 +181,7 @@ typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::transparent_compare_key
 {
   size_type result = 0;
   const_iterator iter = lower_bound(key);
-  for (; (iter != end()) && !compare_with_key(key, *iter); iter = erase(iter), result++)
+  for (; (iter != end()) && !compare_keys(key, get_key(*iter)); iter = erase(iter), result++)
   {}
   return result;
 }

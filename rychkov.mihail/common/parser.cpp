@@ -5,7 +5,7 @@
 
 bool rychkov::eol(std::istream& in)
 {
-  for (char c = in.peek(); in.peek() != '\n'; in.get(), c = in.peek())
+  for (char c = in.peek(); in && (in.peek() != '\n'); in.get(), c = in.peek())
   {
     if (!std::isspace(c))
     {

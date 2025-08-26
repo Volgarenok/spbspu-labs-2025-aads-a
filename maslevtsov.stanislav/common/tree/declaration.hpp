@@ -11,8 +11,8 @@ namespace maslevtsov {
   public:
     using value_type = std::pair< Key, T >;
     using size_type = std::size_t;
-    using iterator = TreeIterator< value_type, detail::IteratorType::NONCONSTANT >;
-    using const_iterator = TreeIterator< value_type, detail::IteratorType::CONSTANT >;
+    using iterator = TreeIterator< value_type, detail::TreeIteratorType::NONCONSTANT >;
+    using const_iterator = TreeIterator< value_type, detail::TreeIteratorType::CONSTANT >;
 
     Tree();
     Tree(const Tree& rhs);

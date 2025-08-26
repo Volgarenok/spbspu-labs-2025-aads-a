@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <sstream>
+#include <string>
 #include "command.h"
 
 int main(int argc, char* argv[])
@@ -27,17 +27,57 @@ int main(int argc, char* argv[])
     {
       continue;
     }
-    std::istringstream ss(line);
-    std::string name;
-    ss >> name;
 
-    int key;
-    std::string value;
-    asafov::map_t dict;
-    while (ss >> key >> value)
+    size_t pos = 0;
+    while (pos < line.size() && std::isspace(line[pos]))
     {
+      ++pos;
+    }
+    size_t start = pos;
+    while (pos < line.size() && !std::isspace(line[pos]))
+    {
+      ++pos;
+    }
+    std::string name = line.substr(start, pos - start);
+    asafov::map_t dict;
+
+    while (pos < line.size())
+    {
+      while (pos < line.size() && std::isspace(line[pos]))
+      {
+        ++pos;
+      }
+      if (pos >= line.size())
+      {
+        break;
+      }
+
+      start = pos;
+      while (pos < line.size() && !std::isspace(line[pos]))
+      {
+        ++pos;
+      }
+      int key = std::stoi(line.substr(start, pos - start));
+
+      while (pos < line.size() && std::isspace(line[pos]))
+      {
+        ++pos;
+      }
+      if (pos >= line.size())
+      {
+        break;
+      }
+
+      start = pos;
+      while (pos < line.size() && !std::isspace(line[pos]))
+      {
+        ++pos;
+      }
+      std::string value = line.substr(start, pos - start);
+
       dict[key] = value;
     }
+
     datasets[name] = dict;
   }
 

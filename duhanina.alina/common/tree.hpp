@@ -5,6 +5,8 @@
 #include <utility>
 #include "iterator.hpp"
 #include "cIterator.hpp"
+#include "stack.hpp"
+#include "queue.hpp"
 
 namespace duhanina
 {
@@ -68,6 +70,24 @@ namespace duhanina
     ConstIterator_t lower_bound(const Key& key) const noexcept;
     Iterator_t upper_bound(const Key& key) noexcept;
     ConstIterator_t upper_bound(const Key& key) const noexcept;
+
+    template < typename F >
+    F traverse_lnr(F f) const;
+
+    template < typename F >
+    F traverse_lnr(F f);
+
+    template < typename F >
+    F traverse_rnl(F f) const;
+
+    template < typename F >
+    F traverse_rnl(F f);
+
+    template < typename F >
+    F traverse_breadth(F f) const;
+
+    template < typename F >
+    F traverse_breadth(F f);
 
   private:
     using Node_t = Node< Key, Value >;
@@ -532,6 +552,144 @@ namespace duhanina
     {
       return cend();
     }
+  }
+
+  template < typename Key, typename Value, typename Compare >
+  template < typename F >
+  F Tree< Key, Value, Compare >::traverse_lnr(F f) const
+  {
+    Stack< const Node_t* > stack;
+    const Node_t* current = getRoot();
+    while (current || !stack.empty())
+    {
+      while (current)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template < typename Key, typename Value, typename Compare >
+  template < typename F >
+  F Tree< Key, Value, Compare >::traverse_lnr(F f)
+  {
+    Stack< Node_t* > stack;
+    Node_t* current = getRoot();
+    while (current || !stack.empty())
+    {
+      while (current)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template < typename Key, typename Value, typename Compare >
+  template < typename F >
+  F Tree< Key, Value, Compare >::traverse_rnl(F f) const
+  {
+    Stack< const Node_t* > stack;
+    const Node_t* current = getRoot();
+    while (current || !stack.empty())
+    {
+      while (current)
+      {
+        stack.push(current);
+        current = current->right;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->left;
+    }
+    return f;
+  }
+
+  template < typename Key, typename Value, typename Compare >
+  template < typename F >
+  F Tree< Key, Value, Compare >::traverse_rnl(F f)
+  {
+    Stack< Node_t* > stack;
+    Node_t* current = getRoot();
+    while (current || !stack.empty())
+    {
+      while (current)
+      {
+        stack.push(current);
+        current = current->right;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->left;
+    }
+    return f;
+  }
+
+  template < typename Key, typename Value, typename Compare >
+  template < typename F >
+  F Tree< Key, Value, Compare >::traverse_breadth(F f) const
+  {
+    if (!getRoot())
+    {
+      return f;
+    }
+    Queue< const Node_t* > queue;
+    queue.push(getRoot());
+    while (!queue.empty())
+    {
+      const Node_t* current = queue.front();
+      queue.pop();
+      f(current->data);
+      if (current->left)
+      {
+        queue.push(current->left);
+      }
+      if (current->right)
+      {
+        queue.push(current->right);
+      }
+    }
+    return f;
+  }
+
+  template < typename Key, typename Value, typename Compare >
+  template < typename F >
+  F Tree< Key, Value, Compare >::traverse_breadth(F f)
+  {
+    if (!getRoot())
+    {
+      return f;
+    }
+    Queue< Node_t* > queue;
+    queue.push(getRoot());
+    while (!queue.empty())
+    {
+      Node_t* current = queue.front();
+      queue.pop();
+      f(current->data);
+      if (current->left)
+      {
+        queue.push(current->left);
+      }
+      if (current->right)
+      {
+        queue.push(current->right);
+      }
+    }
+    return f;
   }
 
   template < typename Key, typename Value, typename Compare >

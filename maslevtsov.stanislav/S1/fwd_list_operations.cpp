@@ -1,7 +1,7 @@
 #include "fwd_list_operations.hpp"
 #include <limits>
 #include <ostream>
-#include "fwd_list/definition.hpp"
+#include <fwd_list/definition.hpp>
 
 namespace {
   unsigned long long checked_sum(unsigned long long a, unsigned long long b)

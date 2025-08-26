@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include "constIterator.hpp"
 #include "iterator.hpp"
+#include "queue.hpp"
+#include "stack.hpp"
 
 namespace mozhegova
 {
@@ -62,6 +64,19 @@ namespace mozhegova
     iter upper_bound(const Key &) noexcept;
     cIter upper_bound(const Key &) const noexcept;
     size_t count(const Key &) const noexcept;
+
+    template< typename F >
+    F traverseLnr(F f) const;
+    template< typename F >
+    F traverseRnl(F f) const;
+    template< typename F >
+    F traverseBreadth(F f) const;
+    template< typename F >
+    F traverseLnr(F f);
+    template< typename F >
+    F traverseRnl(F f);
+    template< typename F >
+    F traverseBreadth(F f);
   private:
     using node = detail::TreeNode< Key, T >;
 
@@ -686,6 +701,160 @@ namespace mozhegova
   void BiTree< Key, T, Cmp >::updateHeight(node * root) noexcept
   {
     root->h = 1 + std::max(root->left->h, root->right->h);
+  }
+
+  template< typename Key, typename T, typename Cmp >
+  template< typename F >
+  F BiTree< Key, T, Cmp >::traverseLnr(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< const node * > stack;
+    const node * current = root_;
+    while (current != fakeLeaf_ || !stack.empty())
+    {
+      while (current != fakeLeaf_)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template< typename Key, typename T, typename Cmp >
+  template< typename F >
+  F BiTree< Key, T, Cmp >::traverseRnl(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< const node * > stack;
+    const node * current = root_;
+    while (current != fakeLeaf_ || !stack.empty())
+    {
+      while (current != fakeLeaf_)
+      {
+        stack.push(current);
+        current = current->right;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->left;
+    }
+    return f;
+  }
+
+  template< typename Key, typename T, typename Cmp >
+  template< typename F >
+  F BiTree< Key, T, Cmp >::traverseBreadth(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Queue< const node * > queue;
+    queue.push(root_);
+    while (!queue.empty())
+    {
+      const node * current = queue.front();
+      queue.pop();
+      f(current->data);
+      if (current->left != fakeLeaf_)
+      {
+        queue.push(current->left);
+      }
+      if (current->right != fakeLeaf_)
+      {
+        queue.push(current->right);
+      }
+    }
+    return f;
+  }
+
+  template< typename Key, typename T, typename Cmp >
+  template< typename F >
+  F BiTree< Key, T, Cmp >::traverseLnr(F f)
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< node * > stack;
+    node * current = root_;
+    while (current != fakeLeaf_ || !stack.empty())
+    {
+      while (current != fakeLeaf_)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template< typename Key, typename T, typename Cmp >
+  template< typename F >
+  F BiTree< Key, T, Cmp >::traverseRnl(F f)
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< node * > stack;
+    node * current = root_;
+    while (current != fakeLeaf_ || !stack.empty())
+    {
+      while (current != fakeLeaf_)
+      {
+        stack.push(current);
+        current = current->right;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->left;
+    }
+    return f;
+  }
+
+  template< typename Key, typename T, typename Cmp >
+  template< typename F >
+  F BiTree< Key, T, Cmp >::traverseBreadth(F f)
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Queue< node * > queue;
+    queue.push(root_);
+    while (!queue.empty())
+    {
+      node * current = queue.front();
+      queue.pop();
+      f(current->data);
+      if (current->left != fakeLeaf_)
+      {
+        queue.push(current->left);
+      }
+      if (current->right != fakeLeaf_)
+      {
+        queue.push(current->right);
+      }
+    }
+    return f;
   }
 }
 

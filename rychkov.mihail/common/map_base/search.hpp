@@ -6,30 +6,16 @@
 #include <iterator>
 
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
-template< bool IsSet2 >
-bool rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::compare_with_key
-    (std::enable_if_t< !IsSet && !IsSet2, const value_type >& lhs, const key_type& rhs) const
-{
-  return comp_.comp(lhs.first, rhs);
-}
-template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
-template< bool IsSet2 >
-bool rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::compare_with_key
-    (const key_type& lhs, std::enable_if_t< !IsSet && !IsSet2, const value_type >& rhs) const
-{
-  return comp_.comp(lhs, rhs.first);
-}
-template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
-template< bool IsSet2 >
-std::enable_if_t< IsSet && IsSet2, bool > rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::compare_with_key
-    (const key_type& lhs, const key_type& rhs) const
+template< bool IsSet2, class K1, class K2 >
+std::enable_if_t< IsSet && IsSet2, bool > rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::compare_keys
+    (const K1& lhs, const K2& rhs) const
 {
   return comp_(lhs, rhs);
 }
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
-template< bool IsSet2 >
-std::enable_if_t< !IsSet && !IsSet2, bool > rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::compare_with_key
-    (const key_type& lhs, const key_type& rhs) const
+template< bool IsSet2, class K1, class K2 >
+std::enable_if_t< !IsSet && !IsSet2, bool > rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::compare_keys
+    (const K1& lhs, const K2& rhs) const
 {
   return comp_.comp(lhs, rhs);
 }
@@ -60,7 +46,7 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterat
   const_iterator left = {fake_children_[0], 0}, right = end();
   while (true)
   {
-    if (compare_with_key(key, *left))
+    if (compare_keys(key, get_key(*left)))
     {
       right = left;
       if (left.node_->isleaf())
@@ -69,7 +55,7 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterat
       }
       left = {left.node_->children[left.pointed_], 0};
     }
-    else if (!compare_with_key(*left, key))
+    else if (!compare_keys(get_key(*left), key))
     {
       if (IsMulti)
       {
@@ -112,7 +98,7 @@ typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterator
     node_size_type i = 0;
     while (i < left.node_->size())
     {
-      if (compare_with_key(key, left.node_->operator[](i)))
+      if (compare_keys(key, get_key(left.node_->operator[](i))))
       {
         right = {left.node_, i};
         if (left.node_->isleaf())
@@ -164,14 +150,14 @@ typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::iterator
     rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::find(const key_type& key)
 {
   const_iterator temp = lower_bound(key);
-  return ((temp != end()) && !compare_with_key(key, *temp)) ? iterator{temp.node_, temp.pointed_} : end();
+  return ((temp != end()) && !compare_keys(key, get_key(*temp))) ? iterator{temp.node_, temp.pointed_} : end();
 }
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterator
     rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::find(const key_type& key) const
 {
   const_iterator temp = lower_bound(key);
-  return ((temp != end()) && !compare_with_key(key, *temp)) ? temp : end();
+  return ((temp != end()) && !compare_keys(key, get_key(*temp))) ? temp : end();
 }
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 bool rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::contains(const key_type& key) const
@@ -240,7 +226,7 @@ typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::transparent_compare_key
     rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::find(const K1& key)
 {
   const_iterator temp = lower_bound(key);
-  return ((temp != end()) && !compare_with_key(key, *temp)) ? iterator{temp.node_, temp.pointed_} : end();
+  return ((temp != end()) && !compare_keys(key, get_key(*temp))) ? iterator{temp.node_, temp.pointed_} : end();
 }
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 template< class K1 >
@@ -249,7 +235,7 @@ typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::transparent_compare_key
     rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::find(const K1& key) const
 {
   const_iterator temp = lower_bound(key);
-  return ((temp != end()) && !compare_with_key(key, *temp)) ? temp : end();
+  return ((temp != end()) && !compare_keys(key, get_key(*temp))) ? temp : end();
 }
 template< class K, class T, class C, size_t N, bool IsSet, bool IsMulti >
 template< class K1 >

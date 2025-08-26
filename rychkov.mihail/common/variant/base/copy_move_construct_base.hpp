@@ -39,7 +39,8 @@ struct rychkov::details::CopyCtorBase< rychkov::details::USER_DEFINED, Types... 
   constexpr CopyCtorBase(in_place_index_t< N > i, Args&&... args):
     UnionStorageAlias< Types... >(i, std::forward< Args >(args)...)
   {}
-  constexpr CopyCtorBase(const CopyCtorBase& rhs) noexcept(is_nothrow_copy_ctor)
+  constexpr CopyCtorBase(const CopyCtorBase& rhs) noexcept(is_nothrow_copy_ctor):
+    UnionStorageAlias< Types... >(in_place_index_t< sizeof...(Types) >{})
   {
     if (!rhs.valueless_by_exception())
     {
@@ -83,7 +84,8 @@ struct rychkov::details::MoveCtorBase< rychkov::details::USER_DEFINED, Types... 
 
   MoveCtorBase() = default;
   constexpr MoveCtorBase(const MoveCtorBase& rhs) = default;
-  constexpr MoveCtorBase(MoveCtorBase&& rhs) noexcept(is_nothrow_move_ctor)
+  constexpr MoveCtorBase(MoveCtorBase&& rhs) noexcept(is_nothrow_move_ctor):
+    CopyCtorBaseAlias< Types... >(in_place_index_t< sizeof...(Types) >{})
   {
     if (!rhs.valueless_by_exception())
     {

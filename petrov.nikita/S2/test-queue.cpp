@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
-#include "queue.hpp"
+#include <queue.hpp>
 
 BOOST_AUTO_TEST_SUITE(copy_constructor)
 
