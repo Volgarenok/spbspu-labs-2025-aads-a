@@ -53,8 +53,10 @@ namespace aleksandrov
     V& operator[](K&&);
 
     Iter begin() noexcept;
+    ConstIter begin() const noexcept;
     ConstIter cbegin() const noexcept;
     Iter end() noexcept;
+    ConstIter end() const noexcept;
     ConstIter cend() const noexcept;
 
     LnrIter beginLNR() noexcept;
@@ -143,16 +145,20 @@ namespace aleksandrov
     Node* copyRecursive(Node* root, Node* parent = nullptr);
     void clearRecursive(Node*) noexcept;
     std::pair< Node*, PointsTo > findIterative(Node*, const K&) const;
+    template< bool isLower >
+    ConstIter findBound(const K&) const;
 
     Node* findInsertionLeaf(Iter hint, const K&);
     void insertUpper(Node*, Node* left, Node* right, const ValueType& median);
 
-    Node* fixAfterErase(Node*);
+    void fixAfterErase(Node*);
     Node* redistributeData(Node*);
     Node* mergeData(Node*);
 
     void insertIntoNode(Node*, const ValueType&);
     void removeFromNode(Node*, const ValueType&);
+
+    bool keyEqual(const K& key1, const K& key2) const;
   };
 
   template< class K, class V, class C >
@@ -229,12 +235,7 @@ namespace aleksandrov
   template< class K, class V, class C >
   V& Tree< K, V, C >::at(const K& key)
   {
-    Iter it = find(key);
-    if (it == end())
-    {
-      throw std::out_of_range("ERROR: No such element exists!");
-    }
-    return it->second;
+    return const_cast< V& >(static_cast< const Tree& >(*this).at(key));
   }
 
   template< class K, class V, class C >
@@ -245,7 +246,7 @@ namespace aleksandrov
     {
       throw std::out_of_range("ERROR: No such element exists!");
     }
-    return *it->second;
+    return it->second;
   }
 
   template< class K, class V, class C >
@@ -277,6 +278,12 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
+  auto Tree< K, V, C >::begin() const noexcept -> ConstIter
+  {
+    return cbegin();
+  }
+
+  template< class K, class V, class C >
   auto Tree< K, V, C >::cbegin() const noexcept -> ConstIter
   {
     return root_ ? ConstIter(root_).fallLeft() : ConstIter();
@@ -286,6 +293,12 @@ namespace aleksandrov
   auto Tree< K, V, C >::end() noexcept -> Iter
   {
     return Iter();
+  }
+
+  template< class K, class V, class C >
+  auto Tree< K, V, C >::end() const noexcept -> ConstIter
+  {
+    return cend();
   }
 
   template< class K, class V, class C >
@@ -393,49 +406,49 @@ namespace aleksandrov
   template< class K, class V, class C >
   auto Tree< K, V, C >::beginBFS() noexcept -> BfsIter
   {
-    return root_ ? BfsIter(root_) : BfsIter();
+    return root_ ? BfsIter(root_, false) : BfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::cbeginBFS() const noexcept -> ConstBfsIter
   {
-    return root_ ? ConstBfsIter(root_) : ConstBfsIter();
+    return root_ ? ConstBfsIter(root_, false) : ConstBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::rbeginBFS() noexcept -> ReverBfsIter
   {
-    return root_ ? ReverBfsIter(root_) : ReverBfsIter();
+    return root_ ? ReverBfsIter(root_, false) : ReverBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::crbeginBFS() const noexcept -> ConstReverBfsIter
   {
-    return root_ ? ConstReverBfsIter(root_) : ConstReverBfsIter();
+    return root_ ? ConstReverBfsIter(root_, false) : ConstReverBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::endBFS() noexcept -> BfsIter
   {
-    return BfsIter();
+    return root_ ? BfsIter(root_, true) : BfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::cendBFS() const noexcept -> ConstBfsIter
   {
-    return ConstBfsIter();
+    return root_ ? ConstBfsIter(root_, true) : ConstBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::rendBFS() noexcept -> ReverBfsIter
   {
-    return ReverBfsIter();
+    return root_ ? ReverBfsIter(root_, true) : ReverBfsIter();
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::crendBFS() const noexcept -> ConstReverBfsIter
   {
-    return ConstReverBfsIter();
+    return root_ ? ConstReverBfsIter(root_, true) : ConstReverBfsIter();
   }
 
   template< class K, class V, class C >
@@ -561,8 +574,12 @@ namespace aleksandrov
   {
     ValueType p(std::forward< Args >(args)...);
     Iter it = find(p.first);
-    Iter toReturn = emplaceHint(end(), std::forward< Args >(args)...);
-    return { toReturn, toReturn != it };
+    if (it != end())
+    {
+      return { it, false };
+    }
+    Iter toReturn = emplaceHint(end(), std::move(p));
+    return { toReturn, true };
   }
 
   template< class K, class V, class C >
@@ -597,20 +614,31 @@ namespace aleksandrov
       ++size_;
       return toReturn;
     }
+
     Node* left = nullptr;
     Node* right = nullptr;
     try
     {
-      const ValueType& min = comp_(p.first, leaf->data[0].first) ? p : leaf->data[0];
+      ValueType min = p;
+      if (!comp_(p.first, leaf->data[0].first))
+      {
+        min = leaf->data[0];
+      }
       left = new Node(min);
-      const ValueType& max = comp_(leaf->data[1].first, p.first) ? p : leaf->data[1];
+
+      ValueType max = p;
+      if (!comp_(leaf->data[1].first, p.first))
+      {
+        max = leaf->data[1];
+      }
       right = new Node(max);
-      ValueType& median = p;
-      if (p.first == min.first)
+
+      ValueType median = p;
+      if (keyEqual(p.first, min.first))
       {
         median = leaf->data[0];
       }
-      else if (p.first == max.first)
+      else if (keyEqual(p.first, max.first))
       {
         median = leaf->data[1];
       }
@@ -638,12 +666,12 @@ namespace aleksandrov
     {
       min = node->middle;
     }
-    while (min && min->left)
-    {
-      min = min->left;
-    }
     if (min)
     {
+      while (min->left)
+      {
+        min = min->left;
+      }
       std::swap(*pos, min->data[0]);
       node = min;
     }
@@ -655,14 +683,20 @@ namespace aleksandrov
         std::swap(node->data[0], node->data[1]);
       }
       node->type = NodeType::Double;
-      node = fixAfterErase(node);
-      --size_;
-      return lowerBound(key);
+      fixAfterErase(node);
     }
-    node->type = NodeType::Empty;
-    node = fixAfterErase(node);
+    else
+    {
+      node->type = NodeType::Empty;
+      fixAfterErase(node);
+      if (size_ == 1)
+      {
+        delete root_;
+        root_ = nullptr;
+      }
+    }
     --size_;
-    return size_ ? lowerBound(key) : Iter();
+    return lowerBound(key);
   }
 
   template< class K, class V, class C >
@@ -674,35 +708,24 @@ namespace aleksandrov
   template< class K, class V, class C >
   auto Tree< K, V, C >::erase(Iter first, Iter last) -> Iter
   {
-    if (first == last)
+    while (first != last)
     {
-      return last;
-    }
-    if (last == end())
-    {
-      while (first != end())
+      if (last != end())
       {
+        const K key = last->first;
         first = erase(first);
-      }
-      return end();
-    }
-    else
-    {
-      const K key = last->first;
-      while (first != last)
-      {
-        first = erase(first);
-        if (last != end())
-        {
-          last = find(key);
-        }
+        last = find(key);
         if (last == end())
         {
-          break;
+          return end();
         }
       }
-      return last;
+      else
+      {
+        first = erase(first);
+      }
     }
+    return last;
   }
 
   template< class K, class V, class C >
@@ -740,8 +763,8 @@ namespace aleksandrov
   template< class K, class V, class C >
   auto Tree< K, V, C >::find(const K& key) -> Iter
   {
-    const auto pair = findIterative(root_, key);
-    return Iter(pair.first, pair.second);
+    auto constIt = static_cast< const Tree& >(*this).find(key);
+    return Iter(constIt.node_, constIt.dir_);
   }
 
   template< class K, class V, class C >
@@ -766,33 +789,27 @@ namespace aleksandrov
   template< class K, class V, class C >
   auto Tree< K, V, C >::lowerBound(const K& key) -> Iter
   {
-    Iter it = begin();
-    for (; it != end() && comp_(it->first, key); ++it);
-    return it;
+    ConstIter constIt = static_cast< const Tree& >(*this).lowerBound(key);
+    return Iter(constIt.node_, constIt.dir_);
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::lowerBound(const K& key) const -> ConstIter
   {
-    ConstIter it = cbegin();
-    for (; it != cend() && comp_(it->first, key); ++it);
-    return it;
+    return findBound< true >(key);
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::upperBound(const K& key) -> Iter
   {
-    Iter it = begin();
-    for (; it != end() && !comp_(key, it->first); ++it);
-    return it;
+    auto constIt = static_cast< const Tree& >(*this).upperBound(key);
+    return Iter(constIt.node_, constIt.dir_);
   }
 
   template< class K, class V, class C >
   auto Tree< K, V, C >::upperBound(const K& key) const -> ConstIter
   {
-    ConstIter it = cbegin();
-    for (; it != cend() && !comp_(key, it->first); ++it);
-    return it;
+    return findBound< false >(key);
   }
 
   template< class K, class V, class C >
@@ -840,7 +857,6 @@ namespace aleksandrov
       newNode->middle = copyRecursive(root->middle, newNode);
     }
     newNode->right = copyRecursive(root->right, newNode);
-
     return newNode;
   }
 
@@ -851,14 +867,12 @@ namespace aleksandrov
     {
       return;
     }
-
     clearRecursive(root->left);
     if (root->isTriple())
     {
       clearRecursive(root->middle);
     }
     clearRecursive(root->right);
-
     delete root;
   }
 
@@ -867,29 +881,79 @@ namespace aleksandrov
   {
     while (node)
     {
-      const K& k0 = node->data[0].first;
-      if (!comp_(key, k0) && !comp_(k0, key))
+      if (keyEqual(key, node->data[0].first))
       {
         return { node, PointsTo::Left };
       }
-      if (comp_(key, k0))
+      else if (comp_(key, node->data[0].first))
       {
         node = node->left;
-        continue;
       }
-      if (node->isDouble())
+      else if (node->isTriple())
+      {
+        if (keyEqual(key, node->data[1].first))
+        {
+          return { node, PointsTo::Right };
+        }
+        else if (comp_(key, node->data[1].first))
+        {
+          node = node->middle;
+        }
+        else
+        {
+          node = node->right;
+        }
+      }
+      else
       {
         node = node->right;
-        continue;
       }
-      const K& k1 = node->data[1].first;
-      if (!comp_(key, k1) && !comp_(k1, key))
-      {
-        return { node, PointsTo::Right };
-      }
-      node = comp_(key, k1) ? node->middle : node->right;
     }
     return { nullptr, PointsTo::None };
+  }
+
+  template< class K, class V, class C >
+  template< bool isLower >
+  auto Tree< K, V, C >::findBound(const K& key) const -> ConstIter
+  {
+    Node* node = root_;
+    PointsTo dir = PointsTo::None;
+    Node* lastValidNode = nullptr;
+    while (node)
+    {
+      if (isLower && keyEqual(node->data[0].first, key))
+      {
+        return ConstIter(node, PointsTo::Left);
+      }
+      if (comp_(key, node->data[0].first))
+      {
+        lastValidNode = node;
+        dir = PointsTo::Left;
+        node = node->left;
+      }
+      else if (node->isTriple())
+      {
+        if (isLower && keyEqual(key, node->data[1].first))
+        {
+          return ConstIter(node, PointsTo::Right);
+        }
+        if (comp_(key, node->data[1].first))
+        {
+          lastValidNode = node;
+          dir = PointsTo::Right;
+          node = node->middle;
+        }
+        else
+        {
+          node = node->right;
+        }
+      }
+      else
+      {
+        node = node->right;
+      }
+    }
+    return lastValidNode ? ConstIter(lastValidNode, dir) : cend();
   }
 
   template< class K, class V, class C >
@@ -904,7 +968,14 @@ namespace aleksandrov
       }
       else if (node->isTriple())
       {
-        node = comp_(node->data[1].first, key) ? node->right : node->middle;
+        if (comp_(node->data[1].first, key))
+        {
+          node = node->right;
+        }
+        else
+        {
+          node = node->middle;
+        }
       }
       else
       {
@@ -953,23 +1024,35 @@ namespace aleksandrov
       delete node;
       return;
     }
+
     Node* currLeft = nullptr;
     Node* currRight = nullptr;
     try
     {
-      const ValueType min = comp_(median.first, parent->data[0].first) ? median : parent->data[0];
+      ValueType min = median;
+      if (!comp_(median.first, parent->data[0].first))
+      {
+        min = parent->data[0];
+      }
       currLeft = new Node(min);
-      const ValueType max = comp_(parent->data[1].first, median.first) ? median : parent->data[1];
+
+      ValueType max = median;
+      if (!comp_(parent->data[1].first, median.first))
+      {
+        max = parent->data[1];
+      }
       currRight = new Node(max);
+
       ValueType newMedian = median;
-      if (median.first == min.first)
+      if (keyEqual(median.first, min.first))
       {
         newMedian = parent->data[0];
       }
-      else if (median.first == max.first)
+      else if (keyEqual(median.first, max.first))
       {
         newMedian = parent->data[1];
       }
+
       if (node->parent->left == node)
       {
         currLeft->left = left;
@@ -1015,19 +1098,11 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  auto Tree< K, V, C >::fixAfterErase(Node* leaf) -> Node*
+  void Tree< K, V, C >::fixAfterErase(Node* leaf)
   {
-    if (!leaf->parent && (leaf->isDouble() || leaf->isEmpty()))
+    if (!leaf->isEmpty() || (!leaf->parent && (leaf->isDouble() || leaf->isEmpty())))
     {
-      return nullptr;
-    }
-    if (!leaf->isEmpty())
-    {
-      if (leaf->parent)
-      {
-        fixAfterErase(leaf->parent);
-      }
-      return leaf;
+      return;
     }
     Node* parent = leaf->parent;
     if (parent->isTriple() || parent->left->isTriple() || parent->right->isTriple())
@@ -1042,7 +1117,7 @@ namespace aleksandrov
     {
       leaf = mergeData(leaf);
     }
-    return fixAfterErase(leaf);
+    fixAfterErase(leaf);
   }
 
   template< class K, class V, class C >
@@ -1058,7 +1133,6 @@ namespace aleksandrov
       if (left == leaf)
       {
         parent->left = parent->middle;
-        parent->middle = nullptr;
         insertIntoNode(parent->left, parent->data[0]);
         left->middle = left->left;
         left->left = leaf->right;
@@ -1101,7 +1175,6 @@ namespace aleksandrov
         insertIntoNode(middle, parent->data[1]);
         parent->right = parent->middle;
         parent->right->middle = parent->right->right;
-        parent->middle = nullptr;
         removeFromNode(parent, parent->data[1]);
         if (leaf->left)
         {
@@ -1125,7 +1198,6 @@ namespace aleksandrov
         if (leaf->left)
         {
           leaf->middle = leaf->left;
-          leaf->left = nullptr;
         }
         insertIntoNode(leaf, parent->data[1]);
         if (middle->isTriple())
@@ -1133,7 +1205,6 @@ namespace aleksandrov
           parent->data[1] = middle->data[1];
           removeFromNode(middle, middle->data[1]);
           leaf->left = middle->right;
-          middle->right = nullptr;
           if (leaf->left)
           {
             leaf->left->parent = leaf;
@@ -1152,10 +1223,6 @@ namespace aleksandrov
           parent->data[0] = left->data[1];
           removeFromNode(left, left->data[1]);
           middle->left = left->right;
-          if (middle->left)
-          {
-            left->right = nullptr;
-          }
         }
       }
       else if (middle == leaf)
@@ -1175,7 +1242,6 @@ namespace aleksandrov
             middle->right->parent = middle;
           }
           right->left = right->middle;
-          right->middle = nullptr;
         }
         else if (left->isTriple())
         {
@@ -1192,7 +1258,6 @@ namespace aleksandrov
             middle->left->parent = middle;
           }
           left->right = left->middle;
-          left->middle = nullptr;
         }
       }
       else if (left == leaf)
@@ -1200,7 +1265,6 @@ namespace aleksandrov
         if (!leaf->left)
         {
           leaf->left = leaf->middle;
-          leaf->middle = nullptr;
         }
         insertIntoNode(left, parent->data[0]);
         if (middle->isTriple())
@@ -1214,7 +1278,6 @@ namespace aleksandrov
           }
           middle->left = middle->middle;
           middle->middle = middle->right;
-          middle->right = nullptr;
         }
         else if (right->isTriple())
         {
@@ -1235,7 +1298,6 @@ namespace aleksandrov
           }
           right->left = right->middle;
           right->middle = right->right;
-          right->right = nullptr;
         }
       }
     }
@@ -1252,7 +1314,6 @@ namespace aleksandrov
         }
         leaf->right = right->left;
         right->left = right->middle;
-        right->middle = nullptr;
         if (leaf->right)
         {
           leaf->right->parent = leaf;
@@ -1268,7 +1329,6 @@ namespace aleksandrov
         }
         leaf->left = left->right;
         left->right = left->middle;
-        left->middle = nullptr;
         if (leaf->left)
         {
           leaf->left->parent = leaf;
@@ -1360,12 +1420,18 @@ namespace aleksandrov
     }
     else if (node->isTriple())
     {
-      if (!comp_(node->data[0].first, value.first) && !comp_(value.first, node->data[0].first))
+      if (keyEqual(node->data[0].first, value.first))
       {
         std::swap(node->data[0], node->data[1]);
       }
       node->type = NodeType::Double;
     }
+  }
+
+  template< class K, class V, class C >
+  bool Tree< K, V, C >::keyEqual(const K& key1, const K& key2) const
+  {
+    return !comp_(key1, key2) && !comp_(key2, key1);
   }
 }
 

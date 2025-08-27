@@ -2,7 +2,8 @@
 #define BFS_ITERATOR_HPP
 
 #include "heavy-iterator.hpp"
-#include "../../S5/deque.hpp"
+#include "../queue.hpp"
+#include "../../S5/vector.hpp"
 
 namespace aleksandrov
 {
@@ -27,9 +28,10 @@ namespace aleksandrov
     using Node = detail::Node< K, V >;
     using Base = HeavyIterator< K, V, C, isConst, isReversive >;
 
-    Deque< Node* > deque_;
+    Vector< std::pair< Node*, PointsTo > > vector_;
+    size_t index_;
 
-    explicit BfsIterator(Node*);
+    explicit BfsIterator(Node*, bool isEnd = false);
 
     BfsIterator& shiftForward();
     BfsIterator& shiftBackward();
@@ -37,54 +39,58 @@ namespace aleksandrov
 
   template< class K, class V, class C, bool isConst, bool isReversive >
   BfsIterator< K, V, C, isConst, isReversive >::BfsIterator():
-    Base()
+    Base(),
+    index_(0)
   {}
 
   template< class K, class V, class C, bool isConst, bool isReversive >
-  BfsIterator< K, V, C, isConst, isReversive >::BfsIterator(Node* node):
-    Base(node)
+  BfsIterator< K, V, C, isConst, isReversive >::BfsIterator(Node* node, bool isEnd)
   {
-    if (node && isReversive)
+    if (!node)
     {
-      Deque< Node* > deque;
-      deque.pushBack(node);
-      while (!deque.empty())
+      this->node_ = nullptr;
+      this->dir_ = PointsTo::None;
+      index_ = 0;
+      return;
+    }
+    Queue< Node* > queue;
+    queue.push(node);
+    while (!queue.empty())
+    {
+      Node* curr = queue.front();
+      queue.pop();
+      vector_.pushBack({ curr, PointsTo::Left });
+      if (curr->isTriple())
       {
-        Node* curr = deque.front();
-        deque.popFront();
-        deque_.pushBack(curr);
-        if (!curr->isLeaf())
+        vector_.pushBack({ curr, PointsTo::Right });
+      }
+      if (!curr->isLeaf())
+      {
+        queue.push(curr->left);
+        if (curr->isTriple())
         {
-          deque.pushBack(curr->left);
-          if (curr->isTriple())
-          {
-            deque.pushBack(curr->middle);
-          }
-          deque.pushBack(curr->right);
+          queue.push(curr->middle);
         }
+        queue.push(curr->right);
       }
     }
-    if (!deque_.empty())
+    if (isReversive)
     {
-      if (isReversive)
-      {
-        this->node_ = deque_.back();
-        deque_.popBack();
-        if (this->node_->isTriple())
-        {
-          this->dir_ = PointsTo::Right;
-        }
-        else
-        {
-          this->dir_ = PointsTo::Left;
-        }
-      }
-      else
-      {
-        this->node_ = deque_.front();
-        deque_.popFront();
-        this->dir_ = PointsTo::Left;
-      }
+      index_ = isEnd ? vector_.size() : vector_.size() - 1;
+    }
+    else
+    {
+      index_ = isEnd ? vector_.size() : 0;
+    }
+    if (index_ < vector_.size())
+    {
+      this->node_ = vector_[index_].first;
+      this->dir_ = vector_[index_].second;
+    }
+    else
+    {
+      this->node_ = nullptr;
+      this->dir_ = PointsTo::None;
     }
   }
 
@@ -129,25 +135,11 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto BfsIterator< K, V, C, isConst, isReversive >::shiftForward() -> BfsIterator&
   {
-    if (this->node_->isTriple() && this->dir_ == PointsTo::Left)
+    if (index_ < vector_.size() - 1)
     {
-      this->dir_ = PointsTo::Right;
-      return *this;
-    }
-    if (!this->node_->isLeaf())
-    {
-      deque_.pushBack(this->node_->left);
-      if (this->node_->isTriple())
-      {
-        deque_.pushBack(this->node_->middle);
-      }
-      deque_.pushBack(this->node_->right);
-    }
-    if (!deque_.empty())
-    {
-      this->node_ = deque_.front();
-      deque_.popFront();
-      this->dir_ = PointsTo::Left;
+      ++index_;
+      this->node_ = vector_[index_].first;
+      this->dir_ = vector_[index_].second;
     }
     else
     {
@@ -160,23 +152,11 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto BfsIterator< K, V, C, isConst, isReversive >::shiftBackward() -> BfsIterator&
   {
-    if (this->node_->isTriple() && this->dir_ == PointsTo::Right)
+    if (index_ > 0)
     {
-      this->dir_ = PointsTo::Left;
-      return *this;
-    }
-    if (!deque_.empty())
-    {
-      this->node_ = deque_.back();
-      deque_.popBack();
-      if (this->node_->isTriple())
-      {
-        this->dir_ = PointsTo::Right;
-      }
-      else
-      {
-        this->dir_ = PointsTo::Left;
-      }
+      --index_;
+      this->node_ = vector_[index_].first;
+      this->dir_ = vector_[index_].second;
     }
     else
     {
