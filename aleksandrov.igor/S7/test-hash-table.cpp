@@ -253,6 +253,27 @@ BOOST_AUTO_TEST_CASE(insert)
   BOOST_TEST(n == 3);
 }
 
+BOOST_AUTO_TEST_CASE(insert_hint)
+{
+  HashTable< int, int > ht = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
+
+  auto it1 = ht.insert(ht.cend(), { 7, 8 });
+  BOOST_TEST(ht.size() == 4);
+  BOOST_TEST(it1->first == 7);
+
+  const HashTable< int, int >& constRef = ht;
+  auto it2 = ht.insert(constRef.find(3), { 3, 9 });
+  BOOST_TEST(ht.size() == 4);
+  BOOST_TEST(it2->first == 3);
+
+  ht.maxLoadFactor(0.01f);
+  ht.insert({ 9, 10 });
+  size_t oldCapacity = ht.capacity();
+  ht.insert(ht.cend(), { 11, 12 });
+  BOOST_TEST(ht.capacity() > oldCapacity);
+  BOOST_CHECK(ht.find(11) != ht.end());
+}
+
 BOOST_AUTO_TEST_CASE(insert_range)
 {
   HashTable< int, char > ht = { { 3, 'c' } };
@@ -293,6 +314,27 @@ BOOST_AUTO_TEST_CASE(emplace)
   BOOST_TEST(ht[2] == 'b');
   BOOST_CHECK(pair.first == ht.find(2));
   BOOST_TEST(pair.second == true);
+}
+
+BOOST_AUTO_TEST_CASE(emplace_hint)
+{
+  HashTable< int, int > ht = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
+
+  auto it1 = ht.emplaceHint(ht.cend(), 7, 8);
+  BOOST_TEST(ht.size() == 4);
+  BOOST_TEST(it1->first == 7);
+
+  const HashTable< int, int >& constRef = ht;
+  auto it2 = ht.emplaceHint(constRef.find(3), 3, 9);
+  BOOST_TEST(ht.size() == 4);
+  BOOST_TEST(it2->first == 3);
+
+  ht.maxLoadFactor(0.01f);
+  ht.insert({ 9, 10 });
+  size_t oldCapacity = ht.capacity();
+  ht.emplaceHint(ht.cend(), 11, 12);
+  BOOST_TEST(ht.capacity() > oldCapacity);
+  BOOST_CHECK(ht.find(11) != ht.end());
 }
 
 BOOST_AUTO_TEST_CASE(erase)

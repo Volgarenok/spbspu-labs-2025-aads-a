@@ -100,6 +100,9 @@ namespace aleksandrov
 
     size_t getHomeIndex(const K&) const noexcept;
     size_t getNextIndex(size_t) const noexcept;
+    size_t getNextCapacity(size_t) const noexcept;
+    bool isPrime(size_t) const noexcept;
+
     Slot* copyData(const HashTable&);
     Iter insertHintSlot(ConstIter hint, Slot);
     void rehashToCapacity(size_t);
@@ -548,6 +551,46 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
+  size_t HashTable< K, V, H, E >::getNextCapacity(size_t capacity) const noexcept
+  {
+    size_t newCapacity = capacity ? capacity * 2 : minCapacity;
+    if (newCapacity % 2 == 0)
+    {
+      ++newCapacity;
+    }
+    while (!isPrime(newCapacity))
+    {
+      newCapacity += 2;
+    }
+    return newCapacity;
+  }
+
+  template< class K, class V, class H, class E >
+  bool HashTable< K, V, H, E >::isPrime(size_t n) const noexcept
+  {
+    if (n <= 1)
+    {
+      return false;
+    }
+    if (n <= 3)
+    {
+      return true;
+    }
+    if (n % 2 == 0 || n % 3 == 0)
+    {
+      return false;
+    }
+    for (size_t d = 5; d * d <= n; d = d + 6)
+    {
+      if (n % d == 0 || n % (d + 2) == 0)
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::copyData(const HashTable& hashtable) -> Slot*
   {
     Slot* copy = new Slot[hashtable.capacity_];
@@ -612,7 +655,7 @@ namespace aleksandrov
     {
       if (data_[i].occupied)
       {
-        temp.insertHintSlot(cend(), std::move_if_noexcept(data_[i].data));
+        temp.insertHintSlot(temp.cend(), std::move_if_noexcept(data_[i].data));
       }
     }
     swap(temp);
@@ -621,7 +664,7 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   void HashTable< K, V, H, E >::rehash()
   {
-    size_t newCapacity = capacity_ ? capacity_ * 2 : minCapacity;
+    size_t newCapacity = getNextCapacity(capacity_);
     rehashToCapacity(newCapacity);
   }
 }
