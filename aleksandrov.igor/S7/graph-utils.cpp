@@ -18,18 +18,12 @@ void aleksandrov::readGraphs(std::istream& in, Graphs& graphs)
       size_t weight = 0;
       if (!(in >> from >> to >> weight))
       {
+        in.clear();
         break;
       }
       graph.bind(from, to, weight);
     }
-    if (in.fail())
-    {
-      in.clear();
-    }
-    else
-    {
-      graphs.insert({ graphName, graph });
-    }
+    graphs.insert({ graphName, graph });
   }
 }
 

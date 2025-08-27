@@ -28,11 +28,11 @@ namespace aleksandrov
     using ValueType = std::pair< K, V >;
 
     HashTable();
+    HashTable(const HashTable&);
+    HashTable(HashTable&&);
     template< class InputIt >
     HashTable(InputIt, InputIt);
     HashTable(std::initializer_list< ValueType >);
-    HashTable(const HashTable&);
-    HashTable(HashTable&&);
     ~HashTable() noexcept;
 
     HashTable& operator=(const HashTable&);
@@ -101,7 +101,7 @@ namespace aleksandrov
     size_t getHomeIndex(const K&) const noexcept;
     size_t getNextIndex(size_t) const noexcept;
     Slot* copyData(const HashTable&);
-    Iter emplaceInternal(Slot);
+    Iter insertHintSlot(ConstIter hint, Slot);
     void rehashToCapacity(size_t);
     void rehash();
   };
@@ -112,8 +112,8 @@ namespace aleksandrov
     size_(0),
     capacity_(0),
     maxLoadFactor_(maxLoadFactorValue),
-    hasher_{},
-    keyEqual_{}
+    hasher_(H{}),
+    keyEqual_(E{})
   {}
 
   template< class K, class V, class H, class E >
@@ -121,10 +121,7 @@ namespace aleksandrov
   HashTable< K, V, H, E >::HashTable(InputIt first, InputIt last):
     HashTable()
   {
-    for (auto it = first; it != last; ++it)
-    {
-      emplace(*it);
-    }
+    insert(first, last);
   }
 
   template< class K, class V, class H, class E >
@@ -155,24 +152,24 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::operator=(const HashTable& rhs) -> HashTable&
   {
-    HashTable temp(rhs);
-    swap(temp);
+    HashTable copy(rhs);
+    swap(copy);
     return *this;
   }
 
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::operator=(HashTable&& rhs) -> HashTable&
   {
-    HashTable temp(std::move(rhs));
-    swap(temp);
+    HashTable copy(std::move(rhs));
+    swap(copy);
     return *this;
   }
 
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::operator=(std::initializer_list< ValueType > ilist) -> HashTable&
   {
-    HashTable temp(ilist);
-    swap(temp);
+    HashTable copy(ilist);
+    swap(copy);
     return *this;
   }
 
@@ -267,8 +264,7 @@ namespace aleksandrov
     {
       return { it, false };
     }
-    Iter emplaced = emplaceInternal(std::move(newSlot));
-    return { emplaced, true };
+    return { insertHintSlot(cend(), std::move(newSlot)), true };
   }
 
   template< class K, class V, class H, class E >
@@ -285,7 +281,7 @@ namespace aleksandrov
     {
       return it;
     }
-    return emplaceInternal(std::move(newSlot));
+    return insertHintSlot(hint, std::move(newSlot));
   }
 
   template< class K, class V, class H, class E >
@@ -378,7 +374,12 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   V& HashTable< K, V, H, E >::operator[](const K& key)
   {
-    return const_cast< V& >(static_cast< const HashTable& >(*this).operator[](key));
+    Iter it = find(key);
+    if (it != end())
+    {
+      return it->second;
+    }
+    return insert({ key, V{} }).first->second;
   }
 
   template< class K, class V, class H, class E >
@@ -416,7 +417,7 @@ namespace aleksandrov
     {
       return cend();
     }
-    size_t i = hasher_(key) % capacity_;
+    size_t i = getHomeIndex(key);
     size_t psl = 0;
     size_t curr = i;
     while (data_[curr].occupied && data_[curr].psl >= psl)
@@ -569,9 +570,19 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
-  auto HashTable< K, V, H, E >::emplaceInternal(Slot newSlot) -> Iter
+  auto HashTable< K, V, H, E >::insertHintSlot(ConstIter hint, Slot newSlot) -> Iter
   {
     size_t i = getHomeIndex(newSlot.data.first);
+    if (hint != cend() && !data_[hint.index_].occupied)
+    {
+      size_t j = hint.index_;
+      size_t psl = j >= i ? j - i : capacity_ - i + j;
+      if (psl < newSlot.psl)
+      {
+        newSlot.psl = psl;
+        i = j;
+      }
+    }
     while (data_[i].occupied)
     {
       if (newSlot.psl > data_[i].psl)
@@ -594,15 +605,14 @@ namespace aleksandrov
       return;
     }
     HashTable temp;
-    temp.capacity_ = newCapacity;
     temp.data_ = new Slot[newCapacity];
-    temp.size_ = 0;
+    temp.capacity_ = newCapacity;
     temp.maxLoadFactor_ = maxLoadFactor_;
     for (size_t i = 0; i < capacity_; ++i)
     {
       if (data_[i].occupied)
       {
-        temp.emplaceInternal(std::move(data_[i].data));
+        temp.insertHintSlot(cend(), std::move_if_noexcept(data_[i].data));
       }
     }
     swap(temp);

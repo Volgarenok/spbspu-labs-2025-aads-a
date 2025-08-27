@@ -4,26 +4,69 @@
 
 using aleksandrov::HashTable;
 
+namespace
+{
+  struct SimpleKeyEqual
+  {
+    bool operator()(int lhs, int rhs) const
+    {
+      return lhs % 2 == rhs % 2;
+    }
+  };
+
+  struct SimpleHasher
+  {
+    size_t operator()(int key) const
+    {
+      return key + 1;
+    }
+  };
+}
+
 BOOST_AUTO_TEST_SUITE(hash_table_construction)
 
 BOOST_AUTO_TEST_CASE(default_construction)
 {
   using aleksandrov::maxLoadFactorValue;
 
-  HashTable< int, int > ht;
+  HashTable< int, int, SimpleHasher, SimpleKeyEqual > ht;
   BOOST_TEST(ht.empty());
   BOOST_TEST(ht.size() == 0);
   BOOST_TEST(ht.loadFactor() == 0);
   BOOST_TEST(ht.maxLoadFactor() == maxLoadFactorValue);
 }
 
+BOOST_AUTO_TEST_CASE(copy_construction)
+{
+  HashTable< int, int > ht1 = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+
+  HashTable< int, int > ht2(ht1);
+  BOOST_TEST(std::equal(ht1.begin(), ht1.end(), ht2.begin()));
+}
+
+BOOST_AUTO_TEST_CASE(move_construction)
+{
+  HashTable< int, int > ht1 = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+  HashTable< int, int > copy(ht1);
+
+  HashTable< int, int > ht2(std::move(ht1));
+  BOOST_TEST(std::equal(ht2.begin(), ht2.end(), copy.begin()));
+  BOOST_TEST(ht1.empty());
+}
+
 BOOST_AUTO_TEST_CASE(range_construction)
 {
   std::vector< std::pair< int, int > > vector;
-  vector = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+  vector = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
 
-  HashTable< int, int > ht(vector.begin(), vector.end());
-  BOOST_CHECK(std::is_permutation(ht.begin(), ht.end(), vector.begin()));
+  HashTable< int, int > ht1(++vector.begin(), std::next(vector.begin(), 3));
+  BOOST_TEST(ht1.size() == 2);
+  BOOST_TEST(ht1[2] == 2);
+  BOOST_TEST(ht1[3] == 3);
+
+  HashTable< int, int > ht2(vector.begin(), vector.end());
+  BOOST_TEST(ht2.size() == vector.size());
+  BOOST_TEST(std::equal(ht2.begin(), ht2.end(), vector.begin()));
 }
 
 BOOST_AUTO_TEST_CASE(initializer_list_construction)
@@ -32,21 +75,7 @@ BOOST_AUTO_TEST_CASE(initializer_list_construction)
   vector = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
 
   HashTable< int, int > ht({ { 1, 1 }, { 2, 2 }, { 3, 3 } });
-  BOOST_CHECK(std::is_permutation(ht.begin(), ht.end(), vector.begin()));
-}
-
-BOOST_AUTO_TEST_CASE(copy_construction)
-{
-  HashTable< int, int > ht1;
-  HashTable< int, int > ht2(ht1);
-  BOOST_TEST(ht2.empty());
-}
-
-BOOST_AUTO_TEST_CASE(move_construction)
-{
-  HashTable< int, int > ht1;
-  HashTable< int, int > ht2(std::move(ht1));
-  BOOST_TEST(ht2.empty());
+  BOOST_TEST(std::equal(ht.begin(), ht.end(), vector.begin()));
 }
 
 BOOST_AUTO_TEST_SUITE_END();
@@ -55,29 +84,59 @@ BOOST_AUTO_TEST_SUITE(hash_table_assignment)
 
 BOOST_AUTO_TEST_CASE(copy_assignment)
 {
-  HashTable< int, int > ht1;
-  HashTable< int, int > ht2;
+  HashTable< int, int > ht1 = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+  HashTable< int, int > ht2 = { { 4, 4 } };
   ht2 = ht1;
-  BOOST_TEST(ht2.empty());
+  BOOST_TEST(std::equal(ht1.begin(), ht1.end(), ht2.begin()));
 }
 
 BOOST_AUTO_TEST_CASE(move_assignment)
 {
-  HashTable< int, int > ht1;
-  HashTable< int, int > ht2;
+  HashTable< int, int > ht1 = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+  HashTable< int, int > copy(ht1);
+
+  HashTable< int, int > ht2 = { { 4, 4 } };
   ht2 = std::move(ht1);
-  BOOST_TEST(ht2.empty());
+  BOOST_TEST(std::equal(ht2.begin(), ht2.end(), copy.begin()));
+  BOOST_TEST(ht1.empty());
+}
+
+BOOST_AUTO_TEST_CASE(initializer_list_assignment)
+{
+  std::vector< std::pair< int, int > > vector;
+  vector = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+
+  HashTable< int, int > ht1;
+  ht1 = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+  BOOST_TEST(ht1.size() == 3);
+  BOOST_TEST(std::equal(ht1.begin(), ht1.end(), vector.begin()));
 }
 
 BOOST_AUTO_TEST_SUITE_END();
 
 BOOST_AUTO_TEST_SUITE(hash_table_iterators)
 
-BOOST_AUTO_TEST_CASE(begin_end)
+BOOST_AUTO_TEST_CASE(begin)
 {
-  HashTable< int, int > hashtable;
-  BOOST_CHECK(hashtable.begin() == hashtable.end());
-  BOOST_CHECK(hashtable.cbegin() == hashtable.cend());
+  HashTable< int, int > ht;
+  BOOST_CHECK(ht.begin() == ht.end());
+
+  ht.insert({ 1, 1 });
+  BOOST_TEST(ht.begin()->first == 1);
+
+  ht.insert({ 2, 2 });
+  BOOST_TEST(ht.cbegin()->first == 1);
+
+  ht.clear();
+  BOOST_CHECK(ht.cbegin() == ht.cend());
+}
+
+BOOST_AUTO_TEST_CASE(end)
+{
+  HashTable< int, int > ht = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+  auto it = ht.cbegin();
+  std::advance(it, 3);
+  BOOST_CHECK(it == ht.cend());
 }
 
 BOOST_AUTO_TEST_SUITE_END();
@@ -86,27 +145,24 @@ BOOST_AUTO_TEST_SUITE(hash_table_element_access)
 
 BOOST_AUTO_TEST_CASE(square_brackets_operator)
 {
-  HashTable< int, int > ht;
-  ht.insert({ 1, 1 });
-  BOOST_TEST(ht[1] == 1);
+  HashTable< int, int > ht = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
+  BOOST_TEST(ht[1] == 2);
+  BOOST_TEST(ht[5] == 6);
 
-  ht.insert({ 2, 2 });
-  BOOST_TEST(ht[1] == 1);
-  BOOST_TEST(ht[2] == 2);
+  ht.erase(1);
+  BOOST_TEST(ht[5] == 6);
 }
 
 BOOST_AUTO_TEST_CASE(at)
 {
-  HashTable< int, int > ht;
-  ht.insert({ 1, 1 });
-  BOOST_TEST(ht.at(1) == 1);
+  HashTable< int, int > ht = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
+  BOOST_TEST(ht.at(1) == 2);
+  BOOST_TEST(ht.at(5) == 6);
 
-  ht.insert({ 2, 2 });
-  BOOST_TEST(ht.at(1) == 1);
-  BOOST_TEST(ht.at(2) == 2);
-
-  ht.clear();
+  ht.erase(1);
   BOOST_CHECK_THROW(ht.at(1), std::out_of_range);
+  BOOST_TEST(ht.at(3) == 4);
+  BOOST_TEST(ht.at(5) == 6);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
@@ -157,10 +213,14 @@ BOOST_AUTO_TEST_SUITE(hash_table_modifiers)
 BOOST_AUTO_TEST_CASE(clear)
 {
   HashTable< int, int > ht;
-  ht.clear();
 
-  ht = { { 1, 0 }, { 2, 0 }, { 3, 0 } };
   ht.clear();
+  BOOST_TEST(ht.empty());
+
+  ht = { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+  ht.clear();
+  BOOST_TEST(ht.empty());
+
   ht.clear();
   BOOST_TEST(ht.empty());
 }
@@ -406,14 +466,6 @@ BOOST_AUTO_TEST_SUITE(hash_table_observers)
 
 BOOST_AUTO_TEST_CASE(hash_function)
 {
-  struct SimpleHasher
-  {
-    size_t operator()(int key) const
-    {
-      return key + 1;
-    }
-  };
-
   HashTable< int, int > ht1;
   boost::hash< int > defaultHasher;
   BOOST_CHECK(ht1.hashFunction()(10) == defaultHasher(10));
@@ -426,14 +478,6 @@ BOOST_AUTO_TEST_CASE(hash_function)
 
 BOOST_AUTO_TEST_CASE(key_equal)
 {
-  struct SimpleKeyEqual
-  {
-    bool operator()(int lhs, int rhs) const
-    {
-      return lhs % 2 == rhs % 2;
-    }
-  };
-
   HashTable< int, int > ht1;
   BOOST_TEST(ht1.keyEq()(1, 1));
 

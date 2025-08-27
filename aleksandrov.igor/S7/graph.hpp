@@ -2,7 +2,7 @@
 #define GRAPH_HPP
 
 #include <string>
-#include <unordered_map>
+#include "hash-table.hpp"
 #include <map>
 #include <vector>
 
@@ -25,7 +25,7 @@ namespace aleksandrov
       }
     };
 
-    std::unordered_map< VertexPair, Weights, VertexPairHash > edges;
+    HashTable< VertexPair, Weights, VertexPairHash > edges;
     std::map< VertexName, bool > vertices;
 
     void bind(const VertexName& from, const VertexName& to, unsigned int w);

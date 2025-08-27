@@ -37,8 +37,8 @@ namespace aleksandrov
     const Table* table_;
     size_t index_;
 
-    explicit Iterator(const Table*);
-    explicit Iterator(const Table*, size_t);
+    Iterator(const Table*);
+    Iterator(const Table*, size_t);
   };
 
   template< class K, class V, class H, class E, bool isConst >
@@ -69,7 +69,7 @@ namespace aleksandrov
   {
     assert(table_ != nullptr && "ERROR: Cannot iterate from null-table!");
     assert(index_ < table_->capacity_ && "ERROR: Cannot iterate from end() iterator!");
-    ++index_;
+    index_ = table_->getNextIndex(index_);
     while (index_ < table_->capacity_ && !table_->data_[index_].occupied)
     {
       ++index_;
