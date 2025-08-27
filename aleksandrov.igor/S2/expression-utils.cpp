@@ -1,119 +1,54 @@
 #include "expression-utils.hpp"
 #include <iostream>
-#include <sstream>
-#include <limits>
 #include "expression-part.hpp"
+#include "safe-math.hpp"
+#include "stack.hpp"
 
 namespace
 {
   using namespace aleksandrov;
 
-  const long long int max = std::numeric_limits< long long int >::max();
-  const long long int min = std::numeric_limits< long long int >::min();
-
-  bool isLessImportant(const ExpressionPart& a, const ExpressionPart& b)
+  bool isComplexOperation(OperationType op)
   {
     using Op = OperationType;
-    Op first = a.getOperation();
-    Op second = b.getOperation();
-
-    if (first == Op::Addition || first == Op::Subtraction)
-    {
-      return second == Op::Multiplication || second == Op::Division || second == Op::Modulo;
-    }
-    return false;
+    return op == Op::Multiplication || op == Op::Division || op == Op::Modulus;
   }
 
-  short int sign(OperandType val)
+  bool hasLowerPrecedence(OperationType a, OperationType b)
   {
-    return (val > 0) ? 1 : ((val < 0) ? -1 : 0);
-  }
-
-  bool sameSign(OperandType a, OperandType b)
-  {
-    return sign(a) * sign(b) > 0;
-  }
-
-  OperandType sum(OperandType a, OperandType b)
-  {
-    if (!(a || b) || a == -b)
-    {
-      return 0;
-    }
-    if (sameSign(a, b) && ((a > 0 && max - a < b) || (a < 0 && min - a > b)))
-    {
-      throw std::overflow_error("Overflow error!");
-    }
-    return a + b;
-  }
-
-  OperandType multiply(OperandType a, OperandType b)
-  {
-    if (!a || !b)
-    {
-      return 0;
-    }
-    bool isSameSignOverflow = (b > 0 && (a > max / b || a < min / b));
-    bool isDiffSignOverflow = (b < 0 && (a < min / b || a > max / b));
-    if (isSameSignOverflow || isDiffSignOverflow)
-    {
-      throw std::overflow_error("Overflow error!");
-    }
-    return a * b;
-  }
-
-  OperandType divide(OperandType a, OperandType b)
-  {
-    if (!b)
-    {
-      throw std::invalid_argument("Division by zero!");
-    }
-    if (a == min && b == -1)
-    {
-      throw std::overflow_error("Overflow error!");
-    }
-    if (std::abs(a) < std::abs(b))
-    {
-      return 0;
-    }
-    return a / b;
-  }
-
-  OperandType modulo(OperandType a, OperandType b)
-  {
-    if (!b)
-    {
-      throw std::invalid_argument("Division by zero!");
-    }
-    return (a % b + std::abs(b)) % std::abs(b);
+    return !isComplexOperation(a) ? isComplexOperation(b) : false;
   }
 }
 
 std::istream& aleksandrov::operator>>(std::istream& in, ExpressionPart& token)
 {
-  std::istream::sentry s(in);
-  if (!s)
+  std::istream::sentry sentry(in);
+  if (!sentry)
   {
     return in;
   }
 
-  OperandType num = 0;
+  if (!(in >> std::ws))
+  {
+    return in;
+  }
   if (std::isdigit(in.peek()))
   {
-    in >> num;
-    token = ExpressionPart(num);
-    return in;
+    OperandType num;
+    if (in >> num)
+    {
+      token = ExpressionPart(num);
+    }
   }
-
-  in.clear();
-  char c = '\0';
-  if (in >> c)
+  else
   {
+    char c = '\0';
+    in >> c;
     try
     {
       token = ExpressionPart(c);
     }
-    catch (const std::logic_error&)
+    catch (...)
     {
       in.setstate(std::ios::failbit);
     }
@@ -121,26 +56,27 @@ std::istream& aleksandrov::operator>>(std::istream& in, ExpressionPart& token)
   return in;
 }
 
-void aleksandrov::getExpression(std::istream& in, Expression& expr)
+void aleksandrov::getExpressions(Expressions& exprs, std::istream& in)
 {
-  ExpressionPart token('+');
-  while (in >> token)
+  while ((in >> std::ws) && in.peek() != EOF)
   {
-    expr.push(token);
-  }
-}
-
-void aleksandrov::getExpressions(std::istream& in, Expressions& exprs)
-{
-  std::string line;
-  while (std::getline(in, line))
-  {
-    if (!line.empty())
+    Expression expr;
+    while (in.peek() != '\n' && in.peek() != EOF)
     {
-      std::istringstream iss(line);
-      Expression expr;
-      getExpression(iss, expr);
+      ExpressionPart token('+');
+      if (!(in >> token))
+      {
+        throw std::logic_error("Incorrect expression part!");
+      }
+      expr.push(token);
+    }
+    if (!expr.empty())
+    {
       exprs.push(expr);
+    }
+    if (in.peek() == '\n')
+    {
+      in.get();
     }
   }
 }
@@ -178,7 +114,8 @@ aleksandrov::Expression aleksandrov::getPostfixForm(Expression& expr)
     }
     else if (token.isOperation())
     {
-      while (!stack.empty() && stack.top().isOperation() && !isLessImportant(stack.top(), token))
+      while (!stack.empty() && stack.top().isOperation()
+          && !hasLowerPrecedence(stack.top().getOperation(), token.getOperation()))
       {
         postfix.push(stack.top());
         stack.pop();
@@ -190,7 +127,6 @@ aleksandrov::Expression aleksandrov::getPostfixForm(Expression& expr)
       throw std::logic_error("Incorrect expression!");
     }
   }
-
   while (!stack.empty())
   {
     if (stack.top().isOpeningBracket() || stack.top().isClosingBracket())
@@ -203,60 +139,28 @@ aleksandrov::Expression aleksandrov::getPostfixForm(Expression& expr)
   return postfix;
 }
 
-Expressions aleksandrov::getPostfixForms(Expressions& src)
+auto aleksandrov::performOperation(OperationType op, OperandType a, OperandType b) -> OperandType
 {
-  Expressions postfixes;
-  while (!src.empty())
+  switch (op)
   {
-    Expression expr(src.front());
-    src.pop();
-    Expression postfix(getPostfixForm(expr));
-    postfixes.push(postfix);
+  case OperationType::Addition:
+    return safeSum(a, b);
+  case OperationType::Subtraction:
+    return safeSub(a, b);
+  case OperationType::Multiplication:
+    return safeMul(a, b);
+  case OperationType::Division:
+    return safeDiv(a, b);
+  case OperationType::Modulus:
+    return safeMod(a, b);
   }
-  return postfixes;
-}
-
-aleksandrov::OperandType aleksandrov::performOperation(OperationType op, OperandType a, OperandType b)
-{
-  using Op = OperationType;
-  if (op == Op::Addition)
-  {
-    return sum(a, b);
-  }
-  else if (op == Op::Subtraction)
-  {
-    return sum(a, -b);
-  }
-  else if (op == Op::Multiplication)
-  {
-    return multiply(a, b);
-  }
-  else if (op == Op::Division)
-  {
-    return divide(a, b);
-  }
-  else if (op == Op::Modulo)
-  {
-    return modulo(a, b);
-  }
-  else
-  {
-    throw std::logic_error("Unsupported operation!");
-  }
+  assert(false && "Unsupported operation type!");
+  return 0;
 }
 
 aleksandrov::OperandType aleksandrov::evalPostfixExpression(Expression& expr)
 {
   Stack< OperandType > stack;
-  if (expr.size() == 1)
-  {
-    ExpressionPart token(expr.front());
-    expr.pop();
-    if (token.isOperand())
-    {
-      return token.getOperand();
-    }
-  }
   while (!expr.empty())
   {
     ExpressionPart token(expr.front());
@@ -275,9 +179,8 @@ aleksandrov::OperandType aleksandrov::evalPostfixExpression(Expression& expr)
       stack.pop();
       OperandType first = stack.top();
       stack.pop();
-
-      OperationType op = token.getOperation();
-      OperandType result = performOperation(op, first, second);
+      OperationType operation = token.getOperation();
+      OperandType result = performOperation(operation, first, second);
       stack.push(result);
     }
   };
@@ -286,18 +189,5 @@ aleksandrov::OperandType aleksandrov::evalPostfixExpression(Expression& expr)
     throw std::logic_error("Incorrect expression!");
   }
   return stack.top();
-}
-
-Stack< OperandType > aleksandrov::evalPostfixExpressions(Expressions& src)
-{
-  Stack< OperandType > results;
-  while (!src.empty())
-  {
-    Expression postfix(src.front());
-    src.pop();
-    OperandType result = evalPostfixExpression(postfix);
-    results.push(result);
-  }
-  return results;
 }
 

@@ -24,7 +24,7 @@ enum class aleksandrov::OperationType
   Subtraction,
   Multiplication,
   Division,
-  Modulo
+  Modulus
 };
 
 enum class aleksandrov::TokenType

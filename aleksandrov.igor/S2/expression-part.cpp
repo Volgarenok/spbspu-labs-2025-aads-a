@@ -5,9 +5,11 @@
 
 namespace
 {
-  using namespace aleksandrov;
+  using aleksandrov::BracketType;
+  using aleksandrov::OperationType;
+  using aleksandrov::TokenType;
 
-  TokenType getType(char c)
+  TokenType getExpressionPartType(char c)
   {
     if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
     {
@@ -17,48 +19,40 @@ namespace
     {
       return TokenType::Bracket;
     }
-    throw std::logic_error("Unsupported expression part character!");
+    throw std::logic_error("Incorrect expression part!");
   }
 
-  OperationType getOperationType(char c)
+  OperationType getOperationType(char c) noexcept
   {
-    if (c == '+')
+    switch (c)
     {
+    case '+':
       return OperationType::Addition;
-    }
-    else if (c == '-')
-    {
+    case '-':
       return OperationType::Subtraction;
-    }
-    else if (c == '*')
-    {
+    case '*':
       return OperationType::Multiplication;
-    }
-    else if (c == '/')
-    {
+    case '/':
       return OperationType::Division;
-    }
-    else
-    {
-      return OperationType::Modulo;
+    default:
+      return OperationType::Modulus;
     }
   }
 
-  BracketType getBracketType(char c)
+  BracketType getBracketType(char c) noexcept
   {
-    if (c == '(')
+    switch (c)
     {
+    case '(':
       return BracketType::Opening;
-    }
-    else
-    {
+    default:
       return BracketType::Closing;
     }
   }
 }
 
 aleksandrov::ExpressionPart::ExpressionPart(char c):
-  type_(::getType(c))
+  type_(::getExpressionPartType(c))
 {
   if (type_ == TokenType::Operation)
   {
