@@ -5,7 +5,7 @@
 
 namespace aleksandrov
 {
-  using Graphs = std::map< std::string, Graph >;
+  using Graphs = Tree< std::string, Graph >;
 
   void graphs(const Graphs&, std::ostream&);
   void vertexes(const Graphs&, std::istream&, std::ostream&);

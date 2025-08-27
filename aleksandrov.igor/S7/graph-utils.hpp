@@ -7,7 +7,7 @@
 
 namespace aleksandrov
 {
-  using Graphs = std::map< std::string, Graph >;
+  using Graphs = Tree< std::string, Graph >;
 
   void readGraphs(std::istream&, Graphs&);
   void processCommands(std::istream&, std::ostream&, Graphs&);

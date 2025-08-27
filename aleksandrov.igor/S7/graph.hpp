@@ -3,7 +3,7 @@
 
 #include <string>
 #include "hash-table.hpp"
-#include <map>
+#include <tree/tree.hpp>
 #include <vector>
 
 namespace aleksandrov
@@ -26,12 +26,12 @@ namespace aleksandrov
     };
 
     HashTable< VertexPair, Weights, VertexPairHash > edges;
-    std::map< VertexName, bool > vertices;
+    Tree< VertexName, bool > vertices;
 
     void bind(const VertexName& from, const VertexName& to, unsigned int w);
     void cut(const VertexName& from, const VertexName& to, unsigned int w);
 
-    using Bounds = std::map< VertexName, std::vector< unsigned int > >;
+    using Bounds = Tree< VertexName, std::vector< unsigned int > >;
     Bounds getOutBounds(const VertexName& from) const;
     Bounds getInBounds(const VertexName& to) const;
   };

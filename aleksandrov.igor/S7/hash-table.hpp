@@ -3,7 +3,7 @@
 
 #include <boost/container_hash/hash.hpp>
 #include "slot.hpp"
-#include "iterator.hpp"
+#include "hash-table-iterator.hpp"
 
 namespace aleksandrov
 {
@@ -23,8 +23,8 @@ namespace aleksandrov
   class HashTable
   {
   public:
-    using Iter = Iterator< K, V, H, E, false >;
-    using ConstIter = Iterator< K, V, H, E, true >;
+    using Iter = HashTableIterator< K, V, H, E, false >;
+    using ConstIter = HashTableIterator< K, V, H, E, true >;
     using ValueType = std::pair< K, V >;
 
     HashTable();
@@ -88,7 +88,7 @@ namespace aleksandrov
 
   private:
     template< class, class, class, class, bool >
-    friend class Iterator;
+    friend class HashTableIterator;
     using Slot = detail::Slot< K, V >;
 
     Slot* data_;

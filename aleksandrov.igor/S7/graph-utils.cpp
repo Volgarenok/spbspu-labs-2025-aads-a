@@ -29,7 +29,7 @@ void aleksandrov::readGraphs(std::istream& in, Graphs& graphs)
 
 void aleksandrov::processCommands(std::istream& in, std::ostream& out, Graphs& src)
 {
-  std::map< std::string, std::function< void() > > commands;
+  Tree< std::string, std::function< void() > > commands;
   commands["graphs"] = std::bind(graphs, std::cref(src), std::ref(out));
   commands["vertexes"] = std::bind(vertexes, std::cref(src), std::ref(in), std::ref(out));
   commands["outbound"] = std::bind(outBound, std::cref(src), std::ref(in), std::ref(out));

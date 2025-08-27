@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <algorithm>
 #include <vector>
-#include "tree.hpp"
+#include <tree/tree.hpp>
 
 using aleksandrov::Tree;
 

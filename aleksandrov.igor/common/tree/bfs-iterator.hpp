@@ -3,7 +3,7 @@
 
 #include "heavy-iterator.hpp"
 #include "../queue.hpp"
-#include "../../S5/vector.hpp"
+#include <vector.hpp>
 
 namespace aleksandrov
 {
