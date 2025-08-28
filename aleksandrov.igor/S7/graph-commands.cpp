@@ -65,9 +65,9 @@ void aleksandrov::outBound(const Graphs& graphs, std::istream& in, std::ostream&
   {
     out << it->first;
     const auto& weights = it->second;
-    for (auto wIt = weights.cbegin(); wIt != weights.cend(); ++wIt)
+    for (size_t i = 0; i < weights.size(); ++i)
     {
-      out << ' ' << *wIt;
+      out << ' ' << weights[i];
     }
     out << '\n';
   }
@@ -101,9 +101,9 @@ void aleksandrov::inBound(const Graphs& graphs, std::istream& in, std::ostream& 
   {
     out << it->first;
     const auto& weights = it->second;
-    for (auto wIt = weights.cbegin(); wIt != weights.cend(); ++wIt)
+    for (size_t i = 0; i < weights.size(); ++i)
     {
-      out << ' ' << *wIt;
+      out << ' ' << weights[i];
     }
     out << '\n';
   }
@@ -210,9 +210,9 @@ void aleksandrov::merge(Graphs& graphs, std::istream& in)
   for (auto it = graph2.edges.cbegin(); it != graph2.edges.cend(); ++it)
   {
     auto& weights = newGraph.edges[it->first];
-    for (auto wIt = it->second.cbegin(); wIt != it->second.cend(); ++wIt)
+    for (size_t i = 0; i < it->second.size(); ++i)
     {
-      weights.push_back(*wIt);
+      weights.pushBack(it->second[i]);
     }
   }
   graphs.insert({ newGraphName, newGraph });

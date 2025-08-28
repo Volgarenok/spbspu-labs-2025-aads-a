@@ -4,7 +4,7 @@
 #include <string>
 #include "hash-table.hpp"
 #include <tree/tree.hpp>
-#include <vector>
+#include <vector.hpp>
 
 namespace aleksandrov
 {
@@ -12,7 +12,7 @@ namespace aleksandrov
   {
     using VertexName = std::string;
     using VertexPair = std::pair< VertexName, VertexName >;
-    using Weights = std::vector< unsigned int >;
+    using Weights = Vector< unsigned int >;
 
     struct VertexPairHash
     {
@@ -31,7 +31,7 @@ namespace aleksandrov
     void bind(const VertexName& from, const VertexName& to, unsigned int w);
     void cut(const VertexName& from, const VertexName& to, unsigned int w);
 
-    using Bounds = Tree< VertexName, std::vector< unsigned int > >;
+    using Bounds = Tree< VertexName, Vector< unsigned int > >;
     Bounds getOutBounds(const VertexName& from) const;
     Bounds getInBounds(const VertexName& to) const;
   };
