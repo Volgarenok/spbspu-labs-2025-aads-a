@@ -1,8 +1,8 @@
 #ifndef ITERATOR_HPP
 #define ITERATOR_HPP
 
-#include <iterator>
 #include <cassert>
+#include <iterator>
 #include "node.hpp"
 
 namespace aleksandrov
@@ -69,7 +69,7 @@ namespace aleksandrov
     PointsTo dir_;
 
     explicit Iterator(Node*);
-    explicit Iterator(Node*, PointsTo);
+    Iterator(Node*, PointsTo);
 
     template< class HeavyIt >
     HeavyIt makeHeavy();
@@ -116,7 +116,7 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto Iterator< K, V, C, isConst, isReversive >::operator++() noexcept -> Iterator&
   {
-    assert(node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(node_ != nullptr && "Cannot iterate from null-node!");
     if (node_->isTriple())
     {
       if (dir_ == PointsTo::Left && node_->isLeaf())
@@ -169,7 +169,7 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto Iterator< K, V, C, isConst, isReversive >::operator++(int) noexcept -> Iterator
   {
-    assert(node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(node_ != nullptr && "Cannot iterate from null-node!");
     auto result(*this);
     ++(*this);
     return result;
@@ -178,7 +178,7 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto Iterator< K, V, C, isConst, isReversive >::operator--() noexcept -> Iterator&
   {
-    assert(node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(node_ != nullptr && "Cannot iterate from null-node!");
     if (node_->isTriple())
     {
       if (dir_ == PointsTo::Right && node_->isLeaf())
@@ -245,7 +245,7 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto Iterator< K, V, C, isConst, isReversive >::operator--(int) noexcept -> Iterator
   {
-    assert(node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(node_ != nullptr && "Cannot iterate from null-node!");
     auto result(*this);
     --(*this);
     return result;
@@ -254,14 +254,14 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto Iterator< K, V, C, isConst, isReversive >::operator*() const noexcept -> Reference
   {
-    assert(dir_ != PointsTo::None && "ERROR: Access to null-node!");
+    assert(dir_ != PointsTo::None && "Cannot access to null-node!");
     return dir_ == PointsTo::Left ? node_->data[0] : node_->data[1];
   }
 
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto Iterator< K, V, C, isConst, isReversive >::operator->() const noexcept -> Pointer
   {
-    assert(dir_ != PointsTo::None && "ERROR: Access to null-node!");
+    assert(dir_ != PointsTo::None && "Cannot access to null-node!");
     return std::addressof(dir_ == PointsTo::Left ? node_->data[0] : node_->data[1]);
   }
 
@@ -309,7 +309,7 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto Iterator< K, V, C, isConst, isReversive >::fallLeft() noexcept -> Iterator
   {
-    assert(node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(node_ != nullptr && "Cannot iterate from null-node!");
     while (node_->left)
     {
       node_ = node_->left;
@@ -320,7 +320,7 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto Iterator< K, V, C, isConst, isReversive >::fallRight() noexcept -> Iterator
   {
-    assert(node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(node_ != nullptr && "Cannot iterate from null-node!");
     while (node_->right)
     {
       node_ = node_->right;

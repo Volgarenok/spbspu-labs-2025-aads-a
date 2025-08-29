@@ -21,12 +21,12 @@ namespace aleksandrov
     using ConstIter = VectorIterator< T, true >;
 
     Vector();
+    Vector(const Vector&);
+    Vector(Vector&&);
     Vector(size_t, const T&);
     template< class InputIt >
     Vector(InputIt, InputIt);
     Vector(std::initializer_list< T >);
-    Vector(const Vector&);
-    Vector(Vector&&);
     ~Vector() noexcept;
 
     Vector& operator=(const Vector&);
@@ -58,16 +58,16 @@ namespace aleksandrov
     size_t size() const noexcept;
     size_t capacity() const noexcept;
 
-    void clear();
+    void clear() noexcept;
     void pushBack(const T&);
     void pushBack(T&&);
     template< class... Args >
     void emplaceBack(Args&&...);
-    void popBack();
+    void popBack() noexcept;
     void swap(Vector&) noexcept;
 
-    bool operator==(const Vector&);
-    bool operator!=(const Vector&);
+    bool operator==(const Vector&) const;
+    bool operator!=(const Vector&) const;
 
   private:
     T* data_;
@@ -83,6 +83,20 @@ namespace aleksandrov
     data_(nullptr),
     size_(0),
     capacity_(0)
+  {}
+
+  template< class T >
+  Vector< T >::Vector(const Vector& rhs):
+    data_(copyData(rhs)),
+    size_(rhs.size_),
+    capacity_(rhs.capacity_)
+  {}
+
+  template< class T >
+  Vector< T >::Vector(Vector&& rhs):
+    data_(std::exchange(rhs.data_, nullptr)),
+    size_(std::exchange(rhs.size_, 0)),
+    capacity_(std::exchange(rhs.capacity_, 0))
   {}
 
   template< class T >
@@ -112,24 +126,10 @@ namespace aleksandrov
   {}
 
   template< class T >
-  Vector< T >::Vector(const Vector& rhs):
-    data_(copyData(rhs)),
-    size_(rhs.size_),
-    capacity_(rhs.capacity_)
-  {}
-
-  template< class T >
-  Vector< T >::Vector(Vector&& rhs):
-    data_(std::exchange(rhs.data_, nullptr)),
-    size_(std::exchange(rhs.size_, 0)),
-    capacity_(std::exchange(rhs.capacity_, 0))
-  {}
-
-  template< class T >
   Vector< T >::~Vector() noexcept
   {
     clear();
-    operator delete[](data_);
+    operator delete(data_);
   }
 
   template< class T >
@@ -290,7 +290,7 @@ namespace aleksandrov
   }
 
   template< class T >
-  void Vector< T >::clear()
+  void Vector< T >::clear() noexcept
   {
     for (size_t i = 0; i < size_; ++i)
     {
@@ -324,7 +324,7 @@ namespace aleksandrov
   }
 
   template< class T >
-  void Vector< T >::popBack()
+  void Vector< T >::popBack() noexcept
   {
     if (size_ > 0)
     {
@@ -342,7 +342,7 @@ namespace aleksandrov
   }
 
   template< class T >
-  bool Vector< T >::operator==(const Vector& other)
+  bool Vector< T >::operator==(const Vector& other) const
   {
     if (size_ != other.size_)
     {
@@ -359,7 +359,7 @@ namespace aleksandrov
   }
 
   template< class T >
-  bool Vector< T >::operator!=(const Vector& other)
+  bool Vector< T >::operator!=(const Vector& other) const
   {
     return !operator==(other);
   }
@@ -367,7 +367,7 @@ namespace aleksandrov
   template< class T >
   T* Vector< T >::copyData(const Vector& vector)
   {
-    T* copy = static_cast< T* >(operator new[](vector.capacity_ * sizeof(T)));
+    T* copy = static_cast< T* >(operator new(vector.capacity_ * sizeof(T)));
     size_t i = 0;
     try
     {
@@ -382,7 +382,7 @@ namespace aleksandrov
       {
         copy[j].~T();
       }
-      operator delete[](copy);
+      operator delete(copy);
       throw;
     }
     return copy;
@@ -392,13 +392,13 @@ namespace aleksandrov
   void Vector< T >::resize()
   {
     size_t newCapacity = capacity_ ? capacity_ * 2 : minVectorCapacity;
-    T* newData = static_cast< T* >(operator new[](newCapacity * sizeof(T)));
+    T* newData = static_cast< T* >(operator new(newCapacity * sizeof(T)));
     size_t i = 0;
     try
     {
       for (; i < size_; ++i)
       {
-        new (newData + i) T(std::move(data_[i]));
+        new (newData + i) T(std::move_if_noexcept(data_[i]));
       }
     }
     catch (...)
@@ -407,11 +407,11 @@ namespace aleksandrov
       {
         newData[j].~T();
       }
-      operator delete[](newData);
+      operator delete(newData);
       throw;
     }
     clear();
-    operator delete[](data_);
+    operator delete(data_);
     data_ = newData;
     size_ = capacity_;
     capacity_ = newCapacity;

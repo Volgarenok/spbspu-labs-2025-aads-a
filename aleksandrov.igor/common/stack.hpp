@@ -105,7 +105,7 @@ namespace aleksandrov
   template< class T >
   void Stack< T >::pop() noexcept
   {
-    assert(!empty() && "Trying to delete from empty stack!");
+    assert(!empty() && "Cannot pop from empty stack!");
     container_.popBack();
   }
 

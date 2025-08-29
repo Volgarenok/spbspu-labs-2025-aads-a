@@ -1,8 +1,8 @@
 #ifndef RNL_ITERATOR_HPP
 #define RNL_ITERATOR_HPP
 
+#include <stack.hpp>
 #include "heavy-iterator.hpp"
-#include "../stack.hpp"
 
 namespace aleksandrov
 {
@@ -14,7 +14,7 @@ namespace aleksandrov
 
     RnlIterator();
 
-    LiteIter makeLite() noexcept;
+    LiteIter makeLite() const noexcept;
 
     RnlIterator& operator++();
     RnlIterator operator++(int);
@@ -98,7 +98,7 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C, bool isConst, bool isReversive >
-  auto RnlIterator< K, V, C, isConst, isReversive >::makeLite() noexcept -> LiteIter
+  auto RnlIterator< K, V, C, isConst, isReversive >::makeLite() const noexcept -> LiteIter
   {
     return LiteIter(this->node_, this->dir_);
   }
@@ -106,14 +106,14 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto RnlIterator< K, V, C, isConst, isReversive >::operator++() -> RnlIterator&
   {
-    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(this->node_ != nullptr && "Trying to iterate from null-node!");
     return isReversive ? shiftBackward() : shiftForward();
   }
 
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto RnlIterator< K, V, C, isConst, isReversive >::operator++(int) -> RnlIterator
   {
-    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(this->node_ != nullptr && "Trying to iterate from null-node!");
     auto result(*this);
     ++(*this);
     return result;
@@ -122,14 +122,14 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto RnlIterator< K, V, C, isConst, isReversive >::operator--() -> RnlIterator&
   {
-    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(this->node_ != nullptr && "Trying to iterate from null-node!");
     return isReversive ? shiftForward() : shiftBackward();
   }
 
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto RnlIterator< K, V, C, isConst, isReversive >::operator--(int) -> RnlIterator
   {
-    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(this->node_ != nullptr && "Trying to iterate from null-node!");
     auto result(*this);
     --(*this);
     return result;

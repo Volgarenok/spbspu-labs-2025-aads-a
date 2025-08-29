@@ -24,12 +24,11 @@ namespace
     {
       return !operator==(rhs);
     }
+    friend std::ostream& operator<<(std::ostream& out, const Point& rhs)
+    {
+      return out << '(' << rhs.x << ';' << rhs.y << ')';
+    }
   };
-
-  std::ostream& operator<<(std::ostream& out, const Point& rhs)
-  {
-    return out << '(' << rhs.x << ';' << rhs.y << ')';
-  }
 }
 
 BOOST_AUTO_TEST_CASE(deque_default_construction)
