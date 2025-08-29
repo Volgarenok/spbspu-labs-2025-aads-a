@@ -1,11 +1,11 @@
 #ifndef DEQUE_HPP
 #define DEQUE_HPP
 
-#include <cstddef>
 #include <cassert>
-#include <limits>
+#include <cstddef>
 #include <utility>
 #include <stdexcept>
+#include <limits>
 
 namespace aleksandrov
 {
@@ -17,11 +17,11 @@ namespace aleksandrov
   public:
     Deque();
     Deque(const Deque&);
-    Deque(Deque&&) noexcept;
+    Deque(Deque&&);
     ~Deque() noexcept;
 
     Deque& operator=(const Deque&);
-    Deque& operator=(Deque&&) noexcept;
+    Deque& operator=(Deque&&);
 
     T& front();
     const T& front() const;
@@ -43,8 +43,8 @@ namespace aleksandrov
     void emplaceFront(Args&&...);
     template< class... Args >
     void emplaceBack(Args&&...);
-    void popFront();
-    void popBack();
+    void popFront() noexcept;
+    void popBack() noexcept;
     void swap(Deque&) noexcept;
 
     bool operator==(const Deque&) const;
@@ -81,7 +81,7 @@ namespace aleksandrov
   {}
 
   template< class T >
-  Deque< T >::Deque(Deque&& rhs) noexcept:
+  Deque< T >::Deque(Deque&& rhs):
     data_(std::exchange(rhs.data_, nullptr)),
     first_(std::exchange(rhs.first_, 0)),
     last_(std::exchange(rhs.last_, 0)),
@@ -105,7 +105,7 @@ namespace aleksandrov
   }
 
   template< class T >
-  Deque< T >& Deque< T >::operator=(Deque&& rhs) noexcept
+  Deque< T >& Deque< T >::operator=(Deque&& rhs)
   {
     Deque copy(std::move(rhs));
     swap(copy);
@@ -115,28 +115,28 @@ namespace aleksandrov
   template< class T >
   T& Deque< T >::front()
   {
-    assert(!empty());
+    assert(!empty() && "Cannot access to element in empty deque!");
     return const_cast< T& >(static_cast< const Deque& >(*this).front());
   }
 
   template< class T >
   const T& Deque< T >::front() const
   {
-    assert(!empty());
+    assert(!empty() && "Cannot access to element in empty deque!");
     return data_[first_];
   }
 
   template< class T >
   T& Deque< T >::back()
   {
-    assert(!empty());
+    assert(!empty() && "Cannot access to element in empty deque!");
     return const_cast< T& >(static_cast< const Deque& >(*this).back());
   }
 
   template< class T >
   const T& Deque< T >::back() const
   {
-    assert(!empty());
+    assert(!empty() && "Cannot access to element in empty deque!");
     return data_[last_];
   }
 
@@ -269,9 +269,9 @@ namespace aleksandrov
   }
 
   template< class T >
-  void Deque< T >::popFront()
+  void Deque< T >::popFront() noexcept
   {
-    assert(!empty());
+    assert(!empty() && "Cannot pop from empty deque!");
     data_[first_].~T();
     if (size_ != 1)
     {
@@ -286,9 +286,9 @@ namespace aleksandrov
   }
 
   template< class T >
-  void Deque< T >::popBack()
+  void Deque< T >::popBack() noexcept
   {
-    assert(!empty());
+    assert(!empty() && "Cannot pop from empty deque!");
     data_[last_].~T();
     if (size_ != 1)
     {
@@ -303,27 +303,27 @@ namespace aleksandrov
   }
 
   template< class T >
-  void Deque< T >::swap(Deque& rhs) noexcept
+  void Deque< T >::swap(Deque& other) noexcept
   {
-    std::swap(data_, rhs.data_);
-    std::swap(first_, rhs.first_);
-    std::swap(last_, rhs.last_);
-    std::swap(size_, rhs.size_);
-    std::swap(capacity_, rhs.capacity_);
+    std::swap(data_, other.data_);
+    std::swap(first_, other.first_);
+    std::swap(last_, other.last_);
+    std::swap(size_, other.size_);
+    std::swap(capacity_, other.capacity_);
   }
 
   template< class T >
-  bool Deque< T >::operator==(const Deque& other) const
+  bool Deque< T >::operator==(const Deque& rhs) const
   {
-    if (size_ != other.size_)
+    if (size_ != rhs.size_)
     {
       return false;
     }
     size_t i = first_;
-    size_t j = other.first_;
-    while (i < size_ + first_ && j < size_ + other.first_)
+    size_t j = rhs.first_;
+    while (i < size_ + first_ && j < size_ + rhs.first_)
     {
-      if (data_[i % capacity_] != other.data_[j % other.capacity_])
+      if (data_[i % capacity_] != rhs.data_[j % rhs.capacity_])
       {
         return false;
       }
@@ -334,9 +334,9 @@ namespace aleksandrov
   }
 
   template< class T >
-  bool Deque< T >::operator!=(const Deque& other) const
+  bool Deque< T >::operator!=(const Deque& rhs) const
   {
-    return !operator==(other);
+    return !operator==(rhs);
   }
 
   template< class T >

@@ -24,12 +24,11 @@ namespace
     {
       return !operator==(rhs);
     }
+    friend std::ostream& operator<<(std::ostream& out, const Bullet& rhs)
+    {
+      return out << '[' << rhs.p << ':' << ' ' << rhs.q << ']';
+    }
   };
-
-  std::ostream& operator<<(std::ostream& out, const Bullet& rhs)
-  {
-    return out << '[' << rhs.p << ':' << ' ' << rhs.q << ']';
-  }
 }
 
 BOOST_AUTO_TEST_CASE(stack_default_construction)

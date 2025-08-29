@@ -105,7 +105,7 @@ namespace aleksandrov
   template< class T >
   void Queue< T >::pop() noexcept
   {
-    assert(!empty() && "Cannot delete element from empty queue!");
+    assert(!empty() && "Cannot pop from empty queue!");
     container_.popFront();
   }
 
