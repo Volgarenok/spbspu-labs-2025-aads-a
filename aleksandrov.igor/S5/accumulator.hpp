@@ -13,6 +13,9 @@ namespace aleksandrov
 
   struct Accumulator
   {
+    long long int key = 0;
+    std::string value;
+
     void operator()(const std::pair< long long int, std::string >& pair)
     {
       const bool isUnderflow = pair.first < 0 && key < min - pair.first;
@@ -24,9 +27,6 @@ namespace aleksandrov
       key += pair.first;
       value += (value.empty() ? pair.second : ' ' + pair.second);
     }
-
-    long long int key = 0;
-    std::string value;
   };
 }
 

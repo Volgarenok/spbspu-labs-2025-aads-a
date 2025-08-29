@@ -1,8 +1,8 @@
 #ifndef BFS_ITERATOR_HPP
 #define BFS_ITERATOR_HPP
 
+#include <queue.hpp>
 #include "heavy-iterator.hpp"
-#include "../queue.hpp"
 #include "../../S5/vector.hpp"
 
 namespace aleksandrov
@@ -15,7 +15,7 @@ namespace aleksandrov
 
     BfsIterator();
 
-    LiteIter makeLite() noexcept;
+    LiteIter makeLite() const noexcept;
 
     BfsIterator& operator++();
     BfsIterator operator++(int);
@@ -95,7 +95,7 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C, bool isConst, bool isReversive >
-  auto BfsIterator< K, V, C, isConst, isReversive >::makeLite() noexcept -> LiteIter
+  auto BfsIterator< K, V, C, isConst, isReversive >::makeLite() const noexcept -> LiteIter
   {
     return LiteIter(this->node_, this->dir_);
   }
@@ -103,14 +103,14 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto BfsIterator< K, V, C, isConst, isReversive >::operator++() -> BfsIterator&
   {
-    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(this->node_ != nullptr && "Trying to iterate from null-node!");
     return isReversive ? shiftBackward() : shiftForward();
   }
 
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto BfsIterator< K, V, C, isConst, isReversive >::operator++(int) -> BfsIterator
   {
-    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(this->node_ != nullptr && "Trying to iterate from null-node!");
     auto result(*this);
     ++(*this);
     return result;
@@ -119,14 +119,14 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto BfsIterator< K, V, C, isConst, isReversive >::operator--() -> BfsIterator&
   {
-    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(this->node_ != nullptr && "Trying to iterate from null-node!");
     return isReversive ? shiftForward() : shiftBackward();
   }
 
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto BfsIterator< K, V, C, isConst, isReversive >::operator--(int) -> BfsIterator
   {
-    assert(this->node_ != nullptr && "ERROR: Trying to iterate from null-node!");
+    assert(this->node_ != nullptr && "Trying to iterate from null-node!");
     auto result(*this);
     --(*this);
     return result;

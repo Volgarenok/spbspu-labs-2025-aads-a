@@ -1,9 +1,6 @@
 #ifndef HEAVY_ITERATOR_HPP
 #define HEAVY_ITERATOR_HPP
 
-#include <iterator>
-#include <cassert>
-#include "node.hpp"
 #include "iterator.hpp"
 
 namespace aleksandrov
@@ -56,14 +53,14 @@ namespace aleksandrov
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto HeavyIterator< K, V, C, isConst, isReversive >::operator*() const noexcept -> Reference
   {
-    assert(dir_ != PointsTo::None && "ERROR: Access to null-node!");
+    assert(dir_ != PointsTo::None && "Access to null-node!");
     return dir_ == PointsTo::Left ? node_->data[0] : node_->data[1];
   }
 
   template< class K, class V, class C, bool isConst, bool isReversive >
   auto HeavyIterator< K, V, C, isConst, isReversive >::operator->() const noexcept -> Pointer
   {
-    assert(dir_ != PointsTo::None && "ERROR: Access to null-node!");
+    assert(dir_ != PointsTo::None && "Access to null-node!");
     return std::addressof(dir_ == PointsTo::Left ? node_->data[0] : node_->data[1]);
   }
 
