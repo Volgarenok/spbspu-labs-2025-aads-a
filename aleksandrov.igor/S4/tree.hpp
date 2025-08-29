@@ -20,16 +20,16 @@ namespace aleksandrov
     using ValueType = std::pair< K, V >;
 
     Tree();
-    explicit Tree(const C&);
     Tree(const Tree&);
+    Tree(Tree&&);
+    explicit Tree(const C&);
     template< class InputIt >
     Tree(InputIt, InputIt);
-    Tree(Tree&&) noexcept;
     Tree(std::initializer_list< ValueType >);
     ~Tree() noexcept;
 
     Tree& operator=(const Tree&);
-    Tree& operator=(Tree&&) noexcept;
+    Tree& operator=(Tree&&);
     Tree& operator=(std::initializer_list< ValueType >);
 
     V& at(const K&);
@@ -37,10 +37,10 @@ namespace aleksandrov
     V& operator[](const K&);
     V& operator[](K&&);
 
-    Iter begin() noexcept;
+    Iter begin();
     ConstIter begin() const noexcept;
     ConstIter cbegin() const noexcept;
-    Iter end() noexcept;
+    Iter end();
     ConstIter end() const noexcept;
     ConstIter cend() const noexcept;
 
@@ -136,7 +136,7 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  Tree< K, V, C >::Tree(Tree&& rhs) noexcept:
+  Tree< K, V, C >::Tree(Tree&& rhs):
     root_(std::exchange(rhs.root_, nullptr)),
     size_(std::exchange(rhs.size_, 0)),
     comp_(std::exchange(rhs.comp_, std::less< K >{}))
@@ -162,7 +162,7 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  auto Tree< K, V, C >::operator=(Tree&& rhs) noexcept -> Tree&
+  auto Tree< K, V, C >::operator=(Tree&& rhs) -> Tree&
   {
     Tree copy(std::move(rhs));
     swap(copy);
@@ -217,7 +217,7 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  auto Tree< K, V, C >::begin() noexcept -> Iter
+  auto Tree< K, V, C >::begin() -> Iter
   {
     return root_ ? Iter(root_).fallLeft() : Iter();
   }
@@ -235,7 +235,7 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  auto Tree< K, V, C >::end() noexcept -> Iter
+  auto Tree< K, V, C >::end() -> Iter
   {
     return Iter();
   }
@@ -482,11 +482,11 @@ namespace aleksandrov
   }
 
   template< class K, class V, class C >
-  void Tree< K, V, C >::swap(Tree& rhs) noexcept
+  void Tree< K, V, C >::swap(Tree& other) noexcept
   {
-    std::swap(root_, rhs.root_);
-    std::swap(size_, rhs.size_);
-    std::swap(comp_, rhs.comp_);
+    std::swap(root_, other.root_);
+    std::swap(size_, other.size_);
+    std::swap(comp_, other.comp_);
   }
 
   template< class K, class V, class C >
