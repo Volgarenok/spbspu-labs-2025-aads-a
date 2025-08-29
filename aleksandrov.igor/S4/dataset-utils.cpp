@@ -76,7 +76,7 @@ namespace aleksandrov
     datasets[name] = result;
   }
 
-  void unionCmd(const std::string& name, const Dataset& a, const Dataset& b, Datasets& datasets)
+  void unite(const std::string& name, const Dataset& a, const Dataset& b, Datasets& datasets)
   {
     Dataset result = a;
     for (auto it = b.cbegin(); it != b.cend(); ++it)
@@ -132,7 +132,7 @@ namespace aleksandrov
     }
     else if (command == "union")
     {
-      unionCmd(newName, a, b, datasets);
+      unite(newName, a, b, datasets);
     }
     else
     {
