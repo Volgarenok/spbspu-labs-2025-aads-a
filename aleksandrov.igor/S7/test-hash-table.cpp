@@ -477,6 +477,9 @@ BOOST_AUTO_TEST_CASE(max_load_factor)
 
   ht.insert({ 0, 0 });
   BOOST_TEST(ht.maxLoadFactor() == 0.5f);
+
+  ht.maxLoadFactor(10.0f);
+  BOOST_TEST(ht.maxLoadFactor() == 1.0f);
 }
 
 BOOST_AUTO_TEST_CASE(rehash)

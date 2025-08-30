@@ -71,12 +71,12 @@ namespace aleksandrov
     std::pair< Iter, Iter > equalRange(const K&);
     std::pair< ConstIter, ConstIter > equalRange(const K&) const;
 
-    Iter begin();
-    ConstIter begin() const;
-    ConstIter cbegin() const;
-    Iter end();
-    ConstIter end() const;
-    ConstIter cend() const;
+    Iter begin() noexcept;
+    ConstIter begin() const noexcept;
+    ConstIter cbegin() const noexcept;
+    Iter end() noexcept;
+    ConstIter end() const noexcept;
+    ConstIter cend() const noexcept;
 
     float loadFactor() const noexcept;
     float maxLoadFactor() const noexcept;
@@ -104,7 +104,7 @@ namespace aleksandrov
     bool isPrime(size_t) const noexcept;
 
     Slot* copyData(const HashTable&);
-    Iter insertHintSlot(ConstIter hint, Slot);
+    Iter insertHintSlot(ConstIter, Slot);
     void rehashToCapacity(size_t);
     void rehash();
   };
@@ -290,7 +290,7 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::erase(Iter pos) -> Iter
   {
-    assert(pos != end() && "Trying to erase beyound hashtable's bounds!");
+    assert(pos != end() && "Cannot erase beyound hashtable's bounds!");
     Iter next = std::next(Iter(pos.table_, pos.index_));
     size_t i = pos.index_;
     for (size_t j = getNextIndex(i); j != i; j = getNextIndex(j))
@@ -307,7 +307,7 @@ namespace aleksandrov
       size_t h = getHomeIndex(data_[j].data.first);
       if ((i < j && (h <= i || h > j)) || (i > j && (h <= i && h > j)))
       {
-        data_[i] = std::move(data_[j]);
+        data_[i] = std::move_if_noexcept(data_[j]);
         i = j;
       }
       j = getNextIndex(j);
@@ -320,6 +320,7 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   auto HashTable< K, V, H, E >::erase(ConstIter pos) -> Iter
   {
+    assert(pos != cend() && "Cannot erase beyound hashtable's bounds!");
     return const_cast< HashTable* >(pos.table_)->erase(Iter(pos.table_, pos.index_));
   }
 
@@ -347,14 +348,14 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
-  void HashTable< K, V, H, E >::swap(HashTable& rhs) noexcept
+  void HashTable< K, V, H, E >::swap(HashTable& other) noexcept
   {
-    std::swap(data_, rhs.data_);
-    std::swap(size_, rhs.size_);
-    std::swap(capacity_, rhs.capacity_);
-    std::swap(maxLoadFactor_, rhs.maxLoadFactor_);
-    std::swap(hasher_, rhs.hasher_);
-    std::swap(keyEqual_, rhs.keyEqual_);
+    std::swap(data_, other.data_);
+    std::swap(size_, other.size_);
+    std::swap(capacity_, other.capacity_);
+    std::swap(maxLoadFactor_, other.maxLoadFactor_);
+    std::swap(hasher_, other.hasher_);
+    std::swap(keyEqual_, other.keyEqual_);
   }
 
   template< class K, class V, class H, class E >
@@ -406,11 +407,7 @@ namespace aleksandrov
   auto HashTable< K, V, H, E >::find(const K& key) -> Iter
   {
     ConstIter it = static_cast< const HashTable& >(*this).find(key);
-    if (it == cend())
-    {
-      return end();
-    }
-    return Iter(this, it.index_);
+    return it == cend() ? end() : Iter(this, it.index_);
   }
 
   template< class K, class V, class H, class E >
@@ -461,37 +458,37 @@ namespace aleksandrov
   }
 
   template< class K, class V, class H, class E >
-  auto HashTable< K, V, H, E >::begin() -> Iter
+  auto HashTable< K, V, H, E >::begin() noexcept -> Iter
   {
     return Iter(this);
   }
 
   template< class K, class V, class H, class E >
-  auto HashTable< K, V, H, E >::begin() const -> ConstIter
+  auto HashTable< K, V, H, E >::begin() const noexcept -> ConstIter
   {
     return cbegin();
   }
 
   template< class K, class V, class H, class E >
-  auto HashTable< K, V, H, E >::cbegin() const -> ConstIter
+  auto HashTable< K, V, H, E >::cbegin() const noexcept -> ConstIter
   {
     return ConstIter(this);
   }
 
   template< class K, class V, class H, class E >
-  auto HashTable< K, V, H, E >::end() -> Iter
+  auto HashTable< K, V, H, E >::end() noexcept -> Iter
   {
     return Iter(this, capacity_);
   }
 
   template< class K, class V, class H, class E >
-  auto HashTable< K, V, H, E >::end() const -> ConstIter
+  auto HashTable< K, V, H, E >::end() const noexcept -> ConstIter
   {
     return cend();
   }
 
   template< class K, class V, class H, class E >
-  auto HashTable< K, V, H, E >::cend() const -> ConstIter
+  auto HashTable< K, V, H, E >::cend() const noexcept -> ConstIter
   {
     return ConstIter(this, capacity_);
   }
@@ -515,7 +512,7 @@ namespace aleksandrov
   template< class K, class V, class H, class E >
   void HashTable< K, V, H, E >::maxLoadFactor(float ml) noexcept
   {
-    maxLoadFactor_ = ml;
+    maxLoadFactor_ = ml <= 1.0f ? ml : 1.0f;
   }
 
   template< class K, class V, class H, class E >
@@ -655,7 +652,7 @@ namespace aleksandrov
     {
       if (data_[i].occupied)
       {
-        temp.insertHintSlot(temp.cend(), std::move_if_noexcept(data_[i].data));
+        temp.insertHintSlot(temp.cend(), std::move_if_noexcept(data_[i]));
       }
     }
     swap(temp);

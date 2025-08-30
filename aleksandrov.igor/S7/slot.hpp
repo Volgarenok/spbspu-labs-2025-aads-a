@@ -1,8 +1,8 @@
 #ifndef SLOT_HPP
 #define SLOT_HPP
 
-#include <utility>
 #include <cstddef>
+#include <utility>
 
 namespace aleksandrov
 {
@@ -18,7 +18,7 @@ namespace aleksandrov
       size_t psl;
 
       Slot();
-      Slot(const ValueType&);
+      explicit Slot(const ValueType&);
       template< class... Args >
       explicit Slot(Args&&...);
     };

@@ -2,9 +2,9 @@
 #define GRAPH_HPP
 
 #include <string>
-#include "hash-table.hpp"
-#include <tree/tree.hpp>
 #include <vector.hpp>
+#include <tree/tree.hpp>
+#include "hash-table.hpp"
 
 namespace aleksandrov
 {

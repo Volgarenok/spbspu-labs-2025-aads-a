@@ -1,8 +1,8 @@
 #ifndef HASH_TABLE_ITERATOR_HPP
 #define HASH_TABLE_ITERATOR_HPP
 
-#include <iterator>
 #include <cassert>
+#include <iterator>
 #include "slot.hpp"
 
 namespace aleksandrov
@@ -37,7 +37,7 @@ namespace aleksandrov
     const Table* table_;
     size_t index_;
 
-    HashTableIterator(const Table*);
+    explicit HashTableIterator(const Table*);
     HashTableIterator(const Table*, size_t);
   };
 
@@ -67,8 +67,8 @@ namespace aleksandrov
   template< class K, class V, class H, class E, bool isConst >
   auto HashTableIterator< K, V, H, E, isConst >::operator++() -> HashTableIterator&
   {
-    assert(table_ != nullptr && "ERROR: Cannot iterate from null-table!");
-    assert(index_ < table_->capacity_ && "ERROR: Cannot iterate from end() iterator!");
+    assert(table_ != nullptr && "Cannot iterate from null-table!");
+    assert(index_ < table_->capacity_ && "Cannot iterate from end() iterator!");
     index_ = table_->getNextIndex(index_);
     while (index_ < table_->capacity_ && !table_->data_[index_].occupied)
     {
@@ -80,8 +80,8 @@ namespace aleksandrov
   template< class K, class V, class H, class E, bool isConst >
   auto HashTableIterator< K, V, H, E, isConst >::operator++(int) -> HashTableIterator
   {
-    assert(table_ != nullptr && "ERROR: Cannot iterate from null-table!");
-    assert(index_ < table_->capacity_ && "ERROR: Cannot iterate from end() iterator!");
+    assert(table_ != nullptr && "Cannot iterate from null-table!");
+    assert(index_ < table_->capacity_ && "Cannot iterate from end() iterator!");
     HashTableIterator temp(*this);
     ++(*this);
     return temp;
@@ -90,18 +90,18 @@ namespace aleksandrov
   template< class K, class V, class H, class E, bool isConst >
   auto HashTableIterator< K, V, H, E, isConst >::operator*() const noexcept -> Reference
   {
-    assert(table_ != nullptr && "ERROR: Access to null-table!");
-    assert(index_ < table_->capacity_ && "ERROR: Access to end() iterator!");
-    assert(table_->data_[index_].occupied && "ERROR: Access to empty slot!");
+    assert(table_ != nullptr && "Cannot access to null-table!");
+    assert(index_ < table_->capacity_ && "Cannot access to end() iterator!");
+    assert(table_->data_[index_].occupied && "Cannot access to null-slot!");
     return table_->data_[index_].data;
   }
 
   template< class K, class V, class H, class E, bool isConst >
   auto HashTableIterator< K, V, H, E, isConst >::operator->() const noexcept -> Pointer
   {
-    assert(table_ != nullptr && "ERROR: Access to null-table!");
-    assert(index_ < table_->capacity_ && "ERROR: Access to end() iterator!");
-    assert(table_->data_[index_].occupied && "ERROR: Access to empty slot!");
+    assert(table_ != nullptr && "Cannot access to null-table!");
+    assert(index_ < table_->capacity_ && "Cannot access to end() iterator!");
+    assert(table_->data_[index_].occupied && "Cannot access to null-slot!");
     return std::addressof(table_->data_[index_].data);
   }
 

@@ -1,6 +1,5 @@
 #include "graph-commands.hpp"
 #include <iostream>
-#include <set>
 
 void aleksandrov::graphs(const Graphs& graphs, std::ostream& out)
 {
@@ -227,7 +226,7 @@ void aleksandrov::extract(Graphs& graphs, std::istream& in)
   {
     throw std::logic_error("Incorrect graph name(s) or description!");
   }
-  std::set< std::string > requestedVertices;
+  Tree< std::string, bool > requestedVertices;
   for (size_t i = 0; i < verticesCount; ++i)
   {
     std::string vertexName;
@@ -235,7 +234,7 @@ void aleksandrov::extract(Graphs& graphs, std::istream& in)
     {
       throw std::logic_error("Incorrect vertex name(s)!");
     }
-    requestedVertices.insert(vertexName);
+    requestedVertices.insert({ vertexName, true });
   }
   if (graphs.find(newGraphName) != graphs.end())
   {
@@ -249,7 +248,7 @@ void aleksandrov::extract(Graphs& graphs, std::istream& in)
   const Graph& graph = graphIt->second;
   for (auto it = requestedVertices.cbegin(); it != requestedVertices.cend(); ++it)
   {
-    if (graph.vertices.find(*it) == graph.vertices.end())
+    if (graph.vertices.find(it->first) == graph.vertices.end())
     {
       throw std::logic_error("Incorrect vertices!");
     }
@@ -257,7 +256,7 @@ void aleksandrov::extract(Graphs& graphs, std::istream& in)
   Graph newGraph;
   for (auto it = requestedVertices.cbegin(); it != requestedVertices.cend(); ++it)
   {
-    newGraph.vertices.insert({ *it, true });
+    newGraph.vertices.insert(*it);
   }
   for (auto it = graph.edges.cbegin(); it != graph.edges.cend(); ++it)
   {
