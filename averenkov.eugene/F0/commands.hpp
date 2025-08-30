@@ -1,7 +1,7 @@
 #ifndef COMMANDS_HPP
 #define COMMANDS_HPP
 
-#include <vector>
+#include <array.hpp>
 #include <string>
 #include <functional>
 #include <algorithm>
@@ -81,19 +81,19 @@ namespace averenkov
   void printKnapsackToOut(std::ostream& out, const std::pair< const std::string, Knapsack >& knapsack_pair);
 
   void printHelp(std::ostream& out);
-  void addItem(Base& base, const std::vector< std::string >& args);
-  void removeItem(Base& base, const std::vector< std::string >& args);
-  void editItem(Base& base, const std::vector< std::string >& args);
-  void addKit(Base& base, const std::vector< std::string >& args);
-  void removeKit(Base& base, const std::vector< std::string >& args);
-  void addToKit(Base& base, const std::vector< std::string >& args);
-  void removeFromKit(Base& base, const std::vector< std::string >& args);
-  void addKnapsack(Base& base, const std::vector< std::string >& args);
-  void setKnapsack(Base& base, const std::vector< std::string >& args);
-  void showStats(const Base& base, const std::vector< std::string >& args);
-  void reset(Base& base, const std::vector< std::string >& args);
-  void saveToFile(const Base& base, const std::vector< std::string >& args);
-  void loadFromFile(Base& base, const std::vector< std::string >& args);
+  void addItem(Base& base, const Array< std::string >& args);
+  void removeItem(Base& base, const Array< std::string >& args);
+  void editItem(Base& base, const Array< std::string >& args);
+  void addKit(Base& base, const Array< std::string >& args);
+  void removeKit(Base& base, const Array< std::string >& args);
+  void addToKit(Base& base, const Array< std::string >& args);
+  void removeFromKit(Base& base, const Array< std::string >& args);
+  void addKnapsack(Base& base, const Array< std::string >& args);
+  void setKnapsack(Base& base, const Array< std::string >& args);
+  void showStats(const Base& base, const Array< std::string >& args);
+  void reset(Base& base, const Array< std::string >& args);
+  void saveToFile(const Base& base, const Array< std::string >& args);
+  void loadFromFile(Base& base, const Array< std::string >& args);
 }
 
 #endif

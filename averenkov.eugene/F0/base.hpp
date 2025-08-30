@@ -1,8 +1,8 @@
 #ifndef BASE_HPP
 #define BASE_HPP
 
-#include <vector>
-#include <map>
+#include <array.hpp>
+#include <BiTree.hpp>
 #include <string>
 #include <memory>
 #include "item.hpp"
@@ -15,9 +15,9 @@ namespace averenkov
   {
   public:
     Base();
-    std::vector< std::shared_ptr< Item > > items;
-    std::map< std::string, Kit > kits;
-    std::map< std::string, Knapsack > knapsacks;
+    Array< std::shared_ptr< Item > > items;
+    Tree< std::string, Kit > kits;
+    Tree< std::string, Knapsack > knapsacks;
     Knapsack current_knapsack;
   };
 }

@@ -7,6 +7,7 @@ namespace averenkov
   class Knapsack
   {
   public:
+    Knapsack();
     explicit Knapsack(int capacity);
     int getCapacity() const;
 

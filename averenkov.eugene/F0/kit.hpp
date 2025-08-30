@@ -2,7 +2,7 @@
 #define KIT_HPP
 #include <string>
 #include <memory>
-#include <vector>
+#include <array.hpp>
 #include <functional>
 #include <algorithm>
 #include <stdexcept>
@@ -13,16 +13,17 @@ namespace averenkov
   class Kit
   {
   public:
+    Kit();
     Kit(const std::string& n);
 
     void addItem(std::shared_ptr< const Item > item);
-    std::vector< std::weak_ptr< const Item > > getItems() const;
+    Array< std::weak_ptr< const Item > > getItems() const;
     void removeItem(const std::string& item_name);
     bool containsItem(const std::string& item_name) const;
 
   private:
     std::string name_;
-    std::vector< std::weak_ptr< const Item > > items_;
+    Array< std::weak_ptr< const Item > > items_;
   };
 
   struct KitItemPrinter

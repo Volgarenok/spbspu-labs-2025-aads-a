@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
   {
     averenkov::printHelp(std::cout);
   }
-  std::map< std::string, std::function< void(averenkov::Base& , const std::vector< std::string >&) > > commands;
+  averenkov::Tree< std::string, std::function< void(averenkov::Base& , const averenkov::Array< std::string >&) > > commands;
   commands["add"] = averenkov::addItem;
   commands["remove"] = averenkov::removeItem;
   commands["edit"] = averenkov::editItem;
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
     {
       continue;
     }
-    std::vector< std::string > args;
+    averenkov::Array< std::string > args;
     size_t start = 0;
     size_t end = line.find(' ');
 

@@ -4,6 +4,11 @@ averenkov::Kit::Kit(const std::string& name):
   name_(name)
 {}
 
+averenkov::Kit::Kit():
+  name_()
+{}
+
+
 void averenkov::Kit::addItem(std::shared_ptr< const Item > item)
 {
   if (containsItem(item->getName()))
@@ -13,14 +18,14 @@ void averenkov::Kit::addItem(std::shared_ptr< const Item > item)
   items_.push_back(item);
 }
 
-std::vector< std::weak_ptr< const averenkov::Item > > averenkov::Kit::getItems() const
+averenkov::Array< std::weak_ptr< const averenkov::Item > > averenkov::Kit::getItems() const
 {
   return items_;
 }
 
 void averenkov::Kit::removeItem(const std::string& item_name)
 {
-  std::vector< std::weak_ptr< const Item > > new_items;
+  averenkov::Array< std::weak_ptr< const Item > > new_items;
 
   for (size_t i = 0; i < items_.size(); ++i)
   {

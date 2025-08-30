@@ -130,7 +130,7 @@ void averenkov::printHelp(std::ostream& out)
   out << "  --help                         - Show this help message\n";
 }
 
-void averenkov::addItem(Base& base, const std::vector< std::string >& args)
+void averenkov::addItem(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 4)
   {
@@ -147,7 +147,7 @@ void averenkov::addItem(Base& base, const std::vector< std::string >& args)
   base.items.push_back(new_item);
 }
 
-void averenkov::removeItem(Base& base, const std::vector< std::string >& args)
+void averenkov::removeItem(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 2)
   {
@@ -161,10 +161,10 @@ void averenkov::removeItem(Base& base, const std::vector< std::string >& args)
   }
   std::for_each(base.kits.begin(), base.kits.end(), KitItemRemover{ args[1] });
 
-  base.items.erase(it);
+  base.items.push_back(*it);
 }
 
-void averenkov::editItem(Base& base, const std::vector< std::string >& args)
+void averenkov::editItem(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 4)
   {
@@ -181,7 +181,7 @@ void averenkov::editItem(Base& base, const std::vector< std::string >& args)
   item->setValue(std::stoi(args[3]));
 }
 
-void averenkov::addKit(Base& base, const std::vector< std::string >& args)
+void averenkov::addKit(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 2)
   {
@@ -193,10 +193,10 @@ void averenkov::addKit(Base& base, const std::vector< std::string >& args)
     throw std::invalid_argument("Kit already exists");
   }
 
-  base.kits.emplace(args[1], Kit(args[1]));
+  base.kits.insert({ args[1], Kit(args[1]) });
 }
 
-void averenkov::removeKit(Base& base, const std::vector< std::string >& args)
+void averenkov::removeKit(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 2)
   {
@@ -209,7 +209,7 @@ void averenkov::removeKit(Base& base, const std::vector< std::string >& args)
   }
 }
 
-void averenkov::addToKit(Base& base, const std::vector< std::string >& args)
+void averenkov::addToKit(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 3)
   {
@@ -240,7 +240,7 @@ void averenkov::addToKit(Base& base, const std::vector< std::string >& args)
   kit_it->second.addItem(*item_it);
 }
 
-void averenkov::removeFromKit(Base& base, const std::vector< std::string >& args)
+void averenkov::removeFromKit(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 3)
   {
@@ -264,7 +264,7 @@ void averenkov::removeFromKit(Base& base, const std::vector< std::string >& args
   kit_it->second.removeItem(args[2]);
 }
 
-void averenkov::addKnapsack(Base& base, const std::vector< std::string >& args)
+void averenkov::addKnapsack(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 3)
   {
@@ -276,10 +276,10 @@ void averenkov::addKnapsack(Base& base, const std::vector< std::string >& args)
     throw std::invalid_argument("Knapsack already exists");
   }
 
-  base.knapsacks.emplace(args[1], Knapsack(std::stoi(args[2])));
+  base.knapsacks.insert({ args[1], Knapsack(std::stoi(args[2])) });
 }
 
-void averenkov::setKnapsack(Base& base, const std::vector< std::string >& args)
+void averenkov::setKnapsack(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 2)
   {
@@ -294,7 +294,7 @@ void averenkov::setKnapsack(Base& base, const std::vector< std::string >& args)
   base.current_knapsack = base.knapsacks.find(args[1])->second;
 }
 
-void averenkov::showStats(const Base& base, const std::vector< std::string >& args)
+void averenkov::showStats(const Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 1)
   {
@@ -315,7 +315,7 @@ void averenkov::showStats(const Base& base, const std::vector< std::string >& ar
   std::cout << "Capacity: " << base.current_knapsack.getCapacity() << "\n";
 }
 
-void averenkov::reset(Base& base, const std::vector< std::string >& args)
+void averenkov::reset(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() != 1)
   {
@@ -326,7 +326,7 @@ void averenkov::reset(Base& base, const std::vector< std::string >& args)
   base.knapsacks.clear();
 }
 
-void averenkov::saveToFile(const Base& base, const std::vector< std::string >& args)
+void averenkov::saveToFile(const Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() < 2)
   {
@@ -357,7 +357,7 @@ void averenkov::saveToFile(const Base& base, const std::vector< std::string >& a
   out << "Capacity: " << base.current_knapsack.getCapacity() << "\n";
 }
 
-void averenkov::loadFromFile(Base& base, const std::vector< std::string >& args)
+void averenkov::loadFromFile(Base& base, const averenkov::Array< std::string >& args)
 {
   if (args.size() < 2)
   {
@@ -415,7 +415,7 @@ void averenkov::loadFromFile(Base& base, const std::vector< std::string >& args)
       auto kitIt = base.kits.find(kitName);
       if (kitIt == base.kits.end())
       {
-        kitIt = base.kits.emplace(kitName, Kit(kitName)).first;
+        kitIt = base.kits.insert({ kitName, Kit(kitName) });
       }
       Kit& kit = kitIt->second;
       while (pos < line.size())
@@ -448,7 +448,7 @@ void averenkov::loadFromFile(Base& base, const std::vector< std::string >& args)
       space_pos = line.find(' ', pos);
       int capacity = std::stoi(line.substr(pos, (space_pos == std::string::npos) ? line.size() - pos : space_pos - pos));
       pos = (space_pos == std::string::npos) ? line.size() : space_pos + 1;
-      base.knapsacks.emplace(knapsackName, Knapsack(capacity));
+      base.knapsacks.insert({ knapsackName, Knapsack(capacity) });
     }
   }
 

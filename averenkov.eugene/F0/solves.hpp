@@ -6,9 +6,9 @@
 namespace averenkov
 {
 
-  using vec_it = std::vector< std::weak_ptr< const Item > >;
-  using vecs_it = std::vector< std::shared_ptr< const Item > >;
-  using vec_st = const std::vector< std::string >&;
+  using vec_it = Array< std::weak_ptr< const Item > >;
+  using vecs_it = Array< std::shared_ptr< const Item > >;
+  using vec_st = const Array< std::string >&;
 
   vecs_it sharingVec(vec_it weak_items);
 
@@ -27,23 +27,23 @@ namespace averenkov
 
   struct CombinationBuilder
   {
-    std::vector< std::shared_ptr< const Item > >& current;
-    const std::vector< std::shared_ptr< const Item > >& items;
+    Array< std::shared_ptr< const Item > >& current;
+    const Array< std::shared_ptr< const Item > >& items;
     void operator()(int pos) const;
   };
 
   struct DPTableInitializer
   {
-    std::vector< std::vector< int > >& dp;
+    Array< Array< int > >& dp;
     int capacity;
 
-    void operator()(std::vector< int >& row) const;
+    void operator()(Array< int >& row) const;
   };
 
   struct DPRowFiller
   {
     const vec_it& weak_items;
-    std::vector< std::vector< int > >& dp;
+    Array< Array< int > >& dp;
     size_t current_index;
     int current_weight;
 
@@ -53,7 +53,7 @@ namespace averenkov
   struct DPRowProcessor
   {
     const vec_it& items;
-    std::vector< std::vector< int > >& dp;
+    Array< Array< int > >& dp;
     size_t current_index;
 
     void operator()();
@@ -62,7 +62,7 @@ namespace averenkov
   struct DPSolutionBuilder
   {
     const vec_it& weak_items;
-    const std::vector< std::vector< int > >& dp;
+    const Array< Array< int > >& dp;
     vec_it& result;
     int& remaining_weight;
     size_t current_index;
@@ -78,7 +78,7 @@ namespace averenkov
     int& best_value;
     int current_weight;
     int current_value;
-    std::vector< bool >& included;
+    Array< bool >& included;
     size_t index;
   };
 
@@ -97,11 +97,11 @@ namespace averenkov
   struct ItemCollector
   {
     vec_it& result;
-    const std::vector< bool >& included;
+    const Array< bool >& included;
     const vec_it& items;
     size_t current_index;
 
-    ItemCollector(vec_it& r, const std::vector< bool >& inc, const vec_it& it);
+    ItemCollector(vec_it& r, const Array< bool >& inc, const vec_it& it);
     void operator()(bool is_included);
   };
 
@@ -111,7 +111,7 @@ namespace averenkov
     int weight;
     int value;
     int bound;
-    std::vector< bool > included;
+    Array< bool > included;
   };
 
   struct ItemSorter
@@ -128,7 +128,7 @@ namespace averenkov
 
   struct BoundCalculatorHelper
   {
-    const std::vector< std::shared_ptr< const Item > >& items;
+    const Array< std::shared_ptr< const Item > >& items;
     int capacity;
     int bound;
     int total_weight;
@@ -143,7 +143,7 @@ namespace averenkov
     const vec_it& weak_items;
     int capacity;
     int& max_value;
-    std::vector< bool >& best_included;
+    Array< bool >& best_included;
     void operator()(Node* node) const;
   };
 
@@ -157,7 +157,7 @@ namespace averenkov
   struct BBSolutionBuilder
   {
     const vec_it& items;
-    const std::vector<bool>& included;
+    const Array<bool>& included;
     Kit& resultKit;
     size_t current_index;
     void operator()() const;
@@ -165,7 +165,7 @@ namespace averenkov
 
   int calculateTotalWeight(const vec_it& combination);
   int calculateTotalValue(const vec_it& combination);
-  void generateCombinations(const vec_it& items, std::vector< vec_it >& allCom, vec_it curCom, size_t index);
+  void generateCombinations(const vec_it& items, Array< vec_it >& allCom, vec_it curCom, size_t index);
 
   void solve(Base& base, const vec_st args);
   void bruteforce(Base& base, const vec_st args);

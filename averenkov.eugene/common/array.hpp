@@ -17,6 +17,7 @@ namespace averenkov
     Array();
     Array(const Array &rhs);
     Array(Array &&rhs) noexcept;
+    explicit Array(size_t size);
     Array &operator=(const Array &rhs) noexcept;
     Array &operator=(Array &&rhs) noexcept;
     ~Array();
@@ -31,22 +32,30 @@ namespace averenkov
     const T& back() const noexcept;
     T& back() noexcept;
 
+    T* begin() noexcept;
+    T* end() noexcept;
+    const T* begin() const noexcept;
+    const T* end() const noexcept;
+    const T* cbegin() const noexcept;
+    const T* cend() const noexcept;
+
     void push_back(T rhs);
     void pop_front();
     void pop_back() noexcept;
 
     const T& operator[](size_t index) const;
     T& operator[](size_t index);
+    void clear() noexcept;
+
+    void resize(size_t capac);
+    void resize();
 
   private:
     T* data_;
     size_t last_;
     size_t capacity_;
     size_t first_;
-    void resize(size_t capac);
-    void resize();
     Array< T > copy(const Array& other, size_t capacity);
-    explicit Array(size_t size);
   };
 
   template< class T >
@@ -157,6 +166,42 @@ namespace averenkov
   }
 
   template< class T >
+  T* Array< T >::begin() noexcept
+  {
+    return std::addressof(data_[first_]);
+  }
+
+  template< class T >
+  T* Array< T >::end() noexcept
+  {
+    return std::addressof(data_[last_ - 1]);
+  }
+
+  template< class T >
+  const T* Array< T >::begin() const noexcept
+  {
+    return std::addressof(data_[first_]);
+  }
+
+  template< class T >
+  const T* Array< T >::end() const noexcept
+  {
+    return std::addressof(data_[last_ - 1]);
+  }
+
+  template< class T >
+  const T* Array< T >::cbegin() const noexcept
+  {
+    return std::addressof(data_[first_]);
+  }
+
+  template< class T >
+  const T* Array< T >::cend() const noexcept
+  {
+    return std::addressof(data_[last_ - 1]);
+  }
+
+  template< class T >
   void Array< T >::push_back(T rhs)
   {
     if (last_ == capacity_)
@@ -245,6 +290,26 @@ namespace averenkov
     return new_array;
   }
 
+  template< class T >
+  void Array< T >::clear() noexcept
+  {
+    if (data_ != nullptr)
+    {
+      delete[] data_;
+      try
+      {
+        data_ = new T[1];
+      }
+      catch (...)
+      {
+        delete[] data_;
+        data_ = nullptr;
+      }
+    }
+    last_ = 0;
+    capacity_ = 0;
+    first_ = 0;
+  }
 }
 
 #endif

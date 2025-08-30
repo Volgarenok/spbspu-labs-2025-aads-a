@@ -4,6 +4,10 @@ averenkov::Knapsack::Knapsack(int capacity):
   capacity_(capacity)
 {}
 
+averenkov::Knapsack::Knapsack():
+  capacity_(0)
+{}
+
 int averenkov::Knapsack::getCapacity() const
 {
   return capacity_;

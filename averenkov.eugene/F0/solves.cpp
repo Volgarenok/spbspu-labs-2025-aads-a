@@ -43,7 +43,7 @@ void averenkov::CombinationEvaluator::operator()(const vec_it& combination)
   }
 }
 
-void averenkov::DPTableInitializer::operator()(std::vector<int>& row) const
+void averenkov::DPTableInitializer::operator()(averenkov::Array<int>& row) const
 {
   row.resize(capacity + 1);
   std::fill(row.begin(), row.end(), 0);
@@ -96,7 +96,7 @@ void averenkov::DPSolutionBuilder::operator()()
   }
 }
 
-void averenkov::generateCombinations(const vec_it& items, std::vector< vec_it >& allCom, vec_it curCom, size_t index)
+void averenkov::generateCombinations(const vec_it& items, averenkov::Array< vec_it >& allCom, vec_it curCom, size_t index)
 {
   if (index == items.size())
   {
@@ -119,7 +119,7 @@ int averenkov::calculateTotalValue(const vec_it& combination)
   return std::accumulate(combination.begin(), combination.end(), 0, WeakValueCalculator());
 }
 
-averenkov::ItemCollector::ItemCollector(vec_it& r, const std::vector< bool >& inc, const vec_it& it):
+averenkov::ItemCollector::ItemCollector(vec_it& r, const averenkov::Array< bool >& inc, const vec_it& it):
   result(r),
   included(inc),
   items(it),
@@ -322,10 +322,10 @@ void averenkov::bruteforce(Base& base, vec_st args)
   int capacity = base.current_knapsack.getCapacity();
   const auto& items = sourceKit.getItems();
 
-  std::vector< std::vector< std::weak_ptr < const Item > > > allCombinations;
+  averenkov::Array< averenkov::Array< std::weak_ptr < const Item > > > allCombinations;
   generateCombinations(items, allCombinations, {}, 0);
 
-  std::vector< std::weak_ptr < const Item > > bestCombination;
+  averenkov::Array< std::weak_ptr < const Item > > bestCombination;
   int maxValue = 0;
   int bestWeight = 0;
   CombinationEvaluator evaluator(capacity, bestCombination, maxValue, bestWeight);
@@ -335,8 +335,8 @@ void averenkov::bruteforce(Base& base, vec_st args)
   {
     throw std::invalid_argument("Kit already exists");
   }
-  auto emplaceResult = base.kits.emplace(resultKitName, Kit(resultKitName));
-  Kit& resultKit = emplaceResult.first->second;
+  auto emplaceResult = base.kits.insert({ resultKitName, Kit(resultKitName) });
+  Kit& resultKit = emplaceResult->second;
 
   WeakItemAdder adder(resultKit);
   std::for_each(bestCombination.begin(), bestCombination.end(), adder);
@@ -365,21 +365,21 @@ void averenkov::dynamicProgrammingSolve(Base& base, vec_st args)
 
   const Kit& sourceKit = kitIt->second;
   int capacity = base.current_knapsack.getCapacity();
-  std::vector< std::weak_ptr< const Item > > items = sourceKit.getItems();
+  averenkov::Array< std::weak_ptr< const Item > > items = sourceKit.getItems();
 
-  std::vector< std::vector< int > > dp(items.size() + 1);
+  averenkov::Array< averenkov::Array< int > > dp(items.size() + 1);
   DPTableInitializer init{dp, capacity};
   std::for_each(dp.begin(), dp.end(), init);
 
   DPRowProcessor processor{items, dp, 1};
   processor();
 
-  std::vector< std::weak_ptr< const Item > > selectedItems;
+  averenkov::Array< std::weak_ptr< const Item > > selectedItems;
   int remaining_weight = capacity;
   DPSolutionBuilder builder{items, dp, selectedItems, remaining_weight, items.size()};
   builder();
 
-  Kit& resultKit = base.kits.emplace(resultKitName, Kit(resultKitName)).first->second;
+  Kit& resultKit = base.kits.insert({ resultKitName, Kit(resultKitName) })->second;
   WeakItemAdder adder(resultKit);
   std::for_each(selectedItems.begin(), selectedItems.end(), adder);
 }
@@ -410,19 +410,19 @@ void averenkov::backtrackingSolve(Base& base, vec_st args)
 
   vec_it best_items;
   int best_value = 0;
-  std::vector< bool > included(items.size(), false);
+  averenkov::Array< bool > included(items.size());
 
   BacktrackState initial_state{ items, capacity, best_items, best_value, 0, 0, included, 0 };
 
   BacktrackStep step{initial_state};
   step();
 
-  Kit& resultKit = base.kits.emplace(resultKitName, Kit(resultKitName)).first->second;
+  Kit& resultKit = base.kits.insert({ resultKitName, Kit(resultKitName) })->second;
   WeakItemAdder adder(resultKit);
   std::for_each(best_items.begin(), best_items.end(), adder);
 }
 
-void averenkov::branchAndBoundSolve(Base& base, const std::vector<std::string>& args)
+void averenkov::branchAndBoundSolve(Base& base, const averenkov::Array<std::string>& args)
 {
   if (args.size() < 3)
   {
@@ -445,16 +445,16 @@ void averenkov::branchAndBoundSolve(Base& base, const std::vector<std::string>& 
 
   const Kit& sourceKit = kitIt->second;
   int capacity = base.current_knapsack.getCapacity();
-  std::vector< std::weak_ptr< const Item > > items = sourceKit.getItems();
+  averenkov::Array< std::weak_ptr< const Item > > items = sourceKit.getItems();
 
   ItemSorter sorter;
   std::sort(items.begin(), items.end(), sorter);
 
   std::queue< Node* > queue;
-  std::vector< bool > best_included(items.size(), false);
+  averenkov::Array< bool > best_included(items.size());
   int max_value = 0;
 
-  Node* root = new Node{ 0, 0, 0, 0, std::vector< bool >(items.size(), false) };
+  Node* root = new Node{ 0, 0, 0, 0, averenkov::Array< bool >(items.size()) };
   root->bound = BoundCalculator{ items, capacity }(root);
   queue.push(root);
 
@@ -462,7 +462,7 @@ void averenkov::branchAndBoundSolve(Base& base, const std::vector<std::string>& 
   QueueProcessor processor{ queue, expander };
   processor();
 
-  Kit& resultKit = base.kits.emplace(resultKitName, Kit(resultKitName)).first->second;
+  Kit& resultKit = base.kits.insert({ resultKitName, Kit(resultKitName) })->second;
   BBSolutionBuilder builder{ items, best_included, resultKit, 0 };
   builder();
 }
