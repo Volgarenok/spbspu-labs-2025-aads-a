@@ -3,7 +3,7 @@
 
 #include <cstddef>
 #include <string>
-#include "fwd_list/declaration.hpp"
+#include <fwd_list/declaration.hpp>
 
 namespace maslevtsov {
   using list_t = maslevtsov::FwdList< unsigned long long >;
