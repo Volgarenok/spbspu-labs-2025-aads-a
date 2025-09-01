@@ -42,45 +42,19 @@ void petrov::complement(std::istream & in, maintree_t & tree)
   {
     throw std::logic_error("<INVALID COMMAND>");
   }
-  auto first_sub_it = first_it->second.cbegin();
-  auto second_sub_it = second_it->second.cbegin();
-  subtree_t new_subtree;
-  while (first_sub_it != first_it->second.cend() && second_sub_it != second_it->second.cend())
+  subtree_t new_subtree(first_it->second);
+  for (auto it = second_it->second.cbegin(); it != second_it->second.cend(); ++it)
   {
-    if (first_sub_it->first == second_sub_it->first)
+    if (new_subtree.find(it->first) != new_subtree.end())
     {
-      ++first_sub_it;
-      ++second_sub_it;
-    }
-    else if (first_sub_it->first < second_sub_it->first)
-    {
-      new_subtree.insert({ first_sub_it->first, first_sub_it->second });
-      ++first_sub_it;
+      new_subtree.erase(it->first);
     }
     else
     {
-      new_subtree.insert({ second_sub_it->first, second_sub_it->second });
-      ++second_sub_it;
+      new_subtree.insert({ it->first, it->second });
     }
   }
-  if (first_sub_it != first_it->second.cend())
-  {
-    while (first_sub_it != first_it->second.cend())
-    {
-      new_subtree.insert({ first_sub_it->first, first_sub_it->second });
-      ++first_sub_it;
-    }
-  }
-  else if (second_sub_it != second_it->second.cend())
-  {
-    while (second_sub_it != second_it->second.cend())
-    {
-      new_subtree.insert({ second_sub_it->first, second_sub_it->second });
-      ++second_sub_it;
-    }
-  }
-  auto check_existance_it = tree.find(new_dataset);
-  if (check_existance_it != tree.end())
+  if (tree.find(new_dataset) != tree.end())
   {
     tree.erase(new_dataset);
   }
@@ -121,8 +95,7 @@ void petrov::intersect(std::istream & in, maintree_t & tree)
       ++second_sub_it;
     }
   }
-  auto check_existance_it = tree.find(new_dataset);
-  if (check_existance_it != tree.end())
+  if (tree.find(new_dataset) != tree.end())
   {
     tree.erase(new_dataset);
   }
@@ -143,46 +116,15 @@ void petrov::unionCMD(std::istream & in, maintree_t & tree)
   {
     throw std::logic_error("<INVALID COMMAND>");
   }
-  auto first_sub_it = first_it->second.cbegin();
-  auto second_sub_it = second_it->second.cbegin();
-  subtree_t new_subtree;
-  while (first_sub_it != first_it->second.cend() && second_sub_it != second_it->second.cend())
+  subtree_t new_subtree(first_it->second);
+  for (auto it = second_it->second.cbegin(); it != second_it->second.cend(); ++it)
   {
-    if (first_sub_it->first == second_sub_it->first)
+    if (new_subtree.find(it->first) == new_subtree.end())
     {
-      new_subtree.insert({ first_sub_it->first, first_sub_it->second });
-      ++first_sub_it;
-      ++second_sub_it;
-    }
-    else if (first_sub_it->first < second_sub_it->first)
-    {
-      new_subtree.insert({ first_sub_it->first, first_sub_it->second });
-      ++first_sub_it;
-    }
-    else
-    {
-      new_subtree.insert({ second_sub_it->first, second_sub_it->second });
-      ++second_sub_it;
+      new_subtree.insert({ it->first, it->second });
     }
   }
-  if (first_sub_it != first_it->second.cend())
-  {
-    while (first_sub_it != first_it->second.cend())
-    {
-      new_subtree.insert({ first_sub_it->first, first_sub_it->second });
-      ++first_sub_it;
-    }
-  }
-  else if (second_sub_it != second_it->second.cend())
-  {
-    while (second_sub_it != second_it->second.cend())
-    {
-      new_subtree.insert({ second_sub_it->first, second_sub_it->second });
-      ++second_sub_it;
-    }
-  }
-  auto check_existance_it = tree.find(new_dataset);
-  if (check_existance_it != tree.end())
+  if (tree.find(new_dataset) != tree.end())
   {
     tree.erase(new_dataset);
   }
