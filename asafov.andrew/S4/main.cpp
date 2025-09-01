@@ -88,6 +88,5 @@ int main(int argc, char* argv[])
       asafov::processCommand(datasets, line);
     }
   }
-
   return 0;
 }
