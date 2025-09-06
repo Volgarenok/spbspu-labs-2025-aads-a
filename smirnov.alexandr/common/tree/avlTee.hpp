@@ -2,7 +2,8 @@
 #define AVL_TREE_HPP
 #include <cstddef>
 #include <stdexcept>
-#include "node.hpp"
+#include <utils/stack.hpp>
+#include <utils/queue.hpp>
 #include "constIterator.hpp"
 
 namespace smirnov
@@ -29,6 +30,12 @@ namespace smirnov
     const_iterator cbegin() const noexcept;
     const_iterator cend() const noexcept;
     const_iterator find(const Key & key) const noexcept;
+    template < typename F >
+    F traverse_lnr(F f) const;
+    template < typename F >
+    F traverse_rnl(F f) const;
+    template < typename F >
+    F traverse_breadth(F f) const;
   private:
     Node< Key, Value > * root_;
     size_t size_;
@@ -366,6 +373,75 @@ namespace smirnov
       node = node->left;
     }
     return node;
+  }
+
+  template < typename Key, typename Value, typename Compare >
+  template < typename F >
+  F AvlTree< Key, Value, Compare >::traverse_lnr(F f) const
+  {
+    Stack< Node< Key, Value > * > stack;
+    Node< Key, Value > * current = root_;
+    while (current != nullptr || !stack.empty())
+    {
+      while (current != nullptr)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template < typename Key, typename Value, typename Compare >
+  template < typename F >
+  F AvlTree< Key, Value, Compare >::traverse_rnl(F f) const
+  {
+    Stack< Node< Key, Value > * > stack;
+    Node< Key, Value > * current = root_;
+    while (current != nullptr || !stack.empty())
+    {
+      while (current != nullptr)
+      {
+        stack.push(current);
+        current = current->right;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->left;
+    }
+    return f;
+  }
+
+  template < typename Key, typename Value, typename Compare >
+  template < typename F >
+  F AvlTree< Key, Value, Compare >::traverse_breadth(F f) const
+  {
+    if (root_ == nullptr)
+    {
+      return f;
+    }
+    Queue< Node< Key, Value > * > q;
+    q.push(root_);
+    while (!q.empty())
+    {
+      Node< Key, Value > * current = q.front();
+      q.pop();
+      f(current->data);
+      if (current->left != nullptr)
+      {
+        q.push(current->left);
+      }
+      if (current->right != nullptr)
+      {
+        q.push(current->right);
+      }
+    }
+    return f;
   }
 }
 #endif
