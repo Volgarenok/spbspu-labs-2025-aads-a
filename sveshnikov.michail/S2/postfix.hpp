@@ -1,8 +1,8 @@
 #ifndef POSTFIX_HPP
 #define POSTFIX_HPP
 #include <string>
-#include "queue.hpp"
-#include "stack.hpp"
+#include <queue.hpp>
+#include <stack.hpp>
 
 namespace sveshnikov
 {
