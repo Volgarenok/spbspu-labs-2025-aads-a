@@ -1,8 +1,9 @@
 #ifndef ARRAY_HPP
 #define ARRAY_HPP
 #include <cstddef>
-#include <algorithm>
 #include <cassert>
+#include <stdexcept>
+#include <algorithm>
 
 namespace sveshnikov
 {
@@ -13,6 +14,7 @@ namespace sveshnikov
     Array();
     Array(const Array &other);
     Array(Array &&other) noexcept;
+    explicit Array(size_t capacity);
     ~Array();
     Array< T > &operator=(const Array &other);
     Array< T > &operator=(Array &&other) noexcept;
@@ -29,6 +31,11 @@ namespace sveshnikov
     void push_back(T &&val);
     void pop_back() noexcept;
     void pop_front() noexcept;
+
+    T &operator[](size_t n);
+    const T &operator[](size_t n) const;
+    T &at(size_t n);
+    const T &at(size_t n) const;
 
     void swap(Array &other) noexcept;
 
@@ -68,6 +75,14 @@ namespace sveshnikov
   {
     other.reset();
   }
+
+  template< class T >
+  Array< T >::Array(size_t capacity):
+    capacity_(capacity),
+    data_((capacity != 0) ? new T[capacity]{} : nullptr),
+    size_(0),
+    first_(0)
+  {}
 
   template< class T >
   Array< T >::~Array()
@@ -166,6 +181,34 @@ namespace sveshnikov
     assert(!empty());
     size_--;
     first_ = empty() ? 0 : first_;
+  }
+
+  template< class T >
+  T &Array< T >::operator[](size_t n)
+  {
+    return const_cast< T & >(static_cast< const Array< T > & >(*this)[n]);
+  }
+
+  template< class T >
+  const T &Array< T >::operator[](size_t n) const
+  {
+    return data_[(first_ + n) % capacity_];
+  }
+
+  template< class T >
+  T &Array< T >::at(size_t n)
+  {
+    return const_cast< T & >(static_cast< const Array< T > & >(*this).at(n));
+  }
+
+  template< class T >
+  const T &Array< T >::at(size_t n) const
+  {
+    if (n >= size_)
+    {
+      throw std::out_of_range("Array::at");
+    }
+    return data_[(first_ + n) % capacity_];
   }
 
   template< class T >
