@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "hash_table.hpp"
+#include "graph.hpp"
 
 int main(int argc, char* argv[])
 {
