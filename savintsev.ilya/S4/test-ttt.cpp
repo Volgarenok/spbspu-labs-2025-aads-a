@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "two-three-tree.h"
+#include <two-three-tree.h>
 #include <iterator>
 
 savintsev::TwoThreeTree< int, std::string > create_tree()

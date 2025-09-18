@@ -39,7 +39,7 @@ namespace rychkov
     MemChecker() = default;
     template< class... Args, class = std::enable_if_t< std::is_constructible< Base, Args&&... >::value > >
     MemChecker(Args&&... args) noexcept(std::is_nothrow_constructible< Base, Args&&... >::value):
-      Base(std::forward< Args >(args)...)
+      Base{std::forward< Args >(args)...}
     {}
     template< class T, class = std::enable_if_t< std::is_assignable< Base, T&& >::value > >
     MemChecker& operator=(T&& value) noexcept(std::is_nothrow_assignable< Base, T&& >::value)
