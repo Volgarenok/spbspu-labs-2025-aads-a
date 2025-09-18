@@ -3,7 +3,7 @@
 
 #include <iosfwd>
 #include <string>
-#include "list.hpp"
+#include <list/list.hpp>
 
 namespace maslov
 {

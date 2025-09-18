@@ -11,8 +11,8 @@ namespace petrov
   using sublist_it_t = ForwardListIterator< size_t >;
   using result_list_type = ForwardRingList< size_t >;
   std::istream & inputValuesIntoFwdRingList(std::istream & in, list_type & fwd_ring_list);
-  std::ostream & outputNamesOfSuquences(std::ostream & out, const list_type & fwd_ring_list);
-  result_list_type getListOfSequencesFromListOfSums(list_type fwd_ring_list);
+  std::ostream & outputNamesOfSequences(std::ostream & out, const list_type & fwd_ring_list);
+  result_list_type getListOfSumsFromListOfSequences(list_type fwd_ring_list);
   void addElementToSumAndPopFrontIt(size_t & sum, list_it_t it_out, sublist_it_t it);
   std::ostream & outputSums(std::ostream & out, const result_list_type sums);
 }
@@ -31,8 +31,8 @@ int main()
       std::cout << "\n";
       return 0;
     }
-    outputNamesOfSuquences(std::cout, fwd_ring_list);
-    sums = getListOfSequencesFromListOfSums(fwd_ring_list);
+    outputNamesOfSequences(std::cout, fwd_ring_list);
+    sums = getListOfSumsFromListOfSequences(fwd_ring_list);
   }
   catch (const std::exception & e)
   {
@@ -54,13 +54,13 @@ int main()
 
 std::istream & petrov::inputValuesIntoFwdRingList(std::istream & in, list_type & fwd_ring_list)
 {
-  std::string sequence_num = {};
+  std::string sequence_name = {};
   size_t number = 0;
   while (!in.eof())
   {
     in.clear();
-    in >> sequence_num;
-    if (sequence_num.empty())
+    in >> sequence_name;
+    if (sequence_name.empty())
     {
       break;
     }
@@ -75,14 +75,14 @@ std::istream & petrov::inputValuesIntoFwdRingList(std::istream & in, list_type &
       sublist.push_front(number);
     }
     sublist.reverse();
-    pair_of_string_and_list new_pair = { sequence_num, sublist };
+    pair_of_string_and_list new_pair = { sequence_name, sublist };
     fwd_ring_list.push_front(new_pair);
   }
   fwd_ring_list.reverse();
   return in;
 }
 
-std::ostream & petrov::outputNamesOfSuquences(std::ostream & out, const list_type & fwd_ring_list)
+std::ostream & petrov::outputNamesOfSequences(std::ostream & out, const list_type & fwd_ring_list)
 {
   auto it = fwd_ring_list.cbegin();
   if (fwd_ring_list.size() == 1)
@@ -102,7 +102,7 @@ std::ostream & petrov::outputNamesOfSuquences(std::ostream & out, const list_typ
   return out;
 }
 
-petrov::result_list_type petrov::getListOfSequencesFromListOfSums(list_type fwd_ring_list)
+petrov::result_list_type petrov::getListOfSumsFromListOfSequences(list_type fwd_ring_list)
 {
   result_list_type sums = {};
   do

@@ -4,10 +4,10 @@
 #include <iomanip>
 #include <stdexcept>
 
-#include "queue.hpp"
-#include "stack.hpp"
-#include "variant.hpp"
-#include "safe_math.hpp"
+#include <queue.hpp>
+#include <stack.hpp>
+#include <variant.hpp>
+#include <safe_math.hpp>
 
 namespace rychkov
 {

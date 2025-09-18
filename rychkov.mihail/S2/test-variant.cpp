@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <functional.hpp>
 #include <mem_checker.hpp>
-#include "variant.hpp"
+#include <variant.hpp>
 
 namespace rychkov
 {
