@@ -7,7 +7,7 @@
 
 BOOST_AUTO_TEST_CASE(test_default_constructor)
 {
-  using list_t = ivanova::List<int>;
+  using list_t = ivanova::List< int >;
 
   list_t list;
   BOOST_TEST(list.empty());
@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_CASE(test_default_constructor)
   BOOST_CHECK(list.begin() == list.end());
 }
 
-template <typename Iter1, typename Iter2>
+template < typename Iter1, typename Iter2 >
 bool areEqual(Iter1 first1, Iter1 last1, Iter2 first2, Iter2 last2)
 {
   while (first1 != last1 && first2 != last2 && *first1 == *first2)
@@ -28,7 +28,7 @@ bool areEqual(Iter1 first1, Iter1 last1, Iter2 first2, Iter2 last2)
 
 BOOST_AUTO_TEST_CASE(test_copy_constructor)
 {
-  using list_t = ivanova::List<int>;
+  using list_t = ivanova::List< int >;
 
   list_t list;
   list.push_back(1);
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_copy_constructor)
 
 BOOST_AUTO_TEST_CASE(test_move_constructor)
 {
-  using list_t = ivanova::List<int>;
+  using list_t = ivanova::List< int >;
 
   list_t list;
   list.push_back(1);

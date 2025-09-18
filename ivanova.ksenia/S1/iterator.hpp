@@ -7,23 +7,25 @@
 
 namespace ivanova
 {
-  template <class List, bool IsConst>
+  template < class List, bool IsConst >
   class ListIterator
   {
     friend List;
   public:
 
-    using ptr_list = std::conditional_t<IsConst, const List*, List*>;
-    using ptr_node = std::conditional_t<IsConst, const typename List::node_type*, typename List::node_type*>;
+    using ptr_list = std::conditional_t< IsConst, const List*, List* >;
+    using ptr_node = std::conditional_t< IsConst, const typename List::node_type*, typename List::node_type* >;
     using iterator_category = std::bidirectional_iterator_tag;
     using value_type = typename List::value_type;
     using difference_type = std::ptrdiff_t;
-    using pointer = std::conditional_t<IsConst, typename List::const_pointer, typename List::pointer>;
-    using reference = std::conditional_t<IsConst, typename List::const_reference, typename List::reference>;
+    using pointer = std::conditional_t< IsConst, typename List::const_pointer, typename List::pointer >;
+    using reference = std::conditional_t< IsConst, typename List::const_reference, typename List::reference >;
 
     ListIterator() : _list(nullptr), _node(nullptr) {}
-    ListIterator(ptr_list list, ptr_node node) : _list(list), _node(node) {}
-    ListIterator(const ListIterator& other) : _list(other._list), _node(other._node) {}
+    ListIterator(ptr_list list, ptr_node node)
+      : _list(list), _node(node) {}
+    ListIterator(const ListIterator& other)
+      : _list(other._list), _node(other._node) {}
 
     ListIterator& operator=(const ListIterator& other)
     {
@@ -68,8 +70,10 @@ namespace ivanova
       return tmp;
     }
 
-    bool operator==(const ListIterator& rhs) const { return _list == rhs._list && _node == rhs._node; }
-    bool operator!=(const ListIterator& rhs) const { return !(*this == rhs); }
+    bool operator==(const ListIterator& rhs) const
+      { return _list == rhs._list && _node == rhs._node; }
+    bool operator!=(const ListIterator& rhs) const
+      { return !(*this == rhs); }
 
   private:
     ptr_list _list;

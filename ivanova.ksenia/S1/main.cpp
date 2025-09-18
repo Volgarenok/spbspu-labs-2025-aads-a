@@ -11,15 +11,15 @@ using ivanova::List;
 struct NamedList
 {
   std::string name;
-  List<uint64_t> list;
-  List<uint64_t>::iterator pos;
+  List< uint64_t > list;
+  List< uint64_t >::iterator pos;
 
   NamedList(const std::string& name) : name(name) {}
 
   void reset() { pos = list.begin(); }
 };
 
-void inputData(List<NamedList>& data, std::istream& ist)
+void inputData(List< NamedList >& data, std::istream& ist)
 {
   std::string token;
   while (ist >> token)
@@ -36,7 +36,7 @@ void inputData(List<NamedList>& data, std::istream& ist)
   }
 }
 
-void printDataNames(const List<NamedList>& data)
+void printDataNames(const List< NamedList >& data)
 {
   for (auto x = data.begin(); x != data.end(); ++x)
   {
@@ -52,7 +52,7 @@ void printDataNames(const List<NamedList>& data)
   std::cout << "\n";
 }
 
-void printDataValues(List<NamedList>& data)
+void printDataValues(List< NamedList >& data)
 {
   for (auto& x : data)
   {
@@ -86,22 +86,23 @@ void printDataValues(List<NamedList>& data)
   }
 }
 
-void countSums(List<NamedList>& data, List<uint64_t>& sums)
+void countSums(List< NamedList >& data, List< uint64_t >& sums)
 {
-  const uint64_t max_number = std::numeric_limits<uint64_t>::max();
+  const uint64_t max_number = std::numeric_limits< uint64_t >::max();
   for (auto& x : data)
   {
     x.reset();
   }
-  bool flag = true;
-  while (flag)
+  uint64_t sum = 0;
+  do 
   {
-    flag = false;
-    uint64_t sum = 0;
+    sum = 0;
+    bool hasElements = false;
+
     for (auto& x : data)
     {
       if (x.pos != x.list.end())
-      {
+      { 
         uint64_t value = *(x.pos);
         ++(x.pos);
         if (sum > max_number - value)
@@ -109,17 +110,19 @@ void countSums(List<NamedList>& data, List<uint64_t>& sums)
           throw std::logic_error("can't count sum, overflow");
         }
         sum += value;
-        flag = true;
+        hasElements = true;
       }
     }
-    if (flag)
+
+    if (hasElements)
     {
       sums.push_back(sum);
     }
-  }
+  } 
+  while (sum > 0);
 }
 
-template <typename T>
+template < typename T >
 void printList(T first, T last)
 {
   if (first == last)
@@ -143,7 +146,7 @@ void printList(T first, T last)
 
 int main()
 {
-  List<NamedList> data;
+  List< NamedList > data;
 
   inputData(data, std::cin);
   if (data.empty())
@@ -155,7 +158,7 @@ int main()
   printDataNames(data);
   printDataValues(data);
 
-  List<uint64_t> sums;
+  List< uint64_t > sums;
   try
   {
     countSums(data, sums);
