@@ -25,12 +25,12 @@ namespace ivanova
     ListIterator(ptr_list list, ptr_node node)
       : _list(list), _node(node) {}
     ListIterator(const ListIterator& other)
-      : _list(other._list), _node(other._node) {}
+      : _list(other.list_), _node(other.node_) {}
 
     ListIterator& operator=(const ListIterator& other)
     {
-      _list = other._list;
-      _node = other._node;
+      _list = other.list_;
+      _node = other.node_;
       return *this;
     }
 
@@ -41,7 +41,7 @@ namespace ivanova
     {
       if (_list != nullptr && _node != nullptr)
       {
-        _node = _node->next;
+        _node = node_->next;
       }
       return *this;
     }
@@ -59,7 +59,7 @@ namespace ivanova
       {
         return *this;
       }
-      _node = (_node != nullptr) ? _node->prev : _list->_tail;
+      _node = (_node != nullptr) ? node_->prev : list_->_tail;
       return *this;
     }
 
@@ -71,13 +71,13 @@ namespace ivanova
     }
 
     bool operator==(const ListIterator& rhs) const
-      { return _list == rhs._list && _node == rhs._node; }
+      { return _list == rhs.list_ && _node == rhs.node_; }
     bool operator!=(const ListIterator& rhs) const
       { return !(*this == rhs); }
 
   private:
-    ptr_list _list;
-    ptr_node _node;
+    ptr_list list_;
+    ptr_node node_;
   };
 }
 

@@ -24,7 +24,7 @@ void inputData(List< NamedList >& data, std::istream& ist)
   std::string token;
   while (ist >> token)
   {
-    if (isalpha(token[0]))
+    if (std::isalpha(token[0]))
     {
       data.push_back(NamedList(token));
     }

@@ -172,7 +172,7 @@ namespace ivanova
   {
     bool same = std::is_same< IterType, iterator >::value
            || std::is_same< IterType, const_iterator >::value;
-    if (!same || first._list != this)
+    if (!same || first.list_ != this)
     {
       clear();
       try
@@ -190,20 +190,20 @@ namespace ivanova
     }
     else
     {
-      if (first._node == nullptr)
+      if (first.node_ == nullptr)
       {
         clear();
         return;
       }
-      while (!empty() && _head != first._node)
+      while (!empty() && _head != first.node_)
       {
         pop_front();
       }
-      if (last._node == nullptr)
+      if (last.node_ == nullptr)
       {
         return;
       }
-      while (!empty() && _tail != last._node)
+      while (!empty() && _tail != last.node_)
       {
         pop_back();
       }
@@ -272,28 +272,28 @@ namespace ivanova
     }
     iterator pre_last = last;
     --pre_last;
-    other.cutNodes(first._node, pre_last._node);
+    other.cutNodes(first.node_, pre_last.node_);
     if (empty())
     {
-      _head = first._node;
-      _tail = pre_last._node;
+      _head = first.node_;
+      _tail = pre_last.node_;
     }
     else if (position == begin())
     {
-      linkNodes(pre_last._node, _head);
-      _head = first._node;
+      linkNodes(pre_last.node_, _head);
+      _head = first.node_;
     }
     else if (position == end())
     {
-      linkNodes(_tail, first._node);
-      _tail = pre_last._node;
+      linkNodes(_tail, first.node_);
+      _tail = pre_last.node_;
     }
     else
     {
-      node_type* curr = position._node;
+      node_type* curr = position.node_;
       node_type* prev = curr->prev;
-      linkNodes(prev, first._node);
-      linkNodes(pre_last._node, curr);
+      linkNodes(prev, first.node_);
+      linkNodes(pre_last.node_, curr);
     }
     other._size -= diff;
     _size += diff;
