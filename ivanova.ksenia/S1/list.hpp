@@ -29,7 +29,11 @@ namespace ivanova
     friend iterator;
     friend const_iterator;
 
-    List() noexcept : _head(nullptr), _tail(nullptr), _size(0) {}
+    List() noexcept :
+      _head(nullptr),
+      _tail(nullptr),
+      _size(0)
+      {}
 
     List(const List& other) : List()
     {
@@ -41,8 +45,10 @@ namespace ivanova
       assign(n, value);
     }
 
-    List(List&& moved) noexcept
-      : _head(moved._head), _tail(moved._tail), _size(moved._size)
+    List(List&& moved) noexcept :
+      _head(moved._head),
+      _tail(moved._tail),
+      _size(moved._size)
     {
       moved._head = nullptr;
       moved._tail = nullptr;

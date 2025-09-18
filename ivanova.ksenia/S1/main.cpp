@@ -66,7 +66,7 @@ void printDataValues(List< NamedList >& data)
     {
       if (x.pos != x.list.end())
       {
-        uint64_t value = *(x.pos);
+        size_t value = *(x.pos);
         ++(x.pos);
         if (!flag)
         {
@@ -89,22 +89,22 @@ void printDataValues(List< NamedList >& data)
 void countSums(List< NamedList >& data, List< uint64_t >& sums)
 {
   const uint64_t max_number = std::numeric_limits< uint64_t >::max();
-  for (auto& x : data)
+  for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
   {
-    x.reset();
+    it->reset();
   }
-  uint64_t sum = 0;
+  size_t sum = 0;
   do
   {
     sum = 0;
     bool hasElements = false;
 
-    for (auto& x : data)
+    for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
     {
-      if (x.pos != x.list.end())
+      if (it->pos != it->list.end())
       {
-        uint64_t value = *(x.pos);
-        ++(x.pos);
+        size_t value = *(it->pos);
+        ++(it->pos);
         if (sum > max_number - value)
         {
           throw std::logic_error("can't count sum, overflow");
@@ -130,18 +130,13 @@ void printList(T first, T last)
     std::cout << "0\n";
     return;
   }
-  for (T x = first; x != last; ++x)
+
+  std::cout << *first;
+  while (++first != last)
   {
-    if (x == first)
-    {
-      std::cout << *x;
-    }
-    else
-    {
-      std::cout << " " << *x;
-    }
+    std::cout << ' ' << *first;
   }
-  std::cout << "\n";
+  std::cout << '\n';
 }
 
 int main()
@@ -163,7 +158,7 @@ int main()
   {
     countSums(data, sums);
   }
-  catch (std::exception& ex)
+  catch (const std::exception& ex)
   {
     std::cerr << ex.what() << "\n";
     return 1;

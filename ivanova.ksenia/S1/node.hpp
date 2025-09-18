@@ -12,8 +12,11 @@ namespace ivanova
     ListNode* prev;
     value_type value;
 
-    ListNode(const value_type& value)
-      : next(nullptr), prev(nullptr), value(value) {}
+    ListNode(const value_type& value) :
+      next(nullptr),
+      prev(nullptr),
+      value(value)
+      {}
   };
 }
 
