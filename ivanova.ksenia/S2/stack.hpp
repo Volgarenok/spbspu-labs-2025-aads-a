@@ -7,7 +7,7 @@
 
 namespace ivanova
 {
-  template <typename T>
+  template < typename T >
   class Stack
   {
   public:
@@ -21,7 +21,8 @@ namespace ivanova
 
     Stack() = default;
 
-    Stack(const Stack& other) : _buffer(other._buffer) {}
+    Stack(const Stack& other)
+      : buffer_(other.buffer_) {}
 
     Stack(Stack&& other) { swap(other); }
 
@@ -46,20 +47,20 @@ namespace ivanova
 
     void swap(Stack& other)
     {
-      _buffer.swap(other._buffer);
+      buffer_.swap(other.buffer_);
     }
 
-    reference top() { return _buffer.back(); }
-    const_reference top() const { return _buffer.back(); }
+    reference top() { return buffer_.back(); }
+    const_reference top() const { return buffer_.back(); }
 
-    void push(const_reference value) { _buffer.push_back(value); }
-    void pop() { _buffer.pop_back(); }
+    void push(const_reference value) { buffer_.push_back(value); }
+    void pop() { buffer_.pop_back(); }
 
-    size_type size() const noexcept { return _buffer.size(); }
-    bool empty() const noexcept { return _buffer.empty(); }
+    size_type size() const noexcept { return buffer_.size(); }
+    bool empty() const noexcept { return buffer_.empty(); }
 
   private:
-    Array<T> _buffer;
+    Array< T > buffer_;
   };
 }
 

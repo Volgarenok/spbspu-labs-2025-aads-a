@@ -15,7 +15,7 @@ inline bool isNumber(const std::string& token)
   }
   size_t start = token[0] == '+' || token[0] == '-' ? 1 : 0;
   bool flag = true;
-  for (size_t i = start; i < token.size() && flag; ++i)
+  for (size_t i = start; i <  token.size() && flag; ++i)
   {
     flag = std::isdigit(token[i]);
   }
@@ -40,9 +40,9 @@ inline int prior(const std::string& op)
   return 0;
 }
 
-inline ivanova::Queue<std::string> getTokens(const std::string& line)
+inline ivanova::Queue< std::string > getTokens(const std::string& line)
 {
-  ivanova::Queue<std::string> tokens;
+  ivanova::Queue< std::string > tokens;
   size_t prev = 0;
   for (size_t i = 0; i <= line.size(); ++i)
   {
@@ -58,10 +58,10 @@ inline ivanova::Queue<std::string> getTokens(const std::string& line)
   return tokens;
 }
 
-inline ivanova::Queue<std::string> getPostfix(ivanova::Queue<std::string>& tokens)
+inline ivanova::Queue< std::string > getPostfix(ivanova::Queue< std::string >& tokens)
 {
-  ivanova::Queue<std::string> postfix;
-  ivanova::Stack<std::string> operations;
+  ivanova::Queue< std::string > postfix;
+  ivanova::Stack< std::string > operations;
   while (!tokens.empty())
   {
     std::string token = tokens.front();
@@ -122,8 +122,8 @@ inline ivanova::Queue<std::string> getPostfix(ivanova::Queue<std::string>& token
 
 inline int64_t saveAdd(int64_t a, int64_t b)
 {
-  if ((b > 0 && a > std::numeric_limits<int64_t>::max() - b) ||
-      (b < 0 && a < std::numeric_limits<int64_t>::min() - b))
+  if ((b  > 0 && a  > std::numeric_limits< int64_t >::max() - b) ||
+      (b <  0 && a <  std::numeric_limits< int64_t >::min() - b))
   {
     throw std::logic_error("addition overflow");
   }
@@ -132,8 +132,8 @@ inline int64_t saveAdd(int64_t a, int64_t b)
 
 inline int64_t saveSub(int64_t a, int64_t b)
 {
-  if ((b < 0 && a > std::numeric_limits<int64_t>::max() + b) ||
-      (b > 0 && a < std::numeric_limits<int64_t>::min() + b))
+  if ((b <  0 && a  > std::numeric_limits< int64_t >::max() + b) ||
+      (b  > 0 && a <  std::numeric_limits< int64_t >::min() + b))
   {
     throw std::logic_error("subtraction overflow");
   }
@@ -142,35 +142,35 @@ inline int64_t saveSub(int64_t a, int64_t b)
 
 inline int64_t saveMul(int64_t a, int64_t b)
 {
-  if (a > 0)
+  if (a  > 0)
   {
-    if (b > 0)
+    if (b  > 0)
     {
-      if (a > std::numeric_limits<int64_t>::max() / b)
+      if (a  > std::numeric_limits< int64_t >::max() / b)
       {
         throw std::logic_error("multiplication overflow");
       }
     }
-    else if (b < 0)
+    else if (b <  0)
     {
-      if (b < std::numeric_limits<int64_t>::min() / a)
+      if (b <  std::numeric_limits< int64_t >::min() / a)
       {
         throw std::logic_error("multiplication overflow");
       }
     }
   }
-  else if (a < 0)
+  else if (a <  0)
   {
-    if (b > 0)
+    if (b  > 0)
     {
-      if (a < std::numeric_limits<int64_t>::min() / b)
+      if (a <  std::numeric_limits< int64_t >::min() / b)
       {
         throw std::logic_error("multiplication overflow");
       }
     }
-    else if (b < 0)
+    else if (b <  0)
     {
-      if (a < std::numeric_limits<int64_t>::max() / b)
+      if (a <  std::numeric_limits< int64_t >::max() / b)
       {
         throw std::logic_error("multiplication overflow");
       }
@@ -185,7 +185,7 @@ inline int64_t saveDiv(int64_t a, int64_t b)
   {
     throw std::logic_error("division by zero");
   }
-  if (a == std::numeric_limits<int64_t>::min() && b == -1)
+  if (a == std::numeric_limits< int64_t >::min() && b == -1)
   {
     throw std::logic_error("division overflow");
   }
@@ -198,7 +198,7 @@ inline int64_t saveMod(int64_t a, int64_t b)
   {
     throw std::logic_error("modulo by zero");
   }
-  if (a == std::numeric_limits<int64_t>::min() && b == -1)
+  if (a == std::numeric_limits< int64_t >::min() && b == -1)
   {
     throw std::logic_error("modulo overflow");
   }
@@ -231,16 +231,16 @@ inline int64_t doOperation(int64_t a, int64_t b, const std::string& op)
   throw std::logic_error("unknown operation '" + op + "'");
 }
 
-inline int64_t evalPostfix(ivanova::Queue<std::string>& postfix)
+inline int64_t evalPostfix(ivanova::Queue< std::string >& postfix)
 {
-  ivanova::Stack<int64_t> stack;
+  ivanova::Stack< int64_t > stack;
   while (!postfix.empty())
   {
     std::string token = postfix.front();
     postfix.pop();
     if (isOperation(token))
     {
-      if (stack.size() < 2)
+      if (stack.size() <  2)
       {
         std::string message = "binary operation '" + token + "' expected 2 arguments, but was one";
         throw std::logic_error(message);
@@ -255,7 +255,7 @@ inline int64_t evalPostfix(ivanova::Queue<std::string>& postfix)
       stack.push(std::stoll(token));
     }
   }
-  if (stack.size() > 1)
+  if (stack.size()  > 1)
   {
     throw std::logic_error("wrong expression");
   }
@@ -264,8 +264,8 @@ inline int64_t evalPostfix(ivanova::Queue<std::string>& postfix)
 
 int64_t ivanova::countExpression(const std::string& expression)
 {
-  ivanova::Queue<std::string> tokens = getTokens(expression);
-  ivanova::Queue<std::string> postfix = getPostfix(tokens);
+  ivanova::Queue< std::string > tokens = getTokens(expression);
+  ivanova::Queue< std::string > postfix = getPostfix(tokens);
   int64_t value = evalPostfix(postfix);
   return value;
 }

@@ -7,7 +7,7 @@
 
 namespace ivanova
 {
-  template <typename T>
+  template < typename T >
   class Array
   {
   public:
@@ -23,12 +23,13 @@ namespace ivanova
 
     Array() noexcept : _size(0), _capacity(0), _data(nullptr) {}
 
-    Array(const Array& other) : _size(other._size), _capacity(other._capacity), _data(allocate(_capacity))
+    Array(const Array& other)
+      : _size(other._size), _capacity(other._capacity), _data(allocate(_capacity))
     {
       size_t constructed = 0;
       try
       {
-        for (; constructed < _size; ++constructed)
+        for (; constructed <  _size; ++constructed)
         {
           new (_data + constructed) value_type(other._data[constructed]);
         }
@@ -88,7 +89,7 @@ namespace ivanova
       size_type constructed = 0;
       try
       {
-        for (; constructed < _size; ++constructed)
+        for (; constructed <  _size; ++constructed)
         {
           new (new_data + constructed) value_type(_data[constructed]);
         }
@@ -108,7 +109,7 @@ namespace ivanova
 
     void pop_back()
     {
-      if (_size > 0)
+      if (_size  > 0)
       {
         back().~value_type();
         --_size;
@@ -149,7 +150,7 @@ namespace ivanova
 
     static pointer allocate(size_type size)
     {
-      return size > 0 ? static_cast<pointer>(operator new(size * sizeof(value_type))) : nullptr;
+      return size  > 0 ? static_cast< pointer >(operator new(size * sizeof(value_type))) : nullptr;
     }
 
     static void deallocate(pointer data)
@@ -162,7 +163,7 @@ namespace ivanova
 
     static void destruct(pointer data, size_type size)
     {
-      for (size_type i = 0; i < size; ++i)
+      for (size_type i = 0; i <  size; ++i)
       {
         data[i].~value_type();
       }

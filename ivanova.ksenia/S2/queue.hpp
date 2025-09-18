@@ -7,7 +7,7 @@
 
 namespace ivanova
 {
-  template <typename T>
+  template < typename T >
   class Queue
   {
   public:
@@ -22,7 +22,7 @@ namespace ivanova
     Queue() = default;
 
     Queue(const Queue& other)
-      : _head(other._head), _tail(other._tail), _size(other._size), _buffer(other._buffer) {}
+      : head_(other.head_), tail_(other.tail_), size_(other.size_), buffer_(other.buffer_) {}
 
     Queue(Queue&& other) { swap(other); }
 
@@ -45,76 +45,76 @@ namespace ivanova
       return *this;
     }
 
-    reference front() { return _buffer[_head]; }
-    reference back() { return _buffer[_tail]; }
-    const_reference front() const { return _buffer[_head]; }
-    const_reference back() const { return _buffer[_tail]; }
+    reference front() { return buffer_[head_]; }
+    reference back() { return buffer_[tail_]; }
+    const_reference front() const { return buffer_[head_]; }
+    const_reference back() const { return buffer_[tail_]; }
 
     void push(const_reference value)
     {
-      if (_buffer.size() == 0)
+      if (buffer_.size() == 0)
       {
-        _buffer.push_back(value);
-        ++_size;
+        buffer_.push_back(value);
+        ++size_;
         return;
       }
-      if (_size == 0)
+      if (size_ == 0)
       {
-        _head = _tail = 0;
-        ++_size;
-        _buffer[_head] = value;
+        head_ = tail_ = 0;
+        ++size_;
+        buffer_[head_] = value;
         return;
       }
-      _tail = (_tail + 1) % _buffer.size();
-      if (_tail == _head)
+      tail_ = (tail_ + 1) % buffer_.size();
+      if (tail_ == head_)
       {
         shiftBuffer();
-        _buffer.push_back(value);
-        ++_size;
+        buffer_.push_back(value);
+        ++size_;
         return;
       }
-      _buffer[_tail] = value;
-      ++_size;
+      buffer_[tail_] = value;
+      ++size_;
     }
 
     void pop()
     {
-      if (_size == 0)
+      if (size_ == 0)
       {
         return;
       }
-      _head = (_head + 1) % _buffer.size();
-      --_size;
+      head_ = (head_ + 1) % buffer_.size();
+      --size_;
     }
 
-    size_type size() const noexcept { return _size; }
-    bool empty() const noexcept { return _size == 0; }
+    size_type size() const noexcept { return size_; }
+    bool empty() const noexcept { return size_ == 0; }
 
     void swap(Queue& other)
     {
-      std::swap(_head, other._head);
-      std::swap(_tail, other._tail);
-      std::swap(_size, other._size);
-      _buffer.swap(other._buffer);
+      std::swap(head_, other.head_);
+      std::swap(tail_, other.tail_);
+      std::swap(size_, other.size_);
+      buffer_.swap(other.buffer_);
     }
   private:
-    size_type _head = 0;
-    size_type _tail = 0;
-    size_type _size = 0;
-    Array<T> _buffer;
+    size_type head_ = 0;
+    size_type tail_ = 0;
+    size_type size_ = 0;
+    Array< T > buffer_;
 
     void shiftBuffer()
     {
-      if (_head == 0)
+      if (head_ == 0)
       {
-        _tail = _size;
+        tail_ = size_;
         return;
       }
-      std::reverse(_buffer.begin(), _buffer.begin() + _head);
-      std::reverse(_buffer.begin() + _head, _buffer.end());
-      std::reverse(_buffer.begin(), _buffer.end());
-      _head = 0;
-      _tail = _size;
+      std::reverse(buffer_.begin(), buffer_.begin() + head_);
+      std::reverse(buffer_.begin() + head_, buffer_.end());
+      std::reverse(buffer_.begin(), buffer_.end());
+      head_ = 0;
+      tail_ = size_;
     }
   };
 }
