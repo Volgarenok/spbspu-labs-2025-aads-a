@@ -94,7 +94,7 @@ void countSums(List< NamedList >& data, List< uint64_t >& sums)
     x.reset();
   }
   uint64_t sum = 0;
-  do 
+  do
   {
     sum = 0;
     bool hasElements = false;
