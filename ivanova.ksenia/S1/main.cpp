@@ -102,7 +102,7 @@ void countSums(List< NamedList >& data, List< uint64_t >& sums)
     for (auto& x : data)
     {
       if (x.pos != x.list.end())
-      { 
+      {
         uint64_t value = *(x.pos);
         ++(x.pos);
         if (sum > max_number - value)
