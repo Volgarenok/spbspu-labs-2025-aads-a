@@ -118,7 +118,7 @@ void countSums(List< NamedList >& data, List< uint64_t >& sums)
     {
       sums.push_back(sum);
     }
-  } 
+  }
   while (sum > 0);
 }
 
