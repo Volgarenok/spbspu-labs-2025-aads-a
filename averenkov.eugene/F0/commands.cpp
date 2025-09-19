@@ -137,13 +137,12 @@ void averenkov::addItem(Base& base, const averenkov::Array< std::string >& args)
     throw std::invalid_argument("Invalid arguments count for add");
   }
 
-  auto new_item = std::make_shared<Item>(args[1], std::stoi(args[2]), std::stoi(args[3]));
+  auto new_item = std::make_shared< Item >(args[1], std::stoi(args[2]), std::stoi(args[3]));
 
   if (std::any_of(base.items.begin(), base.items.end(), ItemFinder{ args[1] }))
   {
     throw std::invalid_argument("Item already exists");
   }
-
   base.items.push_back(new_item);
 }
 
@@ -307,6 +306,8 @@ void averenkov::showStats(const Base& base, const averenkov::Array< std::string 
 
   std::cout << "=== Items ===\n";
   std::for_each(base.items.begin(), base.items.end(), printItem);
+  for (auto it = base.items.begin(); it != base.items.end(); it++)
+  { std::cout << (*it)->getName(); }
   std::cout << "\n=== Kits ===\n";
   std::for_each(base.kits.begin(), base.kits.end(), printKit);
   std::cout << "\n=== Knapsacks ===\n";

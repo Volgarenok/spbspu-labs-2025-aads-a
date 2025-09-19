@@ -39,7 +39,7 @@ namespace averenkov
     const T* cbegin() const noexcept;
     const T* cend() const noexcept;
 
-    void push_back(T rhs);
+    void push_back(const T& rhs);
     void pop_front();
     void pop_back() noexcept;
 
@@ -202,7 +202,7 @@ namespace averenkov
   }
 
   template< class T >
-  void Array< T >::push_back(T rhs)
+  void Array< T >::push_back(const T& rhs)
   {
     if (last_ == capacity_)
     {
