@@ -1,6 +1,6 @@
 #include "inputDict.hpp"
 
-void lebedev::inputDicts(std::istream& in, dictOfDicts dict)
+void lebedev::inputDicts(std::istream& in, dictOfDicts& dict)
 {
   std::string name = "";
   while (in)

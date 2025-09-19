@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-void lebedev::printCMD(std::ostream& out, dictOfDicts dict)
+void lebedev::printCMD(std::ostream& out, const dictOfDicts& dict)
 {
   std::string name = "";
   std::cin >> name;
