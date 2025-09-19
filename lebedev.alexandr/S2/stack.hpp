@@ -14,7 +14,6 @@ namespace lebedev
     Stack(Stack< T >&&) noexcept;
     Stack< T >& operator=(const Stack< T >& other);
     Stack< T >& operator=(Stack< T >&& other) noexcept;
-    void addSize();
     bool isEmpty() const noexcept;
     size_t size() const noexcept;
     void push(const T& rhs);
@@ -23,6 +22,7 @@ namespace lebedev
     void swap(Stack< T >& other) noexcept;
     ~Stack();
   private:
+    void addSize();
     size_t capacity_;
     size_t size_;
     T* data_;

@@ -14,7 +14,6 @@ namespace lebedev
     Queue(Queue< T >&&) noexcept;
     Queue< T >& operator=(const Queue< T >&);
     Queue< T >& operator=(Queue< T >&&) noexcept;
-    void addSize();
     bool isEmpty() const noexcept;
     size_t size() const noexcept;
     void push(const T& rhs);
@@ -23,6 +22,7 @@ namespace lebedev
     void swap(Queue< T >&) noexcept;
     ~Queue();
   private:
+    void addSize();
     size_t capacity_;
     size_t size_;
     size_t head_;
