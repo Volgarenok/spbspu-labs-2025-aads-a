@@ -1,36 +1,16 @@
 #include "commands.hpp"
 #include <algorithm>
 #include <cctype>
+#include <limits>
 
 namespace
 {
-  void trim(std::string& str)
-  {
-    size_t start = 0;
-    while (start < str.size() && std::isspace(str[start]))
-    {
-      ++start;
-    }
-    size_t end = str.size();
-    while (end > start && std::isspace(str[end - 1]))
-    {
-      --end;
-    }
-    str = str.substr(start, end - start);
-  }
-
   void readVertices(std::istream& in, size_t count, averenkov::Array< std::string >& vertices)
   {
     std::string vertex;
     for (size_t i = 0; i < count; ++i)
     {
-      vertex.clear();
-      char c;
-      while (in.get(c) && !std::isspace(c))
-      {
-        vertex += c;
-      }
-      if (vertex.empty())
+      if (!(in >> vertex))
       {
         throw std::invalid_argument("Not enough vertices");
       }
@@ -39,121 +19,29 @@ namespace
   }
 }
 
-void averenkov::loadGraphsFromFile(HashTable< std::string, Graph >& graphs, std::istream& in)
+void averenkov::loadGraphsFromFile(Tree< std::string, Graph >& graphs, std::istream& in)
 {
-  std::string line;
-  while (std::getline(in, line))
+  std::string name;
+  size_t edgeCount = 0;
+  while (in >> name >> edgeCount)
   {
-    trim(line);
-    if (line.empty())
-    {
-      continue;
-    }
-
-    size_t pos = 0;
-    std::string graphName;
-    std::string edgeCountStr;
-
-    while (pos < line.size() && !std::isspace(line[pos]))
-    {
-      graphName += line[pos];
-      ++pos;
-    }
-    while (pos < line.size() && std::isspace(line[pos]))
-    {
-      ++pos;
-    }
-    while (pos < line.size() && !std::isspace(line[pos]))
-    {
-      edgeCountStr += line[pos];
-      ++pos;
-    }
-    if (graphName.empty() || edgeCountStr.empty())
-    {
-      continue;
-    }
-    size_t edgeCount = std::stoul(edgeCountStr);
-    Graph graph;
-    graph.name = graphName;
-
+    Graph currentGraph;
     for (size_t i = 0; i < edgeCount; ++i)
     {
-      if (!std::getline(in, line))
-      {
-        throw std::runtime_error("Unexpected end of file");
-      }
-      trim(line);
-      if (line.empty())
-      {
-        --i;
-        continue;
-      }
-
-      pos = 0;
       std::string from;
       std::string to;
-      std::string weightStr;
-      while (pos < line.size() && !std::isspace(line[pos]))
+      size_t weight;
+      if (!(in >> from >> to >> weight))
       {
-        from += line[pos];
-        ++pos;
+        throw std::runtime_error("Invalid input format");
       }
-      while (pos < line.size() && std::isspace(line[pos]))
-      {
-        ++pos;
-      }
-      while (pos < line.size() && !std::isspace(line[pos]))
-      {
-        to += line[pos];
-        ++pos;
-      }
-      while (pos < line.size() && std::isspace(line[pos]))
-      {
-        ++pos;
-      }
-      while (pos < line.size() && !std::isspace(line[pos]))
-      {
-        weightStr += line[pos];
-        ++pos;
-      }
-      if (from.empty() || to.empty() || weightStr.empty())
-      {
-        throw std::runtime_error("Invalid edge format: " + line);
-      }
-      size_t weight = std::stoul(weightStr);
-
-      graph.vertices.insert({from, true});
-      graph.vertices.insert({to, true});
-
-      auto toMapIt = graph.edges.find(from);
-      if (toMapIt == graph.edges.end())
-      {
-        HashTable< std::string, Array< size_t > > newMap;
-        Array< size_t > weights;
-        weights.push_back(weight);
-        newMap.insert({to, weights});
-        graph.edges.insert({from, newMap});
-      }
-      else
-      {
-        auto weightsIt = toMapIt->second.find(to);
-        if (weightsIt == toMapIt->second.end())
-        {
-          Array< size_t > weights;
-          weights.push_back(weight);
-          toMapIt->second.insert({to, weights});
-        }
-        else
-        {
-          weightsIt->second.push_back(weight);
-        }
-      }
+      currentGraph.addEdge(from, to, weight);
     }
-    graphs.insert({graphName, graph});
+    graphs[name] = currentGraph;
   }
 }
 
-void averenkov::printGraphs(std::ostream& out, const HashTable< std::string, Graph >& graphs)
+void averenkov::printGraphs(std::ostream& out, const Tree< std::string, Graph >& graphs)
 {
   Array< std::string > graphNames;
   for (auto it = graphs.begin(); it != graphs.end(); ++it)
@@ -170,58 +58,75 @@ void averenkov::printGraphs(std::ostream& out, const HashTable< std::string, Gra
       }
     }
   }
+  if (graphNames.empty())
+  {
+    out << "\n";
+    return;
+  }
   for (size_t i = 0; i < graphNames.size(); ++i)
   {
     out << graphNames[i] << "\n";
   }
 }
 
-void averenkov::printVertices(std::ostream& out, std::istream& in, const HashTable< std::string, Graph >& graphs)
+void averenkov::printVertices(std::ostream& out, std::istream& in, const Tree< std::string, Graph >& graphs)
 {
   std::string graphName;
   in >> graphName;
-  auto graphIt = graphs.find(graphName);
-  if (graphIt == graphs.end())
+  auto it = graphs.find(graphName);
+  if (it == graphs.end())
   {
-    throw std::invalid_argument("Graph not found");
+    throw std::invalid_argument("Invalid command");
   }
-  Array< std::string > vertices;
-  for (auto it = graphIt->second.vertices.begin(); it != graphIt->second.vertices.end(); ++it)
+  Array< std::string > vertexNames;
+  for (auto vit = it->second.vertices.begin(); vit != it->second.vertices.end(); ++vit)
   {
-    vertices.push_back(it->first);
+    vertexNames.push_back(vit->first);
   }
-  for (size_t i = 0; i < vertices.size(); ++i)
+  for (size_t i = 0; i < vertexNames.size(); ++i)
   {
-    for (size_t j = i + 1; j < vertices.size(); ++j)
+    size_t minIndex = i;
+    for (size_t j = i + 1; j < vertexNames.size(); ++j)
     {
-      if (vertices[j] < vertices[i])
+      if (vertexNames[j] < vertexNames[minIndex])
       {
-        std::swap(vertices[i], vertices[j]);
+        minIndex = j;
       }
     }
+    if (minIndex != i)
+    {
+      std::swap(vertexNames[i], vertexNames[minIndex]);
+    }
   }
-  for (size_t i = 0; i < vertices.size(); ++i)
+  if (vertexNames.empty())
   {
-    out << vertices[i] << "\n";
+    out << "\n";
+    return;
+  }
+  for (size_t i = 0; i < vertexNames.size(); ++i)
+  {
+    out << vertexNames[i] << "\n";
   }
 }
 
-void averenkov::printOutbound(std::ostream& out, std::istream& in, const HashTable< std::string, Graph >& graphs)
+void averenkov::printOutbound(std::ostream& out, std::istream& in, const Tree< std::string, Graph >& graphs)
 {
-  std::string graphName, vertex;
+  std::string graphName;
+  std::string vertex;
   in >> graphName >> vertex;
-  auto graphIt = graphs.find(graphName);
-  if (graphIt == graphs.end())
+  auto it = graphs.find(graphName);
+  if (it == graphs.end() || it->second.vertices.find(vertex) == it->second.vertices.end())
   {
-    throw std::invalid_argument("Graph not found");
+    throw std::invalid_argument("Invalid command");
   }
-  auto edgesIt = graphIt->second.edges.find(vertex);
-  if (edgesIt == graphIt->second.edges.end())
+  auto edgesIt = it->second.edges.find(vertex);
+  if (edgesIt == it->second.edges.end())
   {
-    throw std::invalid_argument("Vertex not found");
+    out << "\n";
+    return;
   }
   Array< std::string > targets;
-  HashTable< std::string, Array< size_t > > weightsMap;
+  Tree< std::string, Array< size_t > > weightsMap;
   for (auto it = edgesIt->second.begin(); it != edgesIt->second.end(); ++it)
   {
     targets.push_back(it->first);
@@ -237,9 +142,15 @@ void averenkov::printOutbound(std::ostream& out, std::istream& in, const HashTab
       }
     }
   }
+  if (targets.empty())
+  {
+    out << "\n";
+    return;
+  }
   for (size_t i = 0; i < targets.size(); ++i)
   {
     auto weightsIt = weightsMap.find(targets[i]);
+    out << targets[i];
     Array< size_t > weights = weightsIt->second;
     for (size_t j = 0; j < weights.size(); ++j)
     {
@@ -251,7 +162,6 @@ void averenkov::printOutbound(std::ostream& out, std::istream& in, const HashTab
         }
       }
     }
-    out << targets[i];
     for (size_t j = 0; j < weights.size(); ++j)
     {
       out << " " << weights[j];
@@ -260,7 +170,7 @@ void averenkov::printOutbound(std::ostream& out, std::istream& in, const HashTab
   }
 }
 
-void averenkov::printInbound(std::ostream& out, std::istream& in, const HashTable< std::string, Graph >& graphs)
+void averenkov::printInbound(std::ostream& out, std::istream& in, const Tree< std::string, Graph >& graphs)
 {
   std::string graphName, vertex;
   in >> graphName >> vertex;
@@ -269,8 +179,12 @@ void averenkov::printInbound(std::ostream& out, std::istream& in, const HashTabl
   {
     throw std::invalid_argument("Graph not found");
   }
+  if (graphIt->second.vertices.find(vertex) == graphIt->second.vertices.end())
+  {
+    throw std::invalid_argument("Invalid command");
+  }
   Array< std::string > sources;
-  HashTable< std::string, Array< size_t > > weightsMap;
+  Tree< std::string, Array< size_t > > weightsMap;
   for (auto fromIt = graphIt->second.edges.begin(); fromIt != graphIt->second.edges.end(); ++fromIt)
   {
     for (auto toIt = fromIt->second.begin(); toIt != fromIt->second.end(); ++toIt)
@@ -316,44 +230,23 @@ void averenkov::printInbound(std::ostream& out, std::istream& in, const HashTabl
   }
 }
 
-void averenkov::bindEdge(std::istream& in, HashTable< std::string, Graph >& graphs)
+void averenkov::bindEdge(std::istream& in, Tree< std::string, Graph >& graphs)
 {
-  std::string graphName, from, to;
+  std::string graphName;
+  std::string from;
+  std::string to;
   size_t weight;
   in >> graphName >> from >> to >> weight;
-  auto graphIt = graphs.find(graphName);
-  if (graphIt == graphs.end())
+  auto it = graphs.find(graphName);
+  if (it == graphs.end())
   {
-    throw std::invalid_argument("Graph not found");
+
+    throw std::invalid_argument("Invalid command");
   }
-  graphIt->second.vertices.insert({from, true});
-  graphIt->second.vertices.insert({to, true});
-  auto toMapIt = graphIt->second.edges.find(from);
-  if (toMapIt == graphIt->second.edges.end())
-  {
-    HashTable< std::string, Array< size_t > > newMap;
-    Array< size_t > weights;
-    weights.push_back(weight);
-    newMap.insert({to, weights});
-    graphIt->second.edges.insert({from, newMap});
-  }
-  else
-  {
-    auto weightsIt = toMapIt->second.find(to);
-    if (weightsIt == toMapIt->second.end())
-    {
-      Array< size_t > weights;
-      weights.push_back(weight);
-      toMapIt->second.insert({to, weights});
-    }
-    else
-    {
-      weightsIt->second.push_back(weight);
-    }
-  }
+  it->second.addEdge(from, to, weight);
 }
 
-void averenkov::cutEdge(std::istream& in, HashTable< std::string, Graph >& graphs)
+void averenkov::cutEdge(std::istream& in, Tree< std::string, Graph >& graphs)
 {
   std::string graphName, from, to;
   size_t weight;
@@ -397,27 +290,30 @@ void averenkov::cutEdge(std::istream& in, HashTable< std::string, Graph >& graph
   }
 }
 
-void averenkov::createGraph(std::istream& in, HashTable< std::string, Graph >& graphs)
+void averenkov::createGraph(std::istream& in, Tree< std::string, Graph >& graphs)
 {
   std::string graphName;
-  size_t count;
-  in >> graphName >> count;
+  in >> graphName;
   if (graphs.find(graphName) != graphs.end())
   {
-    throw std::invalid_argument("Graph already exists");
+    throw std::invalid_argument("Invalid command");
   }
-  Array< std::string > vertices;
-  readVertices(in, count, vertices);
-  Graph graph;
-  graph.name = graphName;
-  for (size_t i = 0; i < vertices.size(); ++i)
+  size_t vertexCount = 0;
+  in >> vertexCount;
+  Graph newGraph;
+  for (size_t i = 0; i < vertexCount; ++i)
   {
-    graph.vertices.insert({vertices[i], true});
+    std::string vertex;
+    if (!(in >> vertex))
+    {
+      throw std::invalid_argument("Invalid command");
+    }
+    newGraph.addVertex(vertex);
   }
-  graphs.insert({graphName, graph});
+  graphs.insert({graphName, newGraph});
 }
 
-void averenkov::mergeGraphs(std::istream& in, HashTable< std::string, Graph >& graphs)
+void averenkov::mergeGraphs(std::istream& in, Tree< std::string, Graph >& graphs)
 {
   std::string newGraph, graph1, graph2;
   in >> newGraph >> graph1 >> graph2;
@@ -489,7 +385,7 @@ void averenkov::mergeGraphs(std::istream& in, HashTable< std::string, Graph >& g
   graphs.insert({newGraph, mergedGraph});
 }
 
-void averenkov::extractGraph(std::istream& in, HashTable< std::string, Graph >& graphs)
+void averenkov::extractGraph(std::istream& in, Tree< std::string, Graph >& graphs)
 {
   std::string newGraph, oldGraph;
   size_t count;
@@ -554,7 +450,7 @@ void averenkov::extractGraph(std::istream& in, HashTable< std::string, Graph >& 
   graphs.insert({newGraph, extractedGraph});
 }
 
-void averenkov::commandsInit(HashTable< std::string, std::function< void() > >& cmds, HashTable< std::string, Graph > graphs)
+void averenkov::commandsInit(Tree< std::string, std::function< void() > >& cmds, Tree< std::string, Graph >& graphs)
 {
   cmds["graphs"] = std::bind(printGraphs, std::ref(std::cout), std::cref(graphs));
   cmds["vertexes"] = std::bind(printVertices, std::ref(std::cout), std::ref(std::cin), std::cref(graphs));

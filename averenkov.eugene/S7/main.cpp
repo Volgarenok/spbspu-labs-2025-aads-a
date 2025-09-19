@@ -3,7 +3,8 @@
 #include <functional>
 #include <stdexcept>
 #include <limits>
-#include "graph.hpp"
+#include <graph.hpp>
+#include <BiTree.hpp>
 #include "commands.hpp"
 
 int main(int argc, char* argv[])
@@ -21,10 +22,10 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  HashTable< std::string, Graph > graphs;
+  Tree< std::string, Graph > graphs;
   loadGraphsFromFile(graphs, file);
 
-  HashTable< std::string, std::function< void() > > cmds;
+  Tree< std::string, std::function< void() > > cmds;
   commandsInit(cmds, graphs);
 
   std::string command;
@@ -43,3 +44,4 @@ int main(int argc, char* argv[])
   }
   return 0;
 }
+
