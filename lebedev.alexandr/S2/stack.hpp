@@ -103,10 +103,11 @@ namespace lebedev
   template < class T >
   void Stack< T >::addSize()
   {
-    const size_t newCapacity = capacity_ + 50;
-    T* newArr = new T[newCapacity];
+    const size_t newCapacity = (capacity_ == 0) ? 10 : capacity_ * 2;
+    T* newArr = nullptr;
     try
     {
+      newArr = new T[newCapacity];
       for (size_t i = 0; i < size_; ++i)
       {
         newArr[i] = std::move(data_[i]);
