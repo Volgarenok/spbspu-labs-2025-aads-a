@@ -41,6 +41,13 @@ namespace lebedev
     std::pair< iter, bool > insert(const std::pair< Key, Value >&);
     Value& operator[](const Key&);
 
+    template< class F >
+    F traverse_lnr(F f) const;
+    template< class F >
+    F traverse_rnl(F f) const;
+    template< class F >
+    F traverse_breadth(F f) const;
+
     ~AVLtree();
   private:
     node_t* nil_;
@@ -69,16 +76,12 @@ namespace lebedev
   AVLtree< Key, Value, Cmp >::AVLtree():
     nil_(new node_t(Key(), Value(), nullptr)),
     fakeroot_(new node_t(Key(), Value(), nullptr)),
-    root_(nil_),
     cmp_(),
     size_(0)
   {
-    nil_->height = 0;
-    nil_->left = nullptr;
-    nil_->right = nullptr;
-    fakeroot_->left = nil_;
-    fakeroot_->right = nil_;
-    fakeroot_->parent = nullptr;
+    fakeLeaf_->parent = fakeRoot_;
+    fakeRoot_->left = fakeLeaf_;
+    fakeRoot_->right = fakeLeaf_;
   }
 
   template< class Key, class Value, class Cmp >
@@ -114,13 +117,11 @@ namespace lebedev
     size_(other.size_)
   {
     other.nil_ = new node_t(Key(), Value(), nullptr);
-    other.nil_->height = 0;
-    other.nil_->left = nullptr;
-    other.nil_->right = nullptr;
     other.fakeroot_ = new node_t(Key(), Value(), nullptr);
     other.fakeroot_->left = other.nil_;
     other.fakeroot_->right = other.nil_;
-    other.root_ = other.nil_;
+    other.root_->left = other.nil_;
+    other.root_->right = other.nil_;
     other.size_ = 0;
   }
 
@@ -140,13 +141,9 @@ namespace lebedev
     cmp_ = std::move(other.cmp_);
     size_ = other.size_;
     other.nil_ = new node_t(Key(), Value(), nullptr);
-    other.nil_->height = 0;
-    other.nil_->left = nullptr;
-    other.nil_->right = nullptr;
     other.fakeroot_ = new node_t(Key(), Value(), nullptr);
     other.fakeroot_->left = other.nil_;
     other.fakeroot_->right = other.nil_;
-    other.root_ = other.nil_;
     other.size_ = 0;
     return *this;
   }
@@ -529,7 +526,7 @@ namespace lebedev
         node->right = deleteNode(node->right, temp->data.first);
       }
     }
-    if (!node)
+    if (node == nil_)
     {
       return nullptr;
     }
@@ -627,6 +624,7 @@ namespace lebedev
   void AVLtree< Key, Value, Cmp >::swap(AVLtree< Key, Value, Cmp >& other) noexcept
   {
     std::swap(fakeroot_, other.fakeroot_);
+    std::swap(nil_, other.nil_)
     std::swap(root_, other.root_);
     std::swap(cmp_, other.cmp_);
     std::swap(size_, other.size_);
@@ -654,7 +652,7 @@ namespace lebedev
     node_t* node = it.node_;
     node_t* next = findSuccessor(node);
     fakeroot_->left = deleteNode(root_, node->data.first);
-    if (fakeroot_->left)
+    if (fakeroot_->left != nil_)
     {
       fakeroot_->left->parent = fakeroot_;
     }
@@ -688,13 +686,92 @@ namespace lebedev
   }
 
   template< class Key, class Value, class Cmp >
+  template< class F >
+  F AVLtree< Key, Value, Cmp >::traverse_lnr(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    lebedev::Stack< node_t* > stack;
+    node_t* current = fakeroot_->left;
+    while (!stack.isEmpty() || current)
+    {
+      while (current)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Cmp >
+  template< class F >
+  F AVLtree< Key, Value, Cmp >::traverse_lnr(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< node_t* > stack;
+    node_t* current = fakeroot_->left;
+    while (!stack.isEmpty() || current)
+    {
+      while (current)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Cmp >
+  template< class F >
+  F AVLtree< Key, Value, Cmp >::traverse_breadth(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Queue< node_t* > queue;
+    queue.push(fakeroot_->left);
+    while(!queue.isEmpty())
+    {
+      node_t* current = queue.top();
+      queue.pop();
+      f(current->data);
+      if (current->left)
+      {
+        queue.push(current->left);
+      }
+      if (current->right)
+      {
+        queue.push(current->right);
+      }
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Cmp >
   void AVLtree< Key, Value, Cmp >::clear(node_t* root) noexcept
   {
     if (root && root != nil_)
     {
       clear(root->left);
       clear(root->right);
-      delete root;
+      fakeroot_->left = nil_;
+      fakeroot_->right = nil_;
+      size_ = 0;
     }
   }
 
