@@ -21,10 +21,17 @@ namespace ivanova
 
     Queue() = default;
 
-    Queue(const Queue& other)
-      : head_(other.head_), tail_(other.tail_), size_(other.size_), buffer_(other.buffer_) {}
+    Queue(const Queue& other):
+      head_(other.head_),
+      tail_(other.tail_),
+      size_(other.size_),
+      buffer_(other.buffer_)
+    {}
 
-    Queue(Queue&& other) { swap(other); }
+    Queue(Queue&& other)
+    {
+      swap(other);
+    }
 
     ~Queue() = default;
 
@@ -45,10 +52,25 @@ namespace ivanova
       return *this;
     }
 
-    reference front() { return buffer_[head_]; }
-    reference back() { return buffer_[tail_]; }
-    const_reference front() const { return buffer_[head_]; }
-    const_reference back() const { return buffer_[tail_]; }
+    reference front()
+    {
+      return buffer_[head_];
+    }
+
+    reference back()
+    {
+      return buffer_[tail_];
+    }
+
+    const_reference front() const
+    {
+      return buffer_[head_];
+    }
+
+    const_reference back() const
+    {
+      return buffer_[tail_];
+    }
 
     void push(const_reference value)
     {
@@ -87,8 +109,15 @@ namespace ivanova
       --size_;
     }
 
-    size_type size() const noexcept { return size_; }
-    bool empty() const noexcept { return size_ == 0; }
+    size_type size() const noexcept
+    {
+      return size_;
+    }
+
+    bool empty() const noexcept
+    {
+      return size_ == 0;
+    }
 
     void swap(Queue& other)
     {
@@ -97,6 +126,7 @@ namespace ivanova
       std::swap(size_, other.size_);
       buffer_.swap(other.buffer_);
     }
+
   private:
     size_type head_ = 0;
     size_type tail_ = 0;

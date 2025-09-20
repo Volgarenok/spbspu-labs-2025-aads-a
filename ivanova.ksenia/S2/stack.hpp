@@ -21,10 +21,14 @@ namespace ivanova
 
     Stack() = default;
 
-    Stack(const Stack& other)
-      : buffer_(other.buffer_) {}
+    Stack(const Stack& other):
+      buffer_(other.buffer_)
+    {}
 
-    Stack(Stack&& other) { swap(other); }
+    Stack(Stack&& other)
+    {
+      swap(other);
+    }
 
     ~Stack() = default;
 
@@ -50,14 +54,35 @@ namespace ivanova
       buffer_.swap(other.buffer_);
     }
 
-    reference top() { return buffer_.back(); }
-    const_reference top() const { return buffer_.back(); }
+    reference top()
+    {
+      return buffer_.back();
+    }
 
-    void push(const_reference value) { buffer_.push_back(value); }
-    void pop() { buffer_.pop_back(); }
+    const_reference top() const
+    {
+      return buffer_.back();
+    }
 
-    size_type size() const noexcept { return buffer_.size(); }
-    bool empty() const noexcept { return buffer_.empty(); }
+    void push(const_reference value)
+    {
+      buffer_.push_back(value);
+    }
+
+    void pop()
+    {
+      buffer_.pop_back();
+    }
+
+    size_type size() const noexcept
+    {
+      return buffer_.size();
+    }
+
+    bool empty() const noexcept
+    {
+      return buffer_.empty();
+    }
 
   private:
     Array< T > buffer_;

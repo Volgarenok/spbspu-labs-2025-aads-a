@@ -9,9 +9,9 @@
 
 int main(int argc, char* argv[])
 {
-  if (argc  > 2)
+  if (argc > 2)
   {
-    std::cerr <<  "usage: " <<  argv[0] <<  " [filename]\n";
+    std::cerr << "usage: " << argv[0] << " [filename]\n";
     return 1;
   }
 
@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     fin.open(argv[1]);
     if (!fin.is_open())
     {
-      std::cerr <<  "can't open file '" <<  argv[1] <<  "'\n";
+      std::cerr << "can't open file '" << argv[1] << "'\n";
       return 1;
     }
   }
@@ -41,23 +41,23 @@ int main(int argc, char* argv[])
       result.push(value);
     }
   }
-  catch (std::logic_error& ex)
+  catch (const std::logic_error& ex)
   {
-    std::cerr <<  ex.what() <<  "\n";
+    std::cerr << ex.what() << "\n";
     return 1;
   }
 
   if (!result.empty())
   {
-    std::cout <<  result.top();
+    std::cout << result.top();
     result.pop();
   }
   while (!result.empty())
   {
-    std::cout <<  " " <<  result.top();
+    std::cout << " " << result.top();
     result.pop();
   }
-  std::cout <<  "\n";
+  std::cout << "\n";
 
   return 0;
 }

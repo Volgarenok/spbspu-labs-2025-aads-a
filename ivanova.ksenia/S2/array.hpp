@@ -21,33 +21,43 @@ namespace ivanova
     using iterator = pointer;
     using const_iterator = const_pointer;
 
-    Array() noexcept : _size(0), _capacity(0), _data(nullptr) {}
+    Array() noexcept:
+      size_(0),
+      capacity_(0),
+      data_(nullptr)
+    {}
 
-    Array(const Array& other)
-      : _size(other._size), _capacity(other._capacity), _data(allocate(_capacity))
+    Array(const Array& other):
+      size_(other.size_),
+      capacity_(other.capacity_),
+      data_(allocate(capacity_))
     {
-      size_t constructed = 0;
+      size_type constructed = 0;
       try
       {
-        for (; constructed <  _size; ++constructed)
+        for (; constructed < size_; ++constructed)
         {
-          new (_data + constructed) value_type(other._data[constructed]);
+          new (data_ + constructed) value_type(other.data_[constructed]);
         }
       }
       catch (...)
       {
-        destruct(_data, constructed);
-        deallocate(_data);
+        destruct(data_, constructed);
+        deallocate(data_);
         throw;
       }
     }
 
-    Array(Array&& other) noexcept : Array() { swap(other); }
+    Array(Array&& other) noexcept:
+      Array()
+    {
+      swap(other);
+    }
 
     ~Array()
     {
-      destruct(_data, _size);
-      deallocate(_data);
+      destruct(data_, size_);
+      deallocate(data_);
     }
 
     Array& operator=(const Array& other)
@@ -69,17 +79,17 @@ namespace ivanova
 
     void push_back(const_reference value)
     {
-      if (_size != _capacity)
+      if (size_ != capacity_)
       {
-        new (_data + _size) value_type(value);
-        ++_size;
+        new (data_ + size_) value_type(value);
+        ++size_;
         return;
       }
-      size_type new_capacity = _size * 2 + 1;
+      size_type new_capacity = size_ * 2 + 1;
       pointer new_data = allocate(new_capacity);
       try
       {
-        new (new_data + _size) value_type(value);
+        new (new_data + size_) value_type(value);
       }
       catch (...)
       {
@@ -89,9 +99,9 @@ namespace ivanova
       size_type constructed = 0;
       try
       {
-        for (; constructed <  _size; ++constructed)
+        for (; constructed < size_; ++constructed)
         {
-          new (new_data + constructed) value_type(_data[constructed]);
+          new (new_data + constructed) value_type(data_[constructed]);
         }
       }
       catch (...)
@@ -100,57 +110,112 @@ namespace ivanova
         deallocate(new_data);
         throw;
       }
-      destruct(_data, _size);
-      deallocate(_data);
-      _capacity = new_capacity;
-      _data = new_data;
-      ++_size;
+      destruct(data_, size_);
+      deallocate(data_);
+      capacity_ = new_capacity;
+      data_ = new_data;
+      ++size_;
     }
 
     void pop_back()
     {
-      if (_size  > 0)
+      if (size_ > 0)
       {
         back().~value_type();
-        --_size;
+        --size_;
       }
     }
 
-    reference front() { return _data[0]; }
-    reference back() { return _data[_size - 1]; }
-    const_reference front() const { return _data[0]; }
-    const_reference back() const { return _data[_size - 1]; }
+    reference front()
+    {
+      return data_[0];
+    }
 
-    reference operator[](size_type index) { return _data[index]; }
-    const_reference operator[](size_type index) const { return _data[index]; }
+    reference back()
+    {
+      return data_[size_ - 1];
+    }
 
-    pointer data() noexcept { return _data; }
-    const_pointer data() const noexcept { return _data; }
+    const_reference front() const
+    {
+      return data_[0];
+    }
 
-    size_type size() const noexcept { return _size; }
-    size_type capacity() const noexcept { return _capacity; }
-    bool empty() const noexcept { return _size == 0; }
+    const_reference back() const
+    {
+      return data_[size_ - 1];
+    }
+
+    reference operator[](size_type index)
+    {
+      return data_[index];
+    }
+
+    const_reference operator[](size_type index) const
+    {
+      return data_[index];
+    }
+
+    pointer data() noexcept
+    {
+      return data_;
+    }
+
+    const_pointer data() const noexcept
+    {
+      return data_;
+    }
+
+    size_type size() const noexcept
+    {
+      return size_;
+    }
+
+    size_type capacity() const noexcept
+    {
+      return capacity_;
+    }
+
+    bool empty() const noexcept
+    {
+      return size_ == 0;
+    }
 
     void swap(Array& other) noexcept
     {
-      std::swap(_size, other._size);
-      std::swap(_capacity, other._capacity);
-      std::swap(_data, other._data);
+      std::swap(size_, other.size_);
+      std::swap(capacity_, other.capacity_);
+      std::swap(data_, other.data_);
     }
 
-    iterator begin() noexcept { return _data; }
-    iterator end() noexcept { return _data + _size; }
-    const_iterator begin() const noexcept { return _data; }
-    const_iterator end() const noexcept { return _data + _size; }
+    iterator begin() noexcept
+    {
+      return data_;
+    }
+
+    iterator end() noexcept
+    {
+      return data_ + size_;
+    }
+
+    const_iterator begin() const noexcept
+    {
+      return data_;
+    }
+
+    const_iterator end() const noexcept
+    {
+      return data_ + size_;
+    }
 
   private:
-    size_type _size;
-    size_type _capacity;
-    pointer _data;
+    size_type size_;
+    size_type capacity_;
+    pointer data_;
 
     static pointer allocate(size_type size)
     {
-      return size  > 0 ? static_cast< pointer >(operator new(size * sizeof(value_type))) : nullptr;
+      return size > 0 ? static_cast< pointer >(operator new(size * sizeof(value_type))) : nullptr;
     }
 
     static void deallocate(pointer data)
@@ -163,7 +228,7 @@ namespace ivanova
 
     static void destruct(pointer data, size_type size)
     {
-      for (size_type i = 0; i <  size; ++i)
+      for (size_type i = 0; i < size; ++i)
       {
         data[i].~value_type();
       }
