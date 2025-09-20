@@ -5,6 +5,8 @@
 #include "treeNode.hpp"
 #include "iterator.hpp"
 #include "constIterator.hpp"
+#include "queue.hpp"
+#include "stack.hpp"
 
 namespace lebedev
 {
@@ -40,6 +42,13 @@ namespace lebedev
     const Value& at(const Key &) const;
     std::pair< iter, bool > insert(const std::pair< Key, Value >&);
     Value& operator[](const Key&);
+
+    template< class F >
+    F traverse_lnr(F f) const;
+    template< class F >
+    F traverse_rnl(F f) const;
+    template< class F >
+    F traverse_breadth(F f) const;
 
     ~AVLtree();
   private:
@@ -685,6 +694,83 @@ namespace lebedev
   size_t AVLtree<Key, Value, Cmp>::count(const Key& key) const noexcept
   {
     return find(key) != cEnd() ? 1 : 0;
+  }
+
+  template< class Key, class Value, class Cmp >
+  template< class F >
+  F AVLtree< Key, Value, Cmp >::traverse_lnr(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< node_t* > stack;
+    node_t* current = fakeroot_->left;
+    while (!stack.isEmpty() || current)
+    {
+      while (current)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Cmp >
+  template< class F >
+  F AVLtree< Key, Value, Cmp >::traverse_lnr(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Stack< node_t* > stack;
+    node_t* current = fakeroot_->left;
+    while (!stack.isEmpty() || current)
+    {
+      while (current)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Cmp >
+  template< class F >
+  F AVLtree< Key, Value, Cmp >::traverse_breadth(F f) const
+  {
+    if (empty())
+    {
+      throw std::logic_error("<EMPTY>");
+    }
+    Queue< node_t* > queue;
+    queue.push(fakeroot_->left);
+    while(!queue.isEmpty())
+    {
+      node_t* current = queue.top();
+      queue.pop();
+      f(current->data);
+      if (current->left)
+      {
+        queue.push(current->left);
+      }
+      if (current->right)
+      {
+        queue.push(current->right);
+      }
+    }
+    return f;
   }
 
   template< class Key, class Value, class Cmp >
