@@ -1,11 +1,11 @@
 #ifndef COMMANDS_HPP
 #define COMMANDS_HPP
 #include <ostream>
-#include <map>
+#include <AVLtree.hpp>
 
 namespace lebedev
 {
-  using dictOfDicts = std::map< std::string, std::map< int, std::string > >;
+  using dictOfDicts = lebedev::AVLtree< std::string, lebedev::AVLtree< int, std::string > >;
   void printCMD(std::ostream& out, const dictOfDicts& dict);
   void complementCMD(dictOfDicts& dict);
   void intersectCMD(dictOfDicts& dict);

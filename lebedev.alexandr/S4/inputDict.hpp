@@ -1,13 +1,13 @@
 #ifndef DICTIONARY_HPP
 #define DICTIONARY_HPP
-#include <map>
 #include <string>
 #include <istream>
+#include <AVLtree.hpp>
 
 namespace lebedev
 {
 
-using dictOfDicts = std::map< std::string, std::map< int, std::string > >;
+using dictOfDicts = lebedev::AVLtree< std::string, lebedev::AVLtree< int, std::string > >;
 void inputDicts(std::istream& in, dictOfDicts& dict);
 
 }

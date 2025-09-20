@@ -8,7 +8,7 @@ void lebedev::inputDicts(std::istream& in, dictOfDicts& dict)
     in >> name;
     std::string data = "";
     int key = 0;
-    std::map< int, std::string > temp;
+    lebedev::AVLtree< int, std::string > temp;
     while (in && in.peek() != '\n')
     {
       in >> key >> data;
