@@ -11,63 +11,67 @@ using ivanova::List;
 struct NamedList
 {
   std::string name;
-  List<uint64_t> list;
-  List<uint64_t>::iterator pos;
+  List< uint64_t > list;
+  List< uint64_t >::iterator pos;
 
-  NamedList(const std::string& name) : name(name) {}
+  NamedList(const std::string& name):
+    name(name)
+  {}
 
-  void reset() { pos = list.begin(); }
+  void reset()
+  {
+    pos = list.begin();
+  }
 };
 
-void inputData(List<NamedList>& data, std::istream& ist)
+void inputData(List< NamedList >& data, std::istream& ist)
 {
   std::string token;
   while (ist >> token)
   {
-    if (isalpha(token[0]))
+    if (std::isalpha(token[0]))
     {
       data.push_back(NamedList(token));
     }
     else
     {
-      auto& back = data.back();
+      NamedList& back = data.back();
       back.list.push_back(std::stoull(token));
     }
   }
 }
 
-void printDataNames(const List<NamedList>& data)
+void printDataNames(const List< NamedList >& data)
 {
-  for (auto x = data.begin(); x != data.end(); ++x)
+  List< NamedList >::const_iterator it = data.begin();
+  if (it != data.end())
   {
-    if (x == data.begin())
-    {
-      std::cout << x->name;
-    }
-    else
-    {
-      std::cout << " " << x->name;
-    }
+    std::cout << it->name;
+    ++it;
+  }
+  for (; it != data.end(); ++it)
+  {
+    std::cout << " " << it->name;
   }
   std::cout << "\n";
 }
 
-void printDataValues(List<NamedList>& data)
+void printDataValues(List< NamedList >& data)
 {
-  for (auto& x : data)
+  for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
   {
-    x.reset();
+    it->reset();
   }
   bool flag = true;
   while (flag)
   {
     flag = false;
-    for (auto& x : data)
+    for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
     {
-      if (x.pos != x.list.end())
+      if (it->pos != it->list.end())
       {
-        uint64_t value = *(x.pos);
-        ++(x.pos);
+        size_t value = *(it->pos);
+        ++(it->pos);
         if (!flag)
         {
           std::cout << value;
@@ -86,40 +90,43 @@ void printDataValues(List<NamedList>& data)
   }
 }
 
-void countSums(List<NamedList>& data, List<uint64_t>& sums)
+void countSums(List< NamedList >& data, List< uint64_t >& sums)
 {
-  const uint64_t max_number = std::numeric_limits<uint64_t>::max();
-  for (auto& x : data)
+  const uint64_t max_number = std::numeric_limits< uint64_t >::max();
+  for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
   {
-    x.reset();
+    it->reset();
   }
-  bool flag = true;
-  while (flag)
+  size_t sum = 0;
+  do
   {
-    flag = false;
-    uint64_t sum = 0;
-    for (auto& x : data)
+    sum = 0;
+    bool hasElements = false;
+
+    for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
     {
-      if (x.pos != x.list.end())
+      if (it->pos != it->list.end())
       {
-        uint64_t value = *(x.pos);
-        ++(x.pos);
+        size_t value = *(it->pos);
+        ++(it->pos);
         if (sum > max_number - value)
         {
           throw std::logic_error("can't count sum, overflow");
         }
         sum += value;
-        flag = true;
+        hasElements = true;
       }
     }
-    if (flag)
+
+    if (hasElements)
     {
       sums.push_back(sum);
     }
   }
+  while (sum > 0);
 }
 
-template <typename T>
+template < typename T >
 void printList(T first, T last)
 {
   if (first == last)
@@ -127,40 +134,35 @@ void printList(T first, T last)
     std::cout << "0\n";
     return;
   }
-  for (T x = first; x != last; ++x)
+
+  std::cout << *first;
+  while (++first != last)
   {
-    if (x == first)
-    {
-      std::cout << *x;
-    }
-    else
-    {
-      std::cout << " " << *x;
-    }
+    std::cout << ' ' << *first;
   }
-  std::cout << "\n";
+  std::cout << '\n';
 }
 
 int main()
 {
-  List<NamedList> data;
+  List< NamedList > data;
 
   inputData(data, std::cin);
   if (data.empty())
   {
-    std::cout << "0" << '\n';
+    std::cout << "0\n";
     return 0;
   }
 
   printDataNames(data);
   printDataValues(data);
 
-  List<uint64_t> sums;
+  List< uint64_t > sums;
   try
   {
     countSums(data, sums);
   }
-  catch (std::exception& ex)
+  catch (const std::exception& ex)
   {
     std::cerr << ex.what() << "\n";
     return 1;

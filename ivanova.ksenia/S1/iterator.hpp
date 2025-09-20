@@ -7,39 +7,57 @@
 
 namespace ivanova
 {
-  template <class List, bool IsConst>
+  template < class List, bool IsConst >
   class ListIterator
   {
     friend List;
-  public:
 
-    using ptr_list = std::conditional_t<IsConst, const List*, List*>;
-    using ptr_node = std::conditional_t<IsConst, const typename List::node_type*, typename List::node_type*>;
+  public:
+    using ptr_list = std::conditional_t< IsConst, const List*, List* >;
+    using ptr_node = std::conditional_t< IsConst, const typename List::node_type*, typename List::node_type* >;
     using iterator_category = std::bidirectional_iterator_tag;
     using value_type = typename List::value_type;
     using difference_type = std::ptrdiff_t;
-    using pointer = std::conditional_t<IsConst, typename List::const_pointer, typename List::pointer>;
-    using reference = std::conditional_t<IsConst, typename List::const_reference, typename List::reference>;
+    using pointer = std::conditional_t< IsConst, typename List::const_pointer, typename List::pointer >;
+    using reference = std::conditional_t< IsConst, typename List::const_reference, typename List::reference >;
 
-    ListIterator() : _list(nullptr), _node(nullptr) {}
-    ListIterator(ptr_list list, ptr_node node) : _list(list), _node(node) {}
-    ListIterator(const ListIterator& other) : _list(other._list), _node(other._node) {}
+    ListIterator():
+      list_(nullptr),
+      node_(nullptr)
+    {}
+
+    ListIterator(ptr_list list, ptr_node node):
+      list_(list),
+      node_(node)
+    {}
+
+    ListIterator(const ListIterator& other):
+      list_(other.list_),
+      node_(other.node_)
+    {}
 
     ListIterator& operator=(const ListIterator& other)
     {
-      _list = other._list;
-      _node = other._node;
+      list_ = other.list_;
+      node_ = other.node_;
       return *this;
     }
 
-    reference operator*() const { return _node->value; }
-    pointer operator->() const { return &(_node->value); }
+    reference operator*() const
+    {
+      return node_->value;
+    }
+
+    pointer operator->() const
+    {
+      return &(node_->value);
+    }
 
     ListIterator& operator++()
     {
-      if (_list != nullptr && _node != nullptr)
+      if (list_ != nullptr && node_ != nullptr)
       {
-        _node = _node->next;
+        node_ = node_->next;
       }
       return *this;
     }
@@ -53,11 +71,11 @@ namespace ivanova
 
     ListIterator& operator--()
     {
-      if (_list == nullptr)
+      if (list_ == nullptr)
       {
         return *this;
       }
-      _node = (_node != nullptr) ? _node->prev : _list->_tail;
+      node_ = (node_ != nullptr) ? node_->prev : list_->tail_;
       return *this;
     }
 
@@ -68,12 +86,19 @@ namespace ivanova
       return tmp;
     }
 
-    bool operator==(const ListIterator& rhs) const { return _list == rhs._list && _node == rhs._node; }
-    bool operator!=(const ListIterator& rhs) const { return !(*this == rhs); }
+    bool operator==(const ListIterator& rhs) const
+    {
+      return list_ == rhs.list_ && node_ == rhs.node_;
+    }
+
+    bool operator!=(const ListIterator& rhs) const
+    {
+      return !(*this == rhs);
+    }
 
   private:
-    ptr_list _list;
-    ptr_node _node;
+    ptr_list list_;
+    ptr_node node_;
   };
 }
 
