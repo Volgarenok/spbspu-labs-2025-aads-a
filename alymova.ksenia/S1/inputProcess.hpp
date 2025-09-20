@@ -1,7 +1,7 @@
 #ifndef INPUT_PROCESS_HPP
 #define INPUT_PROCESS_HPP
-#include "list.hpp"
-#include "iterators.hpp"
+#include <list/list.hpp>
+#include <list/iterators.hpp>
 
 namespace alymova
 {

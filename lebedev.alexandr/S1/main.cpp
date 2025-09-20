@@ -5,12 +5,13 @@
 
 int main()
 {
-  lebedev::List< std::pair< std::string, lebedev::List< size_t > > > sequences;
+  using namespace lebedev;
+  List< std::pair< std::string, List< size_t > > > sequences;
   std::string name;
 
   while (std::cin >> name)
   {
-    lebedev::List< size_t > numbers;
+    List< size_t > numbers;
     size_t num = 0;
     while (std::cin >> num)
     {
@@ -24,15 +25,15 @@ int main()
     std::cin.clear();
   }
 
-  lebedev::List< std::string > names;
-  for (auto seq : sequences)
+  List< std::string > names;
+  for (auto&& seq: sequences)
   {
     names.push_back(seq.first);
   }
-  lebedev::printList(names, std::cout);
+  printList(names, std::cout);
 
   bool allEmpty = true;
-  for (auto seq : sequences)
+  for (auto&& seq: sequences)
   {
     if (!seq.second.empty())
     {
@@ -46,16 +47,16 @@ int main()
     return 0;
   }
 
-  lebedev::List< lebedev::List< size_t > > reorderedList = lebedev::createReorderedList(sequences);
-  for (const auto& seq : reorderedList)
+  List< List< size_t > > reorderedList = createReorderedList(sequences);
+  for (const auto& seq: reorderedList)
   {
-    lebedev::printList(seq, std::cout);
+    printList(seq, std::cout);
   }
-  std::pair< lebedev::List< size_t >, bool > listOfSum = lebedev::createListOfSum(reorderedList);
+  std::pair< List< size_t >, bool > listOfSum = createListOfSum(reorderedList);
   if (listOfSum.second)
   {
     std::cerr << "Is Overflow\n";
     return 1;
   }
-  lebedev::printList(listOfSum.first, std::cout);
+  printList(listOfSum.first, std::cout);
 }
