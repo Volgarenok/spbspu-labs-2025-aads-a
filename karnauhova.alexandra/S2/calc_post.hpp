@@ -1,8 +1,8 @@
 #ifndef CALC_POST_HPP
 #define CALC_POST_HPP
 
-#include "stack.hpp"
-#include "queue.hpp"
+#include <stack.hpp>
+#include <queue.hpp>
 
 namespace karnauhova
 {
