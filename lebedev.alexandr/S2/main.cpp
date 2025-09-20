@@ -11,6 +11,11 @@ int main(int argc, char* argv[])
       std::cerr << "Too much arguments!\n";
       return 1;
     }
+    else if (argc < 2)
+    {
+      std::cerr << "Not enough arguments!\n";
+      return 1;
+    }
     std::ifstream in;
     if (argc == 2)
     {
