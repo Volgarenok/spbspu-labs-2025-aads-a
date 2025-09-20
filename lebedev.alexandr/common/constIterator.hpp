@@ -48,7 +48,7 @@ namespace lebedev
     if (node_->right && node_->right->height != 0)
     {
       node_ = node_->right;
-      while (node_->left node_->left->height != 0)
+      while (node_->left && node_->left->height != 0)
       {
         node_ = node_->left;
       }

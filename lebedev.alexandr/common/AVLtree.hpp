@@ -43,8 +43,8 @@ namespace lebedev
 
     ~AVLtree();
   private:
+    node_t* nil_;
     node_t* fakeroot_;
-    node_t* nil_
     node_t* root_;
     Cmp cmp_;
     size_t size_;
