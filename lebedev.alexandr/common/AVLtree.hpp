@@ -69,7 +69,7 @@ namespace lebedev
   AVLtree< Key, Value, Cmp >::AVLtree():
     nil_(new node_t(Key(), Value(), nullptr)),
     fakeroot_(new node_t(Key(), Value(), nullptr)),
-    root_(nullptr),
+    root_(nil_),
     cmp_(),
     size_(0)
   {
@@ -92,7 +92,7 @@ namespace lebedev
     {
       fakeroot_->left = copyTree(other.fakeroot_->left);
       root_ = fakeroot_->left;
-      if (root_)
+      if (root_ != nil_)
       {
         root_->parent = fakeroot_;
       }
@@ -100,6 +100,7 @@ namespace lebedev
     catch(...)
     {
       delete fakeroot_;
+      delete nil_;
       throw;
     }
   }
@@ -243,9 +244,9 @@ namespace lebedev
   template< class Key, class Value, class Cmp >
   typename AVLtree< Key, Value, Cmp >::node_t* AVLtree< Key, Value, Cmp >::copyTree(node_t* root)
   {
-    if (!root)
+    if (!root || root->height == 0)
     {
-      return nullptr;
+      return nil_;
     }
     node_t* leftPart = nullptr;
     node_t* rightPart = nullptr;
@@ -257,11 +258,11 @@ namespace lebedev
       newNode->left = leftPart;
       newNode->right = rightPart;
       newNode->height = root->height;
-      if (leftPart)
+      if (leftPart != nil_)
       {
         leftPart->parent = newNode;
       }
-      if (rightPart)
+      if (rightPart != nil_)
       {
         rightPart->parent = newNode;
       }
@@ -475,11 +476,11 @@ namespace lebedev
     {
       return nil_;
     }
-    if (node->right)
+    if (node->right != nil_)
     {
       return findMin(node->right);
     }
-    while (node->parent)
+    while (node->parent && node->parent != fakeroot_)
     {
       if (node == node->parent->left)
       {
@@ -634,7 +635,7 @@ namespace lebedev
   template< class Key, class Value, class Cmp >
   bool AVLtree< Key, Value, Cmp >::empty() const noexcept
   {
-    return !fakeroot_->left;
+    return fakeroot_->left == nil_;
   }
 
   template< class Key, class Value, class Cmp >
