@@ -704,7 +704,7 @@ namespace lebedev
     {
       throw std::logic_error("<EMPTY>");
     }
-    Stack< node_t* > stack;
+    lebedev::Stack< node_t* > stack;
     node_t* current = fakeroot_->left;
     while (!stack.isEmpty() || current)
     {
