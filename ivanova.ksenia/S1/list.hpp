@@ -130,10 +130,7 @@ namespace ivanova
 
     void splice(iterator position, List& other, iterator first, iterator last);
 
-    void remove(const_reference value)
-    {
-      removeIf([&](auto x) { return x == value; });
-    }
+    void remove(const_reference value);
 
     template < typename Predicate >
     void removeIf(Predicate pred);
@@ -211,7 +208,24 @@ namespace ivanova
     void cutNodes(node_type* first, node_type* last);
     void linkNodes(node_type* first, node_type* second);
     size_type getDistance(iterator first, iterator last) const;
+
+    // Функтор для сравнения с значением
+    struct EqualValue
+    {
+      const_reference value_;
+      EqualValue(const_reference value): value_(value) {}
+      bool operator()(const_reference x) const
+      {
+        return x == value_;
+      }
+    };
   };
+
+  template < typename T >
+  void List< T >::remove(const_reference value)
+  {
+    removeIf(EqualValue(value));
+  }
 
   template < typename T >
   void List< T >::assign(size_type n, const_reference value)
@@ -393,7 +407,7 @@ namespace ivanova
       return size_;
     }
     size_type count = 0;
-    for (auto it = first; it != last; ++it)
+    for (iterator it = first; it != last; ++it)
     {
       ++count;
     }

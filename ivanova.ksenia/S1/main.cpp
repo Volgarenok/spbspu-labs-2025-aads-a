@@ -35,7 +35,7 @@ void inputData(List< NamedList >& data, std::istream& ist)
     }
     else
     {
-      auto& back = data.back();
+      NamedList& back = data.back();
       back.list.push_back(std::stoull(token));
     }
   }
@@ -43,7 +43,7 @@ void inputData(List< NamedList >& data, std::istream& ist)
 
 void printDataNames(const List< NamedList >& data)
 {
-  auto it = data.begin();
+  List< NamedList >::const_iterator it = data.begin();
   if (it != data.end())
   {
     std::cout << it->name;
@@ -58,20 +58,20 @@ void printDataNames(const List< NamedList >& data)
 
 void printDataValues(List< NamedList >& data)
 {
-  for (auto& x : data)
+  for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
   {
-    x.reset();
+    it->reset();
   }
   bool flag = true;
   while (flag)
   {
     flag = false;
-    for (auto& x : data)
+    for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
     {
-      if (x.pos != x.list.end())
+      if (it->pos != it->list.end())
       {
-        size_t value = *(x.pos);
-        ++(x.pos);
+        size_t value = *(it->pos);
+        ++(it->pos);
         if (!flag)
         {
           std::cout << value;
