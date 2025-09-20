@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <array.hpp>
+#include <vector>
 #include <functional>
 #include <algorithm>
 #include <stdexcept>

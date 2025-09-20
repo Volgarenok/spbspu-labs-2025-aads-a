@@ -174,7 +174,7 @@ namespace averenkov
   template< class T >
   T* Array< T >::end() noexcept
   {
-    return std::addressof(data_[last_ - 1]);
+    return std::addressof(data_[last_]);
   }
 
   template< class T >
@@ -186,7 +186,7 @@ namespace averenkov
   template< class T >
   const T* Array< T >::end() const noexcept
   {
-    return std::addressof(data_[last_ - 1]);
+    return std::addressof(data_[last_]);
   }
 
   template< class T >
@@ -198,7 +198,7 @@ namespace averenkov
   template< class T >
   const T* Array< T >::cend() const noexcept
   {
-    return std::addressof(data_[last_ - 1]);
+    return std::addressof(data_[last_]);
   }
 
   template< class T >

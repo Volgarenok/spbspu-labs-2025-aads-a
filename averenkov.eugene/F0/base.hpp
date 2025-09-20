@@ -8,7 +8,7 @@
 #include "item.hpp"
 #include "kit.hpp"
 #include "knapsack.hpp"
-#include <vector>
+
 namespace averenkov
 {
   class Base

@@ -306,8 +306,6 @@ void averenkov::showStats(const Base& base, const averenkov::Array< std::string 
 
   std::cout << "=== Items ===\n";
   std::for_each(base.items.begin(), base.items.end(), printItem);
-  for (auto it = base.items.begin(); it != base.items.end(); it++)
-  { std::cout << (*it)->getName(); }
   std::cout << "\n=== Kits ===\n";
   std::for_each(base.kits.begin(), base.kits.end(), printKit);
   std::cout << "\n=== Knapsacks ===\n";

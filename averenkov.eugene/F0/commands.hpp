@@ -6,6 +6,7 @@
 #include <functional>
 #include <algorithm>
 #include <stdexcept>
+#include <vector>
 #include "base.hpp"
 
 namespace averenkov
