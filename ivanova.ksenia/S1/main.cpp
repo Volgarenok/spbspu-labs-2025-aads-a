@@ -14,9 +14,14 @@ struct NamedList
   List< uint64_t > list;
   List< uint64_t >::iterator pos;
 
-  NamedList(const std::string& name) : name(name) {}
+  NamedList(const std::string& name):
+    name(name)
+  {}
 
-  void reset() { pos = list.begin(); }
+  void reset()
+  {
+    pos = list.begin();
+  }
 };
 
 void inputData(List< NamedList >& data, std::istream& ist)
@@ -38,16 +43,15 @@ void inputData(List< NamedList >& data, std::istream& ist)
 
 void printDataNames(const List< NamedList >& data)
 {
-  for (auto x = data.begin(); x != data.end(); ++x)
+  auto it = data.begin();
+  if (it != data.end())
   {
-    if (x == data.begin())
-    {
-      std::cout << x->name;
-    }
-    else
-    {
-      std::cout << " " << x->name;
-    }
+    std::cout << it->name;
+    ++it;
+  }
+  for (; it != data.end(); ++it)
+  {
+    std::cout << " " << it->name;
   }
   std::cout << "\n";
 }
@@ -146,7 +150,7 @@ int main()
   inputData(data, std::cin);
   if (data.empty())
   {
-    std::cout << "0" << '\n';
+    std::cout << "0\n";
     return 0;
   }
 

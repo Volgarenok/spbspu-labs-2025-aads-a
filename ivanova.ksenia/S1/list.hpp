@@ -29,33 +29,38 @@ namespace ivanova
     friend iterator;
     friend const_iterator;
 
-    List() noexcept :
-      _head(nullptr),
-      _tail(nullptr),
-      _size(0)
-      {}
+    List() noexcept:
+      head_(nullptr),
+      tail_(nullptr),
+      size_(0)
+    {}
 
-    List(const List& other) : List()
+    List(const List& other):
+      List()
     {
       assign(other.begin(), other.end());
     }
 
-    List(size_type n, const_reference value) : List()
+    List(size_type n, const_reference value):
+      List()
     {
       assign(n, value);
     }
 
-    List(List&& moved) noexcept :
-      _head(moved._head),
-      _tail(moved._tail),
-      _size(moved._size)
+    List(List&& moved) noexcept:
+      head_(moved.head_),
+      tail_(moved.tail_),
+      size_(moved.size_)
     {
-      moved._head = nullptr;
-      moved._tail = nullptr;
-      moved._size = 0;
+      moved.head_ = nullptr;
+      moved.tail_ = nullptr;
+      moved.size_ = 0;
     }
 
-    ~List() { clear(); }
+    ~List()
+    {
+      clear();
+    }
 
     List& operator=(const List& other)
     {
@@ -77,16 +82,31 @@ namespace ivanova
     template < typename IterType >
     void assign(IterType first, IterType last);
 
-    void push_back(const_reference value) { save_push(value, true); }
-    void push_front(const_reference value) { save_push(value, false); }
-    void pop_back() { pop(true); }
-    void pop_front() { pop(false); }
+    void push_back(const_reference value)
+    {
+      savePush(value, true);
+    }
+
+    void push_front(const_reference value)
+    {
+      savePush(value, false);
+    }
+
+    void pop_back()
+    {
+      pop(true);
+    }
+
+    void pop_front()
+    {
+      pop(false);
+    }
 
     void swap(List& other) noexcept
     {
-      std::swap(_head, other._head);
-      std::swap(_tail, other._tail);
-      std::swap(_size, other._size);
+      std::swap(head_, other.head_);
+      std::swap(tail_, other.tail_);
+      std::swap(size_, other.size_);
     }
 
     void clear();
@@ -112,46 +132,89 @@ namespace ivanova
 
     void remove(const_reference value)
     {
-      remove_if([&](auto x) { return x == value; });
+      removeIf([&](auto x) { return x == value; });
     }
 
     template < typename Predicate >
-    void remove_if(Predicate pred);
+    void removeIf(Predicate pred);
 
-    reference front() { return *begin(); }
-    const_reference front() const { return *begin(); }
+    reference front()
+    {
+      return *begin();
+    }
 
-    reference back() { return *(--end()); }
-    const_reference back() const { return *(--end()); }
+    const_reference front() const
+    {
+      return *begin();
+    }
 
-    size_type size() const { return _size; }
-    bool empty() const { return size() == 0; }
+    reference back()
+    {
+      return *(--end());
+    }
 
-    iterator begin() { return iterator(this, _head); }
-    const_iterator begin() const { return const_iterator(this, _head); }
-    const_iterator cbegin() const { return const_iterator(this, _head); }
+    const_reference back() const
+    {
+      return *(--end());
+    }
 
-    iterator end() { return iterator(this, nullptr); }
-    const_iterator end() const { return const_iterator(this, nullptr); }
-    const_iterator cend() const { return const_iterator(this, nullptr); }
+    size_type size() const
+    {
+      return size_;
+    }
 
-    private:
-      node_type* _head;
-      node_type* _tail;
-      size_type _size;
+    bool empty() const
+    {
+      return size_ == 0;
+    }
 
-      void save_push(const_reference value, bool back);
-      void pop(bool back);
-      template < typename... Args >
-      node_type* createNode(Args&&... args);
-      void deleteNode(node_type* node);
-      void cutNodes(node_type* first, node_type* last);
-      void linkNodes(node_type* first, node_type* second);
-      size_type getDistance(iterator first, iterator last) const;
+    iterator begin()
+    {
+      return iterator(this, head_);
+    }
+
+    const_iterator begin() const
+    {
+      return const_iterator(this, head_);
+    }
+
+    const_iterator cbegin() const
+    {
+      return const_iterator(this, head_);
+    }
+
+    iterator end()
+    {
+      return iterator(this, nullptr);
+    }
+
+    const_iterator end() const
+    {
+      return const_iterator(this, nullptr);
+    }
+
+    const_iterator cend() const
+    {
+      return const_iterator(this, nullptr);
+    }
+
+  private:
+    node_type* head_;
+    node_type* tail_;
+    size_type size_;
+
+    void savePush(const_reference value, bool back);
+    void pop(bool back);
+    template < typename... Args >
+    node_type* createNode(Args&&... args);
+    void deleteNode(node_type* node);
+    void cutNodes(node_type* first, node_type* last);
+    void linkNodes(node_type* first, node_type* second);
+    size_type getDistance(iterator first, iterator last) const;
   };
 
   template < typename T >
-  void List<T>::assign(size_type n, const_reference value)
+  void List< T >::assign(size_type n, const_reference value)
   {
     if (n == 0)
     {
@@ -165,7 +228,7 @@ namespace ivanova
         push_back(value);
       }
     }
-    catch(...)
+    catch (...)
     {
       clear();
       throw;
@@ -177,7 +240,7 @@ namespace ivanova
   void List< T >::assign(IterType first, IterType last)
   {
     bool same = std::is_same< IterType, iterator >::value
-           || std::is_same< IterType, const_iterator >::value;
+        || std::is_same< IterType, const_iterator >::value;
     if (!same || first.list_ != this)
     {
       clear();
@@ -188,7 +251,7 @@ namespace ivanova
           push_back(*x);
         }
       }
-      catch(...)
+      catch (...)
       {
         clear();
         throw;
@@ -201,7 +264,7 @@ namespace ivanova
         clear();
         return;
       }
-      while (!empty() && _head != first.node_)
+      while (!empty() && head_ != first.node_)
       {
         pop_front();
       }
@@ -209,7 +272,7 @@ namespace ivanova
       {
         return;
       }
-      while (!empty() && _tail != last.node_)
+      while (!empty() && tail_ != last.node_)
       {
         pop_back();
       }
@@ -224,21 +287,21 @@ namespace ivanova
     {
       return;
     }
-    node_type* node = _head;
+    node_type* node = head_;
     while (node != nullptr)
     {
       node_type* x = node;
       node = node->next;
       deleteNode(x);
     }
-    _head = nullptr;
-    _tail = nullptr;
-    _size = 0;
+    head_ = nullptr;
+    tail_ = nullptr;
+    size_ = 0;
   }
 
   template < typename T >
   template < typename Predicate >
-  void List< T >::remove_if(Predicate pred)
+  void List< T >::removeIf(Predicate pred)
   {
     while (!empty() && pred(front()))
     {
@@ -248,14 +311,14 @@ namespace ivanova
     {
       pop_back();
     }
-    for (node_type* x = _head; x != _tail; )
+    for (node_type* x = head_; x != tail_; )
     {
       if (pred(x->next->value))
       {
         node_type* y = x->next;
         linkNodes(x, y->next);
         deleteNode(y);
-        --_size;
+        --size_;
       }
       else
       {
@@ -276,33 +339,33 @@ namespace ivanova
     {
       return;
     }
-    iterator pre_last = last;
-    --pre_last;
-    other.cutNodes(first.node_, pre_last.node_);
+    iterator preLast = last;
+    --preLast;
+    other.cutNodes(first.node_, preLast.node_);
     if (empty())
     {
-      _head = first.node_;
-      _tail = pre_last.node_;
+      head_ = first.node_;
+      tail_ = preLast.node_;
     }
     else if (position == begin())
     {
-      linkNodes(pre_last.node_, _head);
-      _head = first.node_;
+      linkNodes(preLast.node_, head_);
+      head_ = first.node_;
     }
     else if (position == end())
     {
-      linkNodes(_tail, first.node_);
-      _tail = pre_last.node_;
+      linkNodes(tail_, first.node_);
+      tail_ = preLast.node_;
     }
     else
     {
       node_type* curr = position.node_;
       node_type* prev = curr->prev;
       linkNodes(prev, first.node_);
-      linkNodes(pre_last.node_, curr);
+      linkNodes(preLast.node_, curr);
     }
-    other._size -= diff;
-    _size += diff;
+    other.size_ -= diff;
+    size_ += diff;
   }
 
   template < typename T >
@@ -327,7 +390,7 @@ namespace ivanova
   {
     if (first == begin() && last == end())
     {
-      return _size;
+      return size_;
     }
     size_type count = 0;
     for (auto it = first; it != last; ++it)
@@ -338,32 +401,32 @@ namespace ivanova
   }
 
   template < typename T >
-  void List< T >::save_push(const_reference value, bool back)
+  void List< T >::savePush(const_reference value, bool back)
   {
     node_type* node;
     try
     {
       node = createNode(value);
     }
-    catch(...)
+    catch (...)
     {
       throw;
     }
     if (empty())
     {
-      _head = _tail = node;
+      head_ = tail_ = node;
     }
     else if (back)
     {
-      linkNodes(_tail, node);
-      _tail = node;
+      linkNodes(tail_, node);
+      tail_ = node;
     }
     else
     {
-      linkNodes(node, _head);
-      _head = node;
+      linkNodes(node, head_);
+      head_ = node;
     }
-    ++_size;
+    ++size_;
   }
 
   template < typename T >
@@ -373,25 +436,25 @@ namespace ivanova
     {
       return;
     }
-    if (size() == 1)
+    if (size_ == 1)
     {
-      deleteNode(_head);
-      _head = nullptr;
-      _tail = nullptr;
+      deleteNode(head_);
+      head_ = nullptr;
+      tail_ = nullptr;
     }
     else if (back)
     {
-      _tail = _tail->prev;
-      deleteNode(_tail->next);
-      _tail->next = nullptr;
+      tail_ = tail_->prev;
+      deleteNode(tail_->next);
+      tail_->next = nullptr;
     }
     else
     {
-      _head = _head->next;
-      deleteNode(_head->prev);
-      _head->prev = nullptr;
+      head_ = head_->next;
+      deleteNode(head_->prev);
+      head_->prev = nullptr;
     }
-    --_size;
+    --size_;
   }
 
   template < typename T >
@@ -401,9 +464,9 @@ namespace ivanova
     node_type* node = static_cast< node_type* >(operator new(sizeof(node_type)));
     try
     {
-      new (node) node_type(std::forward<Args>(args)...);
+      new (node) node_type(std::forward< Args >(args)...);
     }
-    catch(...)
+    catch (...)
     {
       operator delete(node);
       throw;
@@ -414,23 +477,23 @@ namespace ivanova
   template < typename T >
   void List< T >::cutNodes(node_type* first, node_type* last)
   {
-    node_type* pre_fisrt = first->prev;
-    node_type* post_last = last->next;
-    if (pre_fisrt != nullptr)
+    node_type* preFirst = first->prev;
+    node_type* postLast = last->next;
+    if (preFirst != nullptr)
     {
-      pre_fisrt->next = post_last;
+      preFirst->next = postLast;
     }
     else
     {
-      _head = post_last;
+      head_ = postLast;
     }
-    if (post_last != nullptr)
+    if (postLast != nullptr)
     {
-      post_last->prev = pre_fisrt;
+      postLast->prev = preFirst;
     }
     else
     {
-      _tail = pre_fisrt;
+      tail_ = preFirst;
     }
     first->prev = nullptr;
     last->next = nullptr;
