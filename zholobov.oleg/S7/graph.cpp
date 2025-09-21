@@ -52,9 +52,9 @@ void zholobov::Graph::removeEdge(const Vertex& from, const Vertex& to, Weight we
   }
 }
 
-zholobov::Tree< std::string, zholobov::Graph::WeightsList, std::less< std::string > > zholobov::Graph::getOutbound(const Vertex& from) const
+zholobov::Tree< std::string, zholobov::Graph::WeightsList > zholobov::Graph::getOutbound(const Vertex& from) const
 {
-  Tree< Vertex, WeightsList, std::less< std::string > > result;
+  Tree< Vertex, WeightsList > result;
   for (auto eit = edges.cbegin(); eit != edges.cend(); ++eit) {
     if (eit->first.first == from) {
       WeightsList sorted = eit->second;
@@ -64,9 +64,9 @@ zholobov::Tree< std::string, zholobov::Graph::WeightsList, std::less< std::strin
   return result;
 }
 
-zholobov::Tree< std::string, zholobov::Graph::WeightsList, std::less< std::string > > zholobov::Graph::getInbound(const Vertex& to) const
+zholobov::Tree< std::string, zholobov::Graph::WeightsList > zholobov::Graph::getInbound(const Vertex& to) const
 {
-  Tree< Vertex, WeightsList, std::less< std::string > > result;
+  Tree< Vertex, WeightsList > result;
   for (auto eit = edges.cbegin(); eit != edges.cend(); ++eit) {
     if (eit->first.second == to) {
       WeightsList sorted = eit->second;
@@ -76,7 +76,7 @@ zholobov::Tree< std::string, zholobov::Graph::WeightsList, std::less< std::strin
   return result;
 }
 
-zholobov::CircularFwdList< zholobov::Graph::Vertex > zholobov::Graph::getVertices() const
+zholobov::Graph::Vertices zholobov::Graph::getVertices() const
 {
   CircularFwdList< Vertex > result;
   for (auto vit = vertices.cbegin(); vit != vertices.cend(); ++vit) {
@@ -90,7 +90,8 @@ size_t zholobov::Graph::vertexCount() const
   return vertices.size();
 }
 
-const zholobov::HashTable< zholobov::Graph::Edge, zholobov::Graph::WeightsList, zholobov::EdgeHash >& zholobov::Graph::getAllEdges() const
+const zholobov::HashTable< zholobov::Graph::Edge, zholobov::Graph::WeightsList, zholobov::EdgeHash >&
+zholobov::Graph::getAllEdges() const
 {
   return edges;
 }

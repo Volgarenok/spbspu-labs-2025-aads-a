@@ -30,6 +30,7 @@ namespace zholobov {
   class Graph {
   public:
     using Vertex = std::string;
+    using Vertices = CircularFwdList< Vertex >;
     using Weight = unsigned int;
     using Edge = std::pair< Vertex, Vertex >;
     using WeightsList = CircularFwdList< Weight >;
@@ -39,15 +40,15 @@ namespace zholobov {
     bool hasVertex(const Vertex& v) const;
     bool hasEdge(const Vertex& from, const Vertex& to, Weight weight) const;
     void removeEdge(const Vertex& from, const Vertex& to, Weight weight);
-    Tree< Vertex, WeightsList, std::less< Vertex > > getOutbound(const Vertex& from) const;
-    Tree< Vertex, WeightsList, std::less< Vertex > > getInbound(const Vertex& to) const;
-    CircularFwdList< Vertex > getVertices() const;
+    Tree< Vertex, WeightsList > getOutbound(const Vertex& from) const;
+    Tree< Vertex, WeightsList > getInbound(const Vertex& to) const;
+    Vertices getVertices() const;
     size_t vertexCount() const;
     const HashTable< Edge, WeightsList, EdgeHash >& getAllEdges() const;
 
   private:
     HashTable< Edge, WeightsList, EdgeHash > edges;
-    Tree< Vertex, bool, std::less< Vertex > > vertices;
+    Tree< Vertex, bool > vertices;
   };
 
 }
