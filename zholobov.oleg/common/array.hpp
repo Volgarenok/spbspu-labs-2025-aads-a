@@ -233,7 +233,6 @@ size_t zholobov::Array< T >::size() const noexcept
 template < typename T >
 void zholobov::Array< T >::clear() noexcept
 {
-  size_ = 0;
   if (data_ != nullptr) {
     for (size_t i = 0; i < size_; ++i) {
       size_t pos = (head_ + i) % capacity_;
@@ -241,8 +240,10 @@ void zholobov::Array< T >::clear() noexcept
     }
     operator delete[](data_);
     data_ = nullptr;
-    capacity_ = 0;
   }
+  capacity_ = 0;
+  size_ = 0;
+  head_ = 0;
 }
 
 template < typename T >
