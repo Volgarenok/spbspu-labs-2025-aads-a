@@ -1,5 +1,6 @@
 #ifndef NODE_HPP
 #define NODE_HPP
+#include <utility>
 
 namespace krylov
 {
@@ -11,6 +12,7 @@ namespace krylov
     Node(const Key& k, const Value& v);
   };
 
+  template< class Key, class Value >
   Node< Key, Value >::Node(const Key& k, const Value& v):
     data_(std::make_pair< Key, Value >(k, v)),
     active_(true)
