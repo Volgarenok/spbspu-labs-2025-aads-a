@@ -7,7 +7,7 @@
 
 namespace {
 
-  using TreeMap = zholobov::Tree< int, std::string >;
+  using TreeMap = zholobov::Tree< zholobov::KeyType, std::string >;
 
   TreeMap readTree(std::istream& input)
   {

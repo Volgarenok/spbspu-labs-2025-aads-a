@@ -5,19 +5,16 @@
 #include <stdexcept>
 #include <string>
 
-namespace {
+namespace zholobov {
+
   using KeyType = long;
 
-  bool isAdditionOverflow(long lhs, long rhs)
+  bool isAdditionOverflow(KeyType lhs, KeyType rhs)
   {
     constexpr long max_value = std::numeric_limits< KeyType >::max();
     constexpr long min_value = std::numeric_limits< KeyType >::min();
     return (((rhs > 0) && (lhs > (max_value - rhs))) || ((rhs < 0) && (lhs < (min_value - rhs))));
   }
-
-}
-
-namespace zholobov {
 
   struct KeySum {
     void operator()(const std::pair< const KeyType, std::string >& key_value);
