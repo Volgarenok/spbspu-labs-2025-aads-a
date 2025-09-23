@@ -1,6 +1,6 @@
 #include <fstream>
 #include <iostream>
-#include <tree.hpp>
+#include <tree/tree.hpp>
 #include <functional>
 #include "accumulator.hpp"
 

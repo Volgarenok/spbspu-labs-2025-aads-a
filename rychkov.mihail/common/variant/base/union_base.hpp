@@ -47,6 +47,8 @@ union rychkov::details::UnionBase< IsTrivDestr >
   UnionBase() = default;
   template< size_t N, class... Args >
   UnionBase(in_place_index_t< N >, Args&&... args) = delete;
+  constexpr UnionBase(in_place_index_t< 0 >)
+  {}
 };
 
 template< class... Types >
@@ -61,6 +63,10 @@ struct rychkov::details::UnionStorage< false, Types... >
   constexpr UnionStorage(in_place_index_t< N > i, Args&&... args):
     storage(i, std::forward< Args >(args)...),
     active(N)
+  {}
+  constexpr UnionStorage(in_place_index_t< sizeof...(Types) > i):
+    storage(i),
+    active(static_cast< size_type >(variant_npos))
   {}
   ~UnionStorage()
   {

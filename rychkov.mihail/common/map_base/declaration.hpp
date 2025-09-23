@@ -258,16 +258,10 @@ namespace rychkov
     std::enable_if_t< IsSet && IsSet2, std::pair< iterator, bool > > emplace_impl
         (const_iterator hint, K1&& key, Args&&... args);
 
-    template< bool IsSet2 = IsSet >
-    bool compare_with_key (std::enable_if_t< !IsSet && !IsSet2, const value_type >& lhs,
-          const key_type& rhs) const;
-    template< bool IsSet2 = IsSet >
-    bool compare_with_key(const key_type& lhs,
-          std::enable_if_t< !IsSet && !IsSet2, const value_type >& rhs) const;
-    template< bool IsSet2 = IsSet >
-    std::enable_if_t< IsSet && IsSet2, bool > compare_with_key(const key_type& lhs, const key_type& rhs) const;
-    template< bool IsSet2 = IsSet >
-    std::enable_if_t< !IsSet && !IsSet2, bool > compare_with_key(const key_type& lhs, const key_type& rhs) const;
+    template< bool IsSet2 = IsSet, class K1 = key_type, class K2 = key_type >
+    std::enable_if_t< IsSet && IsSet2, bool > compare_keys(const K1& lhs, const K2& rhs) const;
+    template< bool IsSet2 = IsSet, class K1 = key_type, class K2 = key_type >
+    std::enable_if_t< !IsSet && !IsSet2, bool > compare_keys(const K1& lhs, const K2& rhs) const;
 
     template< class V = value_type >
     static const key_type& get_key(const V& value);

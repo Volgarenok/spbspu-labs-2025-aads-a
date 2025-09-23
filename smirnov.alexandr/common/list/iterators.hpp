@@ -2,7 +2,7 @@
 #define ITERATOR_HPP
 #include <cassert>
 #include <memory>
-#include "node.hpp"
+#include "node_list.hpp"
 
 namespace smirnov
 {
@@ -23,8 +23,8 @@ namespace smirnov
     bool operator!=(const this_t &) const noexcept;
   private:
     friend class List< T >;
-    Node< T > * node_;
-    explicit Iterator(Node< T > * node) noexcept;
+    ListNode< T > * node_;
+    explicit Iterator(ListNode< T > * node) noexcept;
   };
 
   template < typename T >
@@ -33,7 +33,7 @@ namespace smirnov
   {}
 
   template < typename T >
-  Iterator< T >::Iterator(Node< T > * node) noexcept:
+  Iterator< T >::Iterator(ListNode< T > * node) noexcept:
     node_(node)
   {}
 

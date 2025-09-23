@@ -10,11 +10,14 @@ namespace rychkov
   template< class... Types >
   class Variant;
 
+  struct Monostate
+  {};
+
   template< class T, class... Types >
-  constexpr std::enable_if_t< exactly_once< T >, T* >
+  constexpr std::enable_if_t< exactly_once< T, Types... >, T* >
       get_if(Variant< Types... >* variant) noexcept;
   template< class T, class... Types >
-  constexpr std::enable_if_t< exactly_once< T >, const T* >
+  constexpr std::enable_if_t< exactly_once< T, Types... >, const T* >
       get_if(const Variant< Types... >* variant) noexcept;
   template< size_t N, class... Types >
   nth_type_t< N, Types... >* get_if(Variant< Types... >* variant) noexcept;
@@ -60,7 +63,7 @@ namespace rychkov
     template< size_t N, class... Ts >
     friend nth_type_t< N, Ts... >* rychkov::get_if(Variant< Ts... >* variant) noexcept;
     template< size_t N, class... Ts >
-    friend const nth_type_t< N, Ts... >* rychkov::get_if(const Variant* variant) noexcept;
+    friend const nth_type_t< N, Ts... >* rychkov::get_if(const Variant< Ts... >* variant) noexcept;
   };
 
   template< class T, class... Types >

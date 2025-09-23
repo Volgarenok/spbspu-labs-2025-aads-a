@@ -7,7 +7,7 @@
 
 namespace {
 
-  using TreeMap = zholobov::Tree< zholobov::KeyType, std::string >;
+  using TreeMap = zholobov::Tree< long, std::string >;
 
   TreeMap readTree(std::istream& input)
   {
@@ -35,13 +35,17 @@ int main(int argc, char* argv[])
     return 1;
   }
   const TreeMap map = readTree(inputFile);
+  if (!inputFile.eof()) {
+    std::cerr << "Bad file content\n";
+    return 1;
+  }
   if (map.empty()) {
     std::cout << "<EMPTY>\n";
     return 0;
   }
 
   try {
-    zholobov::KeySum keySum;
+    zholobov::KeySum< TreeMap::key_type > keySum;
     if (traversal == "ascending") {
       keySum = map.traverse_lnr(keySum);
     } else if (traversal == "descending") {

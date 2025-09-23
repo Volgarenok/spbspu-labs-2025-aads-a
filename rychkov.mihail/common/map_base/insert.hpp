@@ -12,7 +12,7 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterat
     rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::find_hint_pair(const K1& key) const
 {
   const_iterator hint = lower_bound_impl(key).first;
-  if (IsMulti || (hint.pointed_ >= hint.node_->size()) || compare_with_key(key, *hint))
+  if (IsMulti || (hint.pointed_ >= hint.node_->size()) || compare_keys(key, get_key(*hint)))
   {
     return {hint, true};
   }
@@ -29,13 +29,13 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterat
     return {end(), true};
   }
   bool correct = false;
-  const bool right_order = (hint != end()) && !compare_with_key(key, *hint);
+  const bool right_order = (hint != end()) && !compare_keys(key, (*hint));
   if (hint == end())
   {
     --hint;
-    if (!compare_with_key(key, *hint))
+    if (!compare_keys(key, get_key(*hint)))
     {
-      bool need_insert = IsMulti || !compare_with_key(*hint, key);
+      bool need_insert = IsMulti || !compare_keys(get_key(*hint), key);
       hint.pointed_++;
       return {hint, need_insert};
     }
@@ -46,7 +46,7 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterat
   }
   while (true)
   {
-    if (compare_with_key(key, *hint))
+    if (compare_keys(key, get_key(*hint)))
     {
       if (hint.node_->isleaf())
       {
@@ -56,7 +56,7 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterat
       hint.pointed_ = 0;
       correct = true;
     }
-    else if (!compare_with_key(*hint, key))
+    else if (!compare_keys(get_key(*hint), key))
     {
       if (!hint.node_->isleaf())
       {
@@ -101,7 +101,7 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterat
   bool correct = false;
   while (true)
   {
-    if (compare_with_key(*hint, key))
+    if (compare_keys(get_key(*hint), key))
     {
       if (hint.node_->isleaf())
       {
@@ -111,7 +111,7 @@ std::pair< typename rychkov::MapBase< K, T, C, N, IsSet, IsMulti >::const_iterat
       hint.pointed_ = hint.node_->size() - 1;
       correct = true;
     }
-    else if (!compare_with_key(key, *hint))
+    else if (!compare_keys(key, get_key(*hint)))
     {
       if (!hint.node_->isleaf())
       {
