@@ -48,14 +48,6 @@ BOOST_AUTO_TEST_CASE(empty_test)
   BOOST_TEST(map.empty());
 }
 
-BOOST_AUTO_TEST_CASE(clear_test)
-{
-  asafov::Map<int, std::string> map;
-  map[7] = "seven";
-  map.clear(map.begin().operator->());
-  BOOST_TEST(map.empty());
-}
-
 BOOST_AUTO_TEST_CASE(copy_constructor_test)
 {
   asafov::Map<int, std::string> map;

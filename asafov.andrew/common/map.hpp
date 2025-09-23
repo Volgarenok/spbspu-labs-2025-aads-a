@@ -148,6 +148,19 @@ namespace asafov
       return nullptr;
     }
 
+    void clear(node* node)
+    {
+      if (!node)
+      {
+        return;
+      }
+      clear(node->left);
+      clear(node->right);
+      node->left = node->right = nullptr;
+      node->parent = nullptr;
+      delete node;
+    }
+
   public:
     Map() = default;
     Map(const Map& other) : root_(nullptr)
@@ -281,19 +294,6 @@ namespace asafov
         throw std::out_of_range("key not found!");
       }
       return node->data.second;
-    }
-
-    void clear(node* node)
-    {
-      if (!node)
-      {
-        return;
-      }
-      clear(node->left);
-      clear(node->right);
-      node->left = node->right = nullptr;
-      node->parent = nullptr;
-      delete node;
     }
 
     size_t size() const
