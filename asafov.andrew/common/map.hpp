@@ -236,7 +236,7 @@ namespace asafov
       {
         parent->right = temp;
       }
-      balancing(temp);
+      balance(temp);
       ++size_;
       return true;
     }
