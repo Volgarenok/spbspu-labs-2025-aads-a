@@ -55,7 +55,8 @@ namespace asafov
       if (this != &other)
       {
         Deque temp(other);
-        swap(temp);
+        using std::swap;
+        swap(*this, temp);
       }
       return *this;
     }
@@ -64,7 +65,19 @@ namespace asafov
     {
       if (this != &other)
       {
-        swap(temp);
+        delete[] data_;
+
+        data_ = std::move(other.data_);
+        capacity_ = other.capacity_;
+        size_ = other.size_;
+        front_index_ = other.front_index_;
+        back_index_ = other.back_index_;
+
+        other.data_ = nullptr;
+        other.capacity_ = 0;
+        other.size_ = 0;
+        other.front_index_ = 0;
+        other.back_index_ = 0;
       }
       return *this;
     }
@@ -162,15 +175,6 @@ namespace asafov
       front_index_ = 0;
       back_index_ = 0;
       size_ = 0;
-    }
-
-    void swap(Deque& other) noexcept
-    {
-      std::swap(data_, other.data_);
-      std::swap(capacity_, other.capacity_);
-      std::swap(size_, other.size_);
-      std::swap(front_index_, other.front_index_);
-      std::swap(back_index_, other.back_index_);
     }
 
   private:
