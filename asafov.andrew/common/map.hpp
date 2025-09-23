@@ -275,6 +275,7 @@ namespace asafov
         parent->right = temp;
       }
       balance(temp);
+      ++size_;
       return temp->data.second;
     }
     Value& at(const Key& key)
