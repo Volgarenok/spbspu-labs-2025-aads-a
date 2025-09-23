@@ -55,7 +55,7 @@ namespace asafov
       if (this != &other)
       {
         Deque temp(other);
-        swap(temp);
+        std::swap(temp);
       }
       return *this;
     }
