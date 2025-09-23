@@ -55,7 +55,7 @@ namespace asafov
       if (this != &other)
       {
         Deque temp(other);
-        std::swap(temp);
+        swap(temp);
       }
       return *this;
     }
@@ -64,18 +64,7 @@ namespace asafov
     {
       if (this != &other)
       {
-        delete[] data_;
-        data_ = other.data_;
-        capacity_ = other.capacity_;
-        size_ = other.size_;
-        front_index_ = other.front_index_;
-        back_index_ = other.back_index_;
-
-        other.data_ = nullptr;
-        other.capacity_ = 0;
-        other.size_ = 0;
-        other.front_index_ = 0;
-        other.back_index_ = 0;
+        swap(temp);
       }
       return *this;
     }
@@ -140,6 +129,24 @@ namespace asafov
       return data_[(back_index_ - 1 + capacity_) % capacity_];
     }
 
+    const T& front() const
+    {
+      if (empty())
+      {
+        throw std::out_of_range("Deque::front(): empty Deque");
+      }
+      return data_[front_index_];
+    }
+
+    const T& back() const
+    {
+      if (empty())
+      {
+        throw std::out_of_range("Deque::back(): empty Deque");
+      }
+      return data_[(back_index_ - 1 + capacity_) % capacity_];
+    }
+
     bool empty() const
     {
       return size_ == 0;
@@ -156,6 +163,16 @@ namespace asafov
       back_index_ = 0;
       size_ = 0;
     }
+
+    void swap(Deque& other) noexcept
+    {
+      std::swap(data_, other.data_);
+      std::swap(capacity_, other.capacity_);
+      std::swap(size_, other.size_);
+      std::swap(front_index_, other.front_index_);
+      std::swap(back_index_, other.back_index_);
+    }
+
   private:
     void resize(const size_t& new_capacity)
     {
