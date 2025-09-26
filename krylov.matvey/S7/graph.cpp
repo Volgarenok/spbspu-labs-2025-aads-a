@@ -53,7 +53,7 @@ std::map< std::string, bool > krylov::Graph::getVertexes() const
   return vertexes_;
 }
 
-std::unordered_map< std::pair< std::string, std::string >, std::map< size_t, size_t >, krylov::HashForPair  > krylov::Graph::getEdges() const
+krylov::Graph::hashMapForEdges krylov::Graph::getEdges() const
 {
   return edges_;
 }
