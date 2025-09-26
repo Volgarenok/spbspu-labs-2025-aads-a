@@ -7,16 +7,10 @@ namespace krylov
   template< class Key, class Value >
   struct Node
   {
-    std::pair< Key, Value > data_;
-    bool active_;
-    Node(const Key& k, const Value& v);
+    std::pair< Key, Value > data;
+    bool occupied = false;
+    bool deleted = false;
   };
-
-  template< class Key, class Value >
-  Node< Key, Value >::Node(const Key& k, const Value& v):
-    data_(std::make_pair< Key, Value >(k, v)),
-    active_(true)
-  {}
 }
 
 #endif
