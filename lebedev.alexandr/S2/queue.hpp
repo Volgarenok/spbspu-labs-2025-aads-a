@@ -32,7 +32,7 @@ namespace lebedev
 
   template< class T >
   Queue< T >::Queue():
-    capacity_(1),
+    capacity_(0),
     size_(0),
     head_(0),
     tail_(0),
@@ -122,26 +122,12 @@ namespace lebedev
     try
     {
       newArr = new T[newCapacity];
-      if (head_ < tail_)
+      for (size_t i = 0; i < size_; ++i)
       {
-        for (size_t i = 0; i < size_; ++i)
-        {
-          newArr[i] = data_[i];
-        }
-      }
-      else
-      {
-        for (size_t i = 0; i < (capacity_ - head_); ++i)
-        {
-          newArr[i] = std::move(data_[head_ + i]);
-        }
-        for (size_t i = 0; i < tail_; ++i)
-        {
-          newArr[capacity_ - head_ + i] = std::move(data_[i]);
-        }
+        newArr[i] = data_[i];
       }
     }
-    catch(...)
+    catch(const std::bad_alloc& e)
     {
       delete[] newArr;
       throw;
@@ -173,7 +159,7 @@ namespace lebedev
       addSize();
     }
     data_[tail_] = rhs;
-    tail_ = (tail_ + 1) % capacity_;
+    ++tail_;
     ++size_;
   }
 
@@ -186,7 +172,7 @@ namespace lebedev
   template< class T >
   void Queue< T >::pop()
   {
-    head_ = (head_ + 1) % capacity_;
+    ++head_;
     --size_;
   }
 

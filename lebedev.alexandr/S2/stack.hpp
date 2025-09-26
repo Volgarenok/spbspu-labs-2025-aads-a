@@ -30,7 +30,7 @@ namespace lebedev
 
   template< class T >
   Stack< T >::Stack():
-    capacity_(1),
+    capacity_(0),
     size_(0),
     data_(new T[capacity_])
   {}
