@@ -1,16 +1,22 @@
 #ifndef CONSTITERATOR_HPP
 #define CONSTITERATOR_HPP
 #include <iterator>
+#include "hashTable.hpp"
+#include "iterator.hpp"
 
 namespace krylov
 {
   template< class Key, class Value, class Hash, class Equal >
   class HashTable;
 
+  template< class Key, class Value, class Hash, class Equal >
+  class Iterator;
+
   template< class Key, class Value, class Hash = std::hash< Key >, class Equal = std::equal_to< Key > >
   class ConstIterator: public std::iterator< std::bidirectional_iterator_tag, Value >
   {
     friend class HashTable< Key, Value, Hash, Equal >;
+    friend class Iterator< Key, Value, Hash, Equal >;
   public:
     ConstIterator();
     ConstIterator(const ConstIterator< Key, Value, Hash, Equal > &) = default;
