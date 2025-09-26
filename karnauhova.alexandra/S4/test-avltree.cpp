@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include "avl_tree.hpp"
+#include <tree/avl_tree.hpp>
 
 using namespace karnauhova;
 

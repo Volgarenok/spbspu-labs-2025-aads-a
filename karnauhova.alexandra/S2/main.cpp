@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "stack.hpp"
-#include "queue.hpp"
+#include <stack.hpp>
+#include <queue.hpp>
 #include "input.hpp"
 
 void output_sums(std::ostream& out, karnauhova::Stack< long long int > calc)

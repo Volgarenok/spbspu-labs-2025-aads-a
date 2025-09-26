@@ -4,9 +4,14 @@
 #include <functional>
 #include <stdexcept>
 #include <utility>
+#include "queue.hpp"
 #include "avltree_node.hpp"
 #include "avltree_iterator.hpp"
 #include "avltree_citerator.hpp"
+#include "lnr_iterator.hpp"
+#include "clnr_iterator.hpp"
+#include "rnl_iterator.hpp"
+#include "crnl_iterator.hpp"
 
 namespace karnauhova
 {
@@ -18,6 +23,10 @@ namespace karnauhova
     using CIter = AvlTreeCIterator< Key, Value, Compare >;
     using pairIter = std::pair< Iter, Iter >;
     using pairCIter = std::pair< CIter, CIter >;
+    using LnrIter = LnrIterator< Key, Value, Compare >;
+    using CLnrIter = CLnrIterator< Key, Value, Compare >;
+    using RnlIter = RnlIterator< Key, Value, Compare >;
+    using CRnlIter = RnlIterator< Key, Value, Compare >;
 
     explicit AvlTree(Compare cmp = Compare{});
     AvlTree(const AvlTree< Key, Value, Compare >&, Compare cmp = Compare{});
@@ -67,6 +76,19 @@ namespace karnauhova
     Iter find(const Key& key) noexcept;
     CIter find(const Key& key) const noexcept;
 
+    template< typename F >
+    F traverse_lnr(F f) const;
+    template< typename F >
+    F traverse_rnl(F f) const;
+    template< typename F >
+    F traverse_breadth(F f) const;
+
+    template< typename F >
+    F traverse_lnr(F f);
+    template< typename F >
+    F traverse_rnl(F f);
+    template< typename F >
+    F traverse_breadth(F f);
   private:
     using Node = detail::AvlTreeNode< Key, Value >;
     Node* fake_;
@@ -80,6 +102,9 @@ namespace karnauhova
     Node* rotateLeft(Node*) noexcept;
     int height(Node*) const noexcept;
     void updateHeight(Node*) noexcept;
+
+    template< typename F, typename Iterator >
+    F helpTravers(Iterator, Iterator, F) const;
   };
 
   template< typename Key, typename Value, typename Compare >
@@ -541,6 +566,97 @@ namespace karnauhova
       }
     }
     return cend();
+  }
+
+  template< typename Key, typename Value, typename Compare >
+  template< typename F >
+  F AvlTree< Key, Value, Compare >::traverse_breadth(F f) const
+  {
+    Queue< Node* > queue;
+    Node* tmp = fake_->left;
+    while (tmp != fake_)
+    {
+      queue.push(tmp->left);
+      queue.push(tmp->right);
+      f(tmp->data);
+      tmp = queue.front();
+      queue.pop();
+    }
+    return f;
+  }
+
+  template< typename Key, typename Value, typename Compare >
+  template< typename F >
+  F AvlTree< Key, Value, Compare >::traverse_breadth(F f)
+  {
+    return static_cast< const AvlTree& >(*this).traverse_breadth(f);
+  }
+
+  template< typename Key, typename Value, typename Compare >
+  template< typename F, typename Iterator >
+  F AvlTree< Key, Value, Compare >::helpTravers(Iterator begin, Iterator end, F f) const
+  {
+    for (auto it = begin; it != end; it++)
+    {
+      f(*it);
+    }
+    return f;
+  }
+
+  template< typename Key, typename Value, typename Compare >
+  template< typename F >
+  F AvlTree< Key, Value, Compare >::traverse_rnl(F f) const
+  {
+    auto end = CRnlIter(fake_, fake_);
+    auto begin = CRnlIter(fake_->left, fake_);
+    while (begin.node_->right != fake_)
+    {
+      begin.stack_.push(begin.node_);
+      begin.node_ = begin.node_->right;
+    }
+    return helpTravers(begin, end, f);
+  }
+
+  template< typename Key, typename Value, typename Compare >
+  template< typename F >
+  F AvlTree< Key, Value, Compare >::traverse_rnl(F f)
+  {
+    auto end = RnlIter(fake_, fake_);
+    auto begin = RnlIter(fake_->left, fake_);
+    while (begin.node_->right != fake_)
+    {
+      begin.stack_.push(begin.node_);
+      begin.node_ = begin.node_->right;
+    }
+    return helpTravers(begin, end, f);
+  }
+
+  template< typename Key, typename Value, typename Compare >
+  template< typename F >
+  F AvlTree< Key, Value, Compare >::traverse_lnr(F f) const
+  {
+    auto end = CLnrIter(fake_, fake_);
+    auto begin = CLnrIter(fake_->left, fake_);
+    while (begin.node_->left != fake_)
+    {
+      begin.stack_.push(begin.node_);
+      begin.node_ = begin.node_->left;
+    }
+    return helpTravers(begin, end, f);
+  }
+
+  template< typename Key, typename Value, typename Compare >
+  template< typename F >
+  F AvlTree< Key, Value, Compare >::traverse_lnr(F f)
+  {
+    auto end = LnrIter(fake_, fake_);
+    auto begin = LnrIter(fake_->left, fake_);
+    while (begin.node_->left != fake_)
+    {
+      begin.stack_.push(begin.node_);
+      begin.node_ = begin.node_->left;
+    }
+    return helpTravers(begin, end, f);
   }
 
   template< typename Key, typename Value, typename Compare >

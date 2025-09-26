@@ -5,7 +5,7 @@
 #include <map>
 #include <stdexcept>
 #include <limits>
-#include "avl_tree.hpp"
+#include <tree/avl_tree.hpp>
 #include "dataset_work.hpp"
 
 namespace

@@ -4,8 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include "calc_post.hpp"
-#include "stack.hpp"
-#include "queue.hpp"
+#include <stack.hpp>
+#include <queue.hpp>
 
 namespace karnauhova
 {

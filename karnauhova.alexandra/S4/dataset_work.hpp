@@ -3,8 +3,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
-#include "avl_tree.hpp"
-
+#include <tree/avl_tree.hpp>
 namespace karnauhova
 {
   using TreeKey = AvlTree< size_t, std::string >;
