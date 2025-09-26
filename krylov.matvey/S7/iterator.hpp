@@ -1,10 +1,10 @@
 #ifndef ITERATOR_HPP
 #define ITERATOR_HPP
 #include <iterator>
+#include "hashTable.hpp"
 #include "constIterator.hpp"
-#include "iterator.hpp"
 
-namespace finaev
+namespace krylov
 {
   template< class Key, class Value, class Hash, class Equal >
   class HashTable;
@@ -19,8 +19,8 @@ namespace finaev
     friend class ConstIterator< Key, Value, Hash, Equal >;
   public:
     Iterator();
-    Iterator(const Iterator< Key, Value, Hash, Equal > &) = default;
-    Iterator< Key, Value, Hash, Equal >& operator=(const Iterator< Key, Value, Hash, Equal > &) = default;
+    Iterator(const Iterator< Key, Value, Hash, Equal >&) = default;
+    Iterator< Key, Value, Hash, Equal >& operator=(const Iterator< Key, Value, Hash, Equal >&) = default;
     ~Iterator() = default;
     Iterator< Key, Value, Hash, Equal >& operator++();
     Iterator< Key, Value, Hash, Equal > operator++(int);

@@ -19,18 +19,18 @@ namespace krylov
   class Graph
   {
   public:
-    using hashMapForEdges = std::unordered_map< std::pair< std::string, std::string >, std::map< size_t, size_t >, HashForPair >;
+    using hashMapForEdges = HashTable< std::pair< std::string, std::string >, std::map< size_t, size_t >, HashForPair >;
     void addVertex(const std::string& str);
     void addEdge(std::string first, std::string second, size_t weigth);
     void addEdges(const Graph& other);
     bool removeEdge(const std::string& first, const std::string& second, size_t weigth);
     std::map< std::string, bool > getVertexes() const;
-    std::unordered_map< std::pair< std::string, std::string >, std::map< size_t, size_t >, HashForPair > getEdges() const;
+    hashMapForEdges getEdges() const;
     bool hasVert(const std::string& str) const;
     std::map< std::string, std::map< size_t, size_t > > getOutBound(const std::string& str) const;
     std::map< std::string, std::map< size_t, size_t > > getInBound(const std::string& str) const;
   private:
-    std::unordered_map< std::pair< std::string, std::string >, std::map< size_t, size_t >, HashForPair > edges_;
+    hashMapForEdges edges_;
     std::map< std::string, bool > vertexes_;
   };
 }
