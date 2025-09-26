@@ -106,6 +106,10 @@ namespace krylov
   template< class Key, class Value, class Hash, class Equal >
   size_t HashTable< Key, Value, Hash, Equal >::findIndex(const Key & k) const
   {
+    if (table_.empty())
+    {
+      return table_.size();
+    }
     size_t baseNode = hash_(k) % table_.size();
     size_t currNode = baseNode;
     size_t i = 1;
@@ -128,6 +132,10 @@ namespace krylov
   template< class Key, class Value, class Hash, class Equal >
   size_t HashTable< Key, Value, Hash, Equal >::findIndexIn(const Key& k, const std::vector< Node< Key, Value > >& table) const
   {
+    if (table.empty())
+    {
+      return 0;
+    }
     size_t baseNode = hash_(k) % table.size();
     size_t currNode = baseNode;
     size_t i = 1;
@@ -152,9 +160,12 @@ namespace krylov
       if (table_[i].occupied)
       {
         size_t newId = findIndexIn(table_[i].data.first, temp);
-        temp[newId].data = table_[i].data;
-        temp[newId].occupied = true;
-        temp[newId].deleted = false;
+        if (newId < temp.size())
+        {
+          temp[newId].data = table_[i].data;
+          temp[newId].occupied = true;
+          temp[newId].deleted = false;
+        }
       }
     }
     table_.swap(temp);
