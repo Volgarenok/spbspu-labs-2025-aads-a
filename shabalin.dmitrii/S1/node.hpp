@@ -17,4 +17,3 @@ namespace shabalin
 }
 
 #endif
-
