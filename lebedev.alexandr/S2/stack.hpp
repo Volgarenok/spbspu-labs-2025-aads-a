@@ -2,6 +2,7 @@
 #define STACK_HPP
 #include <cstddef>
 #include <utility>
+#include <exception>
 
 namespace lebedev
 {
@@ -113,7 +114,7 @@ namespace lebedev
         newArr[i] = std::move(data_[i]);
       }
     }
-    catch(...)
+    catch(const std::bad_alloc& e)
     {
       delete[] newArr;
       throw;

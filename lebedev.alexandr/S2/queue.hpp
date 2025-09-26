@@ -2,6 +2,7 @@
 #define QUEUE_HPP
 #include <cstddef>
 #include <utility>
+#include <exception>
 
 namespace lebedev
 {
