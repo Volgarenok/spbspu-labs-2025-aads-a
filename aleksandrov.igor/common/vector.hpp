@@ -4,15 +4,22 @@
 #include <cstddef>
 #include <utility>
 #include <stdexcept>
+#include "../S7/vector-iterator.hpp"
 
 namespace aleksandrov
 {
   constexpr size_t minVectorCapacity = 64;
 
+  template< class T, bool isConst >
+  class VectorIterator;
+
   template< class T >
   class Vector
   {
   public:
+    using Iter = VectorIterator< T, false >;
+    using ConstIter = VectorIterator< T, true >;
+
     Vector();
     Vector(const Vector&);
     Vector(Vector&&);
@@ -39,6 +46,13 @@ namespace aleksandrov
     const T& front() const;
     T& back();
     const T& back() const;
+
+    Iter begin() noexcept;
+    ConstIter begin() const noexcept;
+    ConstIter cbegin() const noexcept;
+    Iter end() noexcept;
+    ConstIter end() const noexcept;
+    ConstIter cend() const noexcept;
 
     bool empty() const noexcept;
     size_t size() const noexcept;
@@ -219,6 +233,42 @@ namespace aleksandrov
   const T& Vector< T >::back() const
   {
     return data_[size_ - 1];
+  }
+
+  template< class T >
+  typename Vector< T >::Iter Vector< T >::begin() noexcept
+  {
+    return Iter(data_);
+  }
+
+  template< class T >
+  typename Vector< T >::ConstIter Vector< T >::begin() const noexcept
+  {
+    return cbegin();
+  }
+
+  template< class T >
+  typename Vector< T >::ConstIter Vector< T >::cbegin() const noexcept
+  {
+    return ConstIter(data_);
+  }
+
+  template< class T >
+  typename Vector< T >::Iter Vector< T >::end() noexcept
+  {
+    return Iter(data_ + size_);
+  }
+
+  template< class T >
+  typename Vector< T >::ConstIter Vector< T >::end() const noexcept
+  {
+    return cend();
+  }
+
+  template< class T >
+  typename Vector< T >::ConstIter Vector< T >::cend() const noexcept
+  {
+    return ConstIter(data_ + size_);
   }
 
   template< class T >

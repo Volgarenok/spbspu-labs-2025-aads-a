@@ -2,8 +2,8 @@
 #define BFS_ITERATOR_HPP
 
 #include <queue.hpp>
+#include <vector.hpp>
 #include "heavy-iterator.hpp"
-#include "../../S5/vector.hpp"
 
 namespace aleksandrov
 {
