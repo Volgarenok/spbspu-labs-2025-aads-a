@@ -123,7 +123,7 @@ namespace krylov
       {
         break;
       }
-      currNode = (baseNode + i) % table_.size();
+      currNode = (baseNode + i * i) % table_.size();
       ++i;
     }
     return table_.size();
@@ -141,7 +141,7 @@ namespace krylov
     size_t i = 1;
     while (table[currNode].occupied)
     {
-      currNode = (baseNode + i) % table.size();
+      currNode = (baseNode + i * i) % table_.size();
       ++i;
     }
     return currNode;
