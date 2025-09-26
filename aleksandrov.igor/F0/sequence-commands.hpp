@@ -2,12 +2,12 @@
 #define SEQUENCE_COMMANDS_HPP
 
 #include <ios>
-#include <unordered_map>
+#include <hash-table.hpp>
 #include "music.hpp"
 
 namespace aleksandrov
 {
-  using Sequences = std::unordered_map< std::string, Sequence >;
+  using Sequences = HashTable< std::string, Sequence >;
 
   void printHelp(std::ostream&);
   void processCommands(std::istream&, std::ostream&, Sequences&);
