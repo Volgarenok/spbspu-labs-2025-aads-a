@@ -194,7 +194,7 @@ namespace aleksandrov
   Tree< K, V, C >::Tree(Tree&& rhs):
     root_(std::exchange(rhs.root_, nullptr)),
     size_(std::exchange(rhs.size_, 0)),
-    comp_(std::exchange(rhs.comp_, std::less< K >{}))
+    comp_(std::move(rhs.comp_))
   {}
 
   template< class K, class V, class C >
