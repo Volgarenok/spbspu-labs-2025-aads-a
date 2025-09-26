@@ -6,15 +6,17 @@
 #include "ListNode.hpp"
 namespace nikonov
 {
+  template < typename T >
+  class List;
+
   template< typename T >
   struct ListIterator: public std::iterator< std::forward_iterator_tag, T >
   {
     using this_t = ListIterator< T >;
     ListIterator();
-    explicit ListIterator(detail::ListNode< T > * ptr = nullptr);
     ~ListIterator() = default;
-    ListIterator(const this_t &) = default;
-    this_t & operator=(const this_t &) = default;
+    ListIterator(const this_t &) noexcept = default;
+    this_t & operator=(const this_t &) noexcept = default;
     this_t & operator++() noexcept;
     this_t operator++(int) noexcept;
     T & operator*() noexcept;
@@ -24,7 +26,9 @@ namespace nikonov
     bool operator!=(const this_t & rhs) const noexcept;
     bool operator==(const this_t & rhs) const noexcept;
   private:
+    friend class List< T >;
     detail::ListNode< T > * node;
+    explicit ListIterator(detail::ListNode< T > * ptr);
   };
 
   template< typename T >
@@ -95,11 +99,10 @@ namespace nikonov
   struct ConstListIterator: public std::iterator< std::forward_iterator_tag, T >
   {
     using this_t = ConstListIterator< T >;
-    explicit ConstListIterator(detail::ListNode< T > * ptr = nullptr);
     ConstListIterator();
     ~ConstListIterator() = default;
-    ConstListIterator(const this_t &) = default;
-    this_t & operator=(const this_t &) = default;
+    ConstListIterator(const this_t &) noexcept = default;
+    this_t & operator=(const this_t &) noexcept = default;
     this_t & operator++() noexcept;
     this_t operator++(int) noexcept;
     const T & operator*() const noexcept;
@@ -107,7 +110,9 @@ namespace nikonov
     bool operator!=(const this_t & rhs) const noexcept;
     bool operator==(const this_t & rhs) const noexcept;
   private:
+    friend class List< T >;
     const detail::ListNode< T > * node;
+    explicit ConstListIterator(detail::ListNode< T > * ptr);
   };
 
   template< typename T >
