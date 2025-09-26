@@ -70,12 +70,14 @@ std::map< std::string, std::map< size_t, size_t > > krylov::Graph::getOutBound(c
     throw std::logic_error("<INVALID COMMAND>");
   }
   std::map< std::string, std::map< size_t, size_t > > temp;
-  for (auto i = edges_.cbegin(); i != edges_.cend(); ++i)
+  for (auto iter = edges_.cbegin(); iter != edges_.cend(); ++iter)
   {
-    const std::map< size_t, size_t >& weights = i->second;
-    if (i->first.first == str)
+    if (iter->first.first == str)
     {
-      temp[i->first.second] = weights;
+      for (auto iter2 = iter->second.cbegin(); iter2 != iter->second.cend(); iter2++)
+      {
+        temp[iter->first.second][iter2->first] = iter2->second;
+      }
     }
   }
   return temp;
@@ -88,12 +90,14 @@ std::map< std::string, std::map< size_t, size_t > > krylov::Graph::getInBound(co
     throw std::logic_error("<INVALID COMMAND>");
   }
   std::map< std::string, std::map< size_t, size_t > > temp;
-  for (auto i = edges_.cbegin(); i != edges_.cend(); ++i)
+  for (auto iter = edges_.cbegin(); iter != edges_.cend(); ++iter)
   {
-    const std::map< size_t, size_t >& weights = i->second;
-    if (i->first.second == str)
+    if (iter->first.second == str)
     {
-      temp[i->first.first] = weights;
+      for (auto iter2 = iter->second.cbegin(); iter2 != iter->second.cend(); iter2++)
+      {
+        temp[iter->first.first][iter2->first] = iter2->second;
+      }
     }
   }
   return temp;
