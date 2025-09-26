@@ -32,8 +32,8 @@ namespace averenkov
     bool operator!=(const ConstIterator& other) const;
 
   private:
-    const Node< Key, Value >* current;
-    explicit ConstIterator(const Node< Key, Value >* node);
+    const averenkov::detail::Node< Key, Value >* current;
+    explicit ConstIterator(const averenkov::detail::Node< Key, Value >* node);
 
   };
 
@@ -44,7 +44,7 @@ namespace averenkov
   }
 
   template < class Key, class Value, class Compare >
-  ConstIterator< Key, Value, Compare >::ConstIterator(const Node< Key, Value >* node):
+  ConstIterator< Key, Value, Compare >::ConstIterator(const averenkov::detail::Node< Key, Value >* node):
     current(node)
   {
   }

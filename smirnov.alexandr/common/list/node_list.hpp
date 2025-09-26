@@ -1,18 +1,18 @@
-#ifndef NODE_HPP
-#define NODE_HPP
+#ifndef NODE_LIST_HPP
+#define NODE_LIST_HPP
 
 namespace smirnov
 {
   template< typename T >
-  struct Node
+  struct ListNode
   {
-    Node< T > * next;
+    ListNode< T > * next;
     T data;
-    Node():
+    ListNode():
       next(nullptr),
       data()
     {}
-    Node(const T & value):
+    ListNode(const T & value):
       next(nullptr),
       data(value)
     {}

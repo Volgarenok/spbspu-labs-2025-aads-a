@@ -21,8 +21,7 @@ namespace averenkov
     std::ifstream file(filename);
     if (!file)
     {
-      std::cerr << "file error\n";
-      return;
+      throw std::invalid_argument("file error");
     }
     std::string line;
     while (std::getline(file, line))
@@ -196,10 +195,10 @@ namespace averenkov
 
   void commandsInit(CommandTree& commands)
   {
-    commands["print"] = std::bind(printDictionary, std::placeholders::_1, std::placeholders::_2);
-    commands["complement"] = std::bind(complement, std::placeholders::_1, std::placeholders::_2);
-    commands["intersect"] = std::bind(intersect, std::placeholders::_1, std::placeholders::_2);
-    commands["union"] = std::bind(unionDicts, std::placeholders::_1, std::placeholders::_2);
+    commands["print"] = printDictionary;
+    commands["complement"] = complement;
+    commands["intersect"] = intersect;
+    commands["union"] = unionDicts;
   }
 }
 
@@ -239,17 +238,9 @@ int main(int argc, char* argv[])
       }
       cmd->second(dictionaries, args);
     }
-    catch (const std::out_of_range& e)
+    catch (const std::exception& e)
     {
-      std::cout << "<EMPTY>\n";
-    }
-    catch (const std::invalid_argument& e)
-    {
-      std::cout << "<INVALID COMMAND>\n";
-    }
-    catch (...)
-    {
-      std::cout << "<INVALID COMMAND>\n";
+      std::cout << e.what() << "\n";
     }
   }
 

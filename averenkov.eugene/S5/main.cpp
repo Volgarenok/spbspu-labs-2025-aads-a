@@ -1,9 +1,13 @@
+#include <map>
 #include <iostream>
 #include <fstream>
 #include <BiTree.hpp>
 #include "key_sum.hpp"
+
 int main(int argc, char* argv[])
 {
+  using MyTree = averenkov::Tree< long long, std::string >;
+
   if (argc != 3)
   {
     std::cerr << "Error arguments\n";
@@ -13,7 +17,7 @@ int main(int argc, char* argv[])
   std::string mode(argv[1]);
   std::string filename(argv[2]);
 
-  averenkov::Tree< long long, std::string > bst;
+  MyTree bst;
 
   std::ifstream file(filename);
   if (!file)
@@ -35,36 +39,27 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+  using TraverseMethod = averenkov::KeySum (MyTree::*)(averenkov::KeySum);
+
+  averenkov::Tree< std::string, TraverseMethod > methodMap;
+  methodMap["ascending"] = &MyTree::traverse_lnr;
+  methodMap["descending"] = &MyTree::traverse_rnl;
+  methodMap["breadth"] = &MyTree::traverse_breadth;
+
   try
   {
     averenkov::KeySum proc;
-    if (mode == "ascending")
-    {
-      proc = bst.traverse_lnr(proc);
-    }
-    else if (mode == "descending")
-    {
-      proc = bst.traverse_rnl(proc);
-    }
-    else if (mode == "breadth")
-    {
-      proc = bst.traverse_breadth(proc);
-    }
-    else
-    {
-      std::cerr << "Error\n";
-      return 1;
-    }
-
+    auto method = methodMap.at(mode);
+    proc = (bst.*method)(proc);
     if (!proc.values_.empty())
     {
       proc.values_.pop_back();
     }
     std::cout << proc.sum_ << " " << proc.values_ << "\n";
   }
-  catch (...)
+  catch (const std::exception& e)
   {
-    std::cerr << "Error\n";
+    std::cerr << e.what() << "\n";
     return 1;
   }
 

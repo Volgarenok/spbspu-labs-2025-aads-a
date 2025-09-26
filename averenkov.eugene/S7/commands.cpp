@@ -81,7 +81,7 @@ void averenkov::printVertices(std::ostream& out, std::istream& in, const Tree< s
   Array< std::string > vertexNames;
   for (auto vit = it->second.vertices.begin(); vit != it->second.vertices.end(); ++vit)
   {
-    vertexNames.push_back(vit->first);
+    vertexNames.push_back(vit->key);
   }
   for (size_t i = 0; i < vertexNames.size(); ++i)
   {
@@ -127,10 +127,10 @@ void averenkov::printOutbound(std::ostream& out, std::istream& in, const Tree< s
   }
   Array< std::string > targets;
   Tree< std::string, Array< size_t > > weightsMap;
-  for (auto it = edgesIt->second.begin(); it != edgesIt->second.end(); ++it)
+  for (auto it = edgesIt->value.begin(); it != edgesIt->value.end(); ++it)
   {
-    targets.push_back(it->first);
-    weightsMap.insert({it->first, it->second});
+    targets.push_back(it->key);
+    weightsMap.insert({it->key, it->value});
   }
   for (size_t i = 0; i < targets.size(); ++i)
   {
@@ -187,12 +187,12 @@ void averenkov::printInbound(std::ostream& out, std::istream& in, const Tree< st
   Tree< std::string, Array< size_t > > weightsMap;
   for (auto fromIt = graphIt->second.edges.begin(); fromIt != graphIt->second.edges.end(); ++fromIt)
   {
-    for (auto toIt = fromIt->second.begin(); toIt != fromIt->second.end(); ++toIt)
+    for (auto toIt = fromIt->value.begin(); toIt != fromIt->value.end(); ++toIt)
     {
-      if (toIt->first == vertex)
+      if (toIt->key == vertex)
       {
-        sources.push_back(fromIt->first);
-        weightsMap.insert({fromIt->first, toIt->second});
+        sources.push_back(fromIt->key);
+        weightsMap.insert({fromIt->key, toIt->value});
         break;
       }
     }
@@ -261,21 +261,21 @@ void averenkov::cutEdge(std::istream& in, Tree< std::string, Graph >& graphs)
   {
     throw std::invalid_argument("Edge not found");
   }
-  auto toIt = fromIt->second.find(to);
-  if (toIt == fromIt->second.end())
+  auto toIt = fromIt->value.find(to);
+  if (toIt == fromIt->value.end())
   {
     throw std::invalid_argument("Edge not found");
   }
   bool found = false;
-  for (size_t i = 0; i < toIt->second.size(); ++i)
+  for (size_t i = 0; i < toIt->value.size(); ++i)
   {
-    if (toIt->second[i] == weight)
+    if (toIt->value[i] == weight)
     {
-      for (size_t j = i; j < toIt->second.size() - 1; ++j)
+      for (size_t j = i; j < toIt->value.size() - 1; ++j)
       {
-        toIt->second[j] = toIt->second[j + 1];
+        toIt->value[j] = toIt->value[j + 1];
       }
-      toIt->second.pop_back();
+      toIt->value.pop_back();
       found = true;
       break;
     }
@@ -284,9 +284,9 @@ void averenkov::cutEdge(std::istream& in, Tree< std::string, Graph >& graphs)
   {
     throw std::invalid_argument("Weight not found");
   }
-  if (toIt->second.empty())
+  if (toIt->value.empty())
   {
-    fromIt->second.erase(to);
+    fromIt->value.erase(to);
   }
 }
 
@@ -331,52 +331,52 @@ void averenkov::mergeGraphs(std::istream& in, Tree< std::string, Graph >& graphs
   mergedGraph.name = newGraph;
   for (auto it = it1->second.vertices.begin(); it != it1->second.vertices.end(); ++it)
   {
-    mergedGraph.vertices.insert({it->first, true});
+    mergedGraph.vertices.insert({it->key, true});
   }
   for (auto it = it2->second.vertices.begin(); it != it2->second.vertices.end(); ++it)
   {
-    mergedGraph.vertices.insert({it->first, true});
+    mergedGraph.vertices.insert({it->key, true});
   }
   for (auto fromIt = it1->second.edges.begin(); fromIt != it1->second.edges.end(); ++fromIt)
   {
-    for (auto toIt = fromIt->second.begin(); toIt != fromIt->second.end(); ++toIt)
+    for (auto toIt = fromIt->value.begin(); toIt != fromIt->value.end(); ++toIt)
     {
-      auto mergedToIt = mergedGraph.edges.find(fromIt->first);
+      auto mergedToIt = mergedGraph.edges.find(fromIt->key);
       if (mergedToIt == mergedGraph.edges.end())
       {
         HashTable< std::string, Array< size_t > > newMap;
-        newMap.insert({toIt->first, toIt->second});
-        mergedGraph.edges.insert({fromIt->first, newMap});
+        newMap.insert({toIt->key, toIt->value});
+        mergedGraph.edges.insert({fromIt->key, newMap});
       }
       else
       {
-        mergedToIt->second.insert({toIt->first, toIt->second});
+        mergedToIt->value.insert({toIt->key, toIt->value});
       }
     }
   }
   for (auto fromIt = it2->second.edges.begin(); fromIt != it2->second.edges.end(); ++fromIt)
   {
-    for (auto toIt = fromIt->second.begin(); toIt != fromIt->second.end(); ++toIt)
+    for (auto toIt = fromIt->value.begin(); toIt != fromIt->value.end(); ++toIt)
     {
-      auto mergedToIt = mergedGraph.edges.find(fromIt->first);
+      auto mergedToIt = mergedGraph.edges.find(fromIt->key);
       if (mergedToIt == mergedGraph.edges.end())
       {
         HashTable< std::string, Array< size_t > > newMap;
-        newMap.insert({toIt->first, toIt->second});
-        mergedGraph.edges.insert({fromIt->first, newMap});
+        newMap.insert({toIt->key, toIt->value});
+        mergedGraph.edges.insert({fromIt->key, newMap});
       }
       else
       {
-        auto existingWeightsIt = mergedToIt->second.find(toIt->first);
-        if (existingWeightsIt == mergedToIt->second.end())
+        auto existingWeightsIt = mergedToIt->value.find(toIt->key);
+        if (existingWeightsIt == mergedToIt->value.end())
         {
-          mergedToIt->second.insert({toIt->first, toIt->second});
+          mergedToIt->value.insert({toIt->key, toIt->value});
         }
         else
         {
-          for (size_t i = 0; i < toIt->second.size(); ++i)
+          for (size_t i = 0; i < toIt->value.size(); ++i)
           {
-            existingWeightsIt->second.push_back(toIt->second[i]);
+            existingWeightsIt->value.push_back(toIt->value[i]);
           }
         }
       }
@@ -419,12 +419,12 @@ void averenkov::extractGraph(std::istream& in, Tree< std::string, Graph >& graph
     auto fromIt = oldGraphIt->second.edges.find(vertices[i]);
     if (fromIt != oldGraphIt->second.edges.end())
     {
-      for (auto toIt = fromIt->second.begin(); toIt != fromIt->second.end(); ++toIt)
+      for (auto toIt = fromIt->value.begin(); toIt != fromIt->value.end(); ++toIt)
       {
         bool targetFound = false;
         for (size_t j = 0; j < vertices.size(); ++j)
         {
-          if (vertices[j] == toIt->first)
+          if (vertices[j] == toIt->key)
           {
             targetFound = true;
             break;
@@ -436,12 +436,12 @@ void averenkov::extractGraph(std::istream& in, Tree< std::string, Graph >& graph
           if (extractedToIt == extractedGraph.edges.end())
           {
             HashTable< std::string, Array< size_t > > newMap;
-            newMap.insert({toIt->first, toIt->second});
+            newMap.insert({toIt->key, toIt->value});
             extractedGraph.edges.insert({vertices[i], newMap});
           }
           else
           {
-            extractedToIt->second.insert({toIt->first, toIt->second});
+            extractedToIt->value.insert({toIt->key, toIt->value});
           }
         }
       }

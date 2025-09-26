@@ -15,16 +15,16 @@ void averenkov::Graph::addEdge(const std::string& from, const std::string& to, s
   }
   else
   {
-    auto weightsIt = toMapIt->second.find(to);
-    if (weightsIt == toMapIt->second.end())
+    auto weightsIt = toMapIt->value.find(to);
+    if (weightsIt == toMapIt->value.end())
     {
       Array< size_t > weights;
       weights.push_back(weight);
-      toMapIt->second.insert({to, weights});
+      toMapIt->value.insert({to, weights});
     }
     else
     {
-      weightsIt->second.push_back(weight);
+      weightsIt->value.push_back(weight);
     }
   }
 }

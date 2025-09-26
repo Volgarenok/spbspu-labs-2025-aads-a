@@ -1,14 +1,13 @@
-#include <fstream>
-#include <string>
-#include <iostream>
 #include <limits>
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <functional>
 #include <avl_tree.hpp>
 #include "commands.hpp"
 
 namespace
 {
-  int checkArguments(const int argc);
-
   int checkArguments(const int argc)
   {
     if (argc == 2)
@@ -22,6 +21,13 @@ namespace
   }
 }
 
+namespace petrov
+{
+  using subtree_t = AVLTree< int, std::string, std::less< int > >;
+  using maintree_t = AVLTree< std::string, subtree_t >;
+  std::istream & inputDatasets(std::istream & in, maintree_t & tree);
+}
+
 int main(int argc, const char * const * argv)
 {
   using namespace petrov;
@@ -31,10 +37,57 @@ int main(int argc, const char * const * argv)
     std::cerr << "\n";
     return 1;
   }
-  using subtree_t = AVLTree< int, std::string, std::less< int > >;
-  using maintree_t = AVLTree< std::string, subtree_t >;
+
   maintree_t tree;
   std::ifstream input(argv[1]);
+  try
+  {
+    inputDatasets(input, tree);
+  }
+  catch (const std::bad_alloc & e)
+  {
+    std::cerr << e.what() << "\n";
+    return 2;
+  }
+  catch (const std::exception & e)
+  {
+    std::cerr << e.what() << "\n";
+    return 3;
+  }
+
+  AVLTree< std::string, std::function< void() > > cmds;
+  cmds.insert({ "print", std::bind(print, std::ref(std::cout), std::ref(std::cin), std::cref(tree))});
+  cmds.insert({ "complement", std::bind(complement, std::ref(std::cin), std::ref(tree))});
+  cmds.insert({ "intersect", std::bind(intersect, std::ref(std::cin), std::ref(tree))});
+  cmds.insert({ "union", std::bind(unionCMD, std::ref(std::cin), std::ref(tree))});
+
+  std::string command;
+  while (!(std::cin >> command).eof())
+  {
+    try
+    {
+      cmds.at(command)();
+    }
+    catch (const std::logic_error & e)
+    {
+      std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+      std::cout << e.what() << "\n";
+    }
+    catch (const std::bad_alloc & e)
+    {
+      std::cerr << e.what() << "\n";
+      return 2;
+    }
+    catch (const std::exception & e)
+    {
+      std::cerr << e.what() << "\n";
+      return 3;
+    }
+  }
+}
+
+std::istream & petrov::inputDatasets(std::istream & input, maintree_t & tree)
+{
   while (!input.eof())
   {
     subtree_t subtree;
@@ -62,41 +115,5 @@ int main(int argc, const char * const * argv)
     }
     tree.insert({ dataset, subtree });
   }
-  std::string command_name;
-  while (!std::cin.eof())
-  {
-    std::cin >> command_name;
-    if (std::cin.eof())
-    {
-      continue;
-    }
-    try
-    {
-      if (command_name == "print")
-      {
-        print(std::cout, std::cin, tree);
-      }
-      else if (command_name == "complement")
-      {
-        complement(std::cin, tree);
-      }
-      else if (command_name == "intersect")
-      {
-        intersect(std::cin, tree);
-      }
-      else if (command_name == "union")
-      {
-        unionCMD(std::cin, tree);
-      }
-      else
-      {
-        std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
-        std::cout << "<INVALID COMMAND>" << "\n";
-      }
-    }
-    catch (const std::logic_error & e)
-    {
-      std::cout << e.what() << "\n";
-    }
-  }
+  return input;
 }

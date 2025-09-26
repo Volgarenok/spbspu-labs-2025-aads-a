@@ -19,15 +19,15 @@ BOOST_AUTO_TEST_CASE(InsertAndLocateElements)
   IntStringTable table;
   auto insertion_result = table.insert({ 42, "answer" });
   BOOST_TEST(insertion_result.second);
-  BOOST_TEST(insertion_result.first->first == 42);
-  BOOST_TEST(insertion_result.first->second == "answer");
+  BOOST_TEST(insertion_result.first->key == 42);
+  BOOST_TEST(insertion_result.first->value == "answer");
 
   auto search_result = table.find(42);
-  BOOST_TEST(search_result->second == "answer");
+  BOOST_TEST(search_result->value == "answer");
 
   auto duplicate_insert = table.insert({ 42, "duplicate" });
   BOOST_TEST(!duplicate_insert.second);
-  BOOST_TEST(duplicate_insert.first->second == "answer");
+  BOOST_TEST(duplicate_insert.first->value == "answer");
 }
 
 BOOST_AUTO_TEST_CASE(AccessOperations)
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(SwapTables)
 
   first_table.swap(second_table);
 
-  BOOST_TEST(first_table.find(2)->second == "beta");
-  BOOST_TEST(second_table.find(1)->second == "alpha");
+  BOOST_TEST(first_table.find(2)->value == "beta");
+  BOOST_TEST(second_table.find(1)->value == "alpha");
 }
 
 BOOST_AUTO_TEST_CASE(StringKeyOperations)
@@ -116,8 +116,8 @@ BOOST_AUTO_TEST_CASE(StringKeyOperations)
   table.insert({ "apple", 5 });
   table.insert({ "banana", 3 });
 
-  BOOST_TEST(table.find("apple")->second == 5);
-  BOOST_TEST(table.find("banana")->second == 3);
+  BOOST_TEST(table.find("apple")->value == 5);
+  BOOST_TEST(table.find("banana")->value == 3);
   BOOST_TEST(table.size() == 2);
 }
 
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(ConstIteratorAccess)
 
   const IntStringTable& const_table = table;
   auto const_it = const_table.find(5);
-  BOOST_TEST(const_it->second == "five");
+  BOOST_TEST(const_it->value == "five");
 }
 
 BOOST_AUTO_TEST_CASE(TableExpansion)
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(MoveOperations)
   original.insert({ 1, "movi" });
 
   IntStringTable moved = std::move(original);
-  BOOST_TEST(moved.find(1)->second == "movi");
+  BOOST_TEST(moved.find(1)->value == "movi");
   BOOST_TEST(original.empty());
 }
 

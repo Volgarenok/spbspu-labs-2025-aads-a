@@ -12,11 +12,11 @@
 
 namespace averenkov
 {
+
   template < class Key, class Value, class Compare = std::less< Key > >
   class Tree
   {
   public:
-    using NodeType = Node< Key, Value >;
     using iterator = Iterator< Key, Value, Compare >;
     using const_iterator = ConstIterator< Key, Value, Compare >;
 
@@ -24,12 +24,12 @@ namespace averenkov
     explicit Tree(const Compare& cmp);
     Tree(const Tree& other);
     Tree(Tree&& other) noexcept;
-    Tree(std::initializer_list< std::pair< const Key, Value > > init, const Compare& cmp);
+    Tree(std::initializer_list< std::pair< const Key, Value > > init, const Compare& cmp = Compare{});
     template< class InputIt >
-    Tree(InputIt first, InputIt last, const Compare& cmp);
+    Tree(InputIt first, InputIt last, const Compare& cmp = Compare{});
     ~Tree();
 
-    Tree& operator=(const Tree& other) noexcept;
+    Tree& operator=(const Tree& other);
     Tree& operator=(Tree&& other) noexcept;
 
     iterator begin();
@@ -89,6 +89,8 @@ namespace averenkov
     F traverse_breadth(F f);
 
   private:
+    using NodeType = detail::Node< Key, Value >;
+
     NodeType* fake_root_;
     Compare comp_;
     size_t size_;
@@ -110,10 +112,17 @@ namespace averenkov
     NodeType* copy_tree(NodeType* node, NodeType* parent);
     template < typename IsIterator >
     IsIterator bound_impl(const Key& key, NodeType root, NodeType end, bool upp) const;
-  };
 
-  template< class Key, class Value >
-  using NodeType = Node< Key, Value >;
+    template< class F >
+    F breadth_first_traversal(NodeType* root, F f) const;
+
+    template< class F >
+    F lnr_first_traversal(NodeType* root, F f) const;
+
+    template< class F >
+    F rnl_first_traversal(NodeType* root, F f) const;
+
+  };
 
   template < class Key, class Value, class Compare >
   Tree< Key, Value, Compare >::Tree():
@@ -158,16 +167,9 @@ namespace averenkov
     comp_(cmp),
     size_(0)
   {
-    try
+    for (; first != last; ++first)
     {
-      for (; first != last; ++first)
-      {
-        insert(*first);
-      }
-    }
-    catch (...)
-    {
-      clear();
+      insert(*first);
     }
   }
 
@@ -179,7 +181,7 @@ namespace averenkov
   }
 
   template < class Key, class Value, class Compare >
-  Tree< Key, Value, Compare >& Tree< Key, Value, Compare >::operator=(const Tree& other) noexcept
+  Tree< Key, Value, Compare >& Tree< Key, Value, Compare >::operator=(const Tree& other)
   {
     if (this != std::addressof(other))
     {
@@ -497,69 +499,77 @@ namespace averenkov
     NodeType* NodeTypeo_erase = pos.current;
     NodeType* parent = NodeTypeo_erase->parent;
     Stack< NodeType* > path;
-    if (NodeTypeo_erase->left == fake_root_ && NodeTypeo_erase->right == fake_root_)
+    try
     {
-      if (parent->left == NodeTypeo_erase)
+      if (NodeTypeo_erase->left == fake_root_ && NodeTypeo_erase->right == fake_root_)
       {
-        parent->left = fake_root_;
+        if (parent->left == NodeTypeo_erase)
+        {
+          parent->left = fake_root_;
+        }
+        else
+        {
+          parent->right = fake_root_;
+        }
+        path.push(parent);
+      }
+      else if (NodeTypeo_erase->left == fake_root_ || NodeTypeo_erase->right == fake_root_)
+      {
+        NodeType* child = nullptr;
+        if (NodeTypeo_erase->left == fake_root_)
+        {
+          child = NodeTypeo_erase->right;
+        }
+        else
+        {
+          child = NodeTypeo_erase->left;
+        }
+        if (parent->left == NodeTypeo_erase)
+        {
+          parent->left = child;
+        }
+        else
+        {
+          parent->right = child;
+        }
+        child->parent = parent;
+        path.push(parent);
       }
       else
       {
-        parent->right = fake_root_;
+        NodeType* min_right = NodeTypeo_erase->right;
+        while (min_right->left != fake_root_)
+        {
+          min_right = min_right->left;
+        }
+        NodeTypeo_erase = min_right;
+        parent = min_right->parent;
+        if (parent->left == min_right)
+        {
+          parent->left = (min_right->right != fake_root_) ? min_right->right : fake_root_;
+        }
+        else
+        {
+          parent->right = (min_right->right != fake_root_) ? min_right->right : fake_root_;
+        }
+        if (min_right->right != fake_root_)
+        {
+          min_right->right->parent = parent;
+        }
+        path.push(parent);
+        NodeTypeo_erase = min_right;
       }
-      path.push(parent);
+      NodeType* new_root = path.top();
+      if (new_root != nullptr)
+      {
+        fake_root_->left = new_root;
+        new_root->parent = fake_root_;
+      }
     }
-    else if (NodeTypeo_erase->left == fake_root_ || NodeTypeo_erase->right == fake_root_)
+    catch (...)
     {
-      NodeType* child = nullptr;
-      if (NodeTypeo_erase->left == fake_root_)
-      {
-        child = NodeTypeo_erase->right;
-      }
-      else
-      {
-        child = NodeTypeo_erase->left;
-      }
-      if (parent->left == NodeTypeo_erase)
-      {
-        parent->left = child;
-      }
-      else
-      {
-        parent->right = child;
-      }
-      child->parent = parent;
-      path.push(parent);
-    }
-    else
-    {
-      NodeType* min_right = NodeTypeo_erase->right;
-      while (min_right->left != fake_root_)
-      {
-        min_right = min_right->left;
-      }
-      NodeTypeo_erase = min_right;
-      parent = min_right->parent;
-      if (parent->left == min_right)
-      {
-        parent->left = (min_right->right != fake_root_) ? min_right->right : fake_root_;
-      }
-      else
-      {
-        parent->right = (min_right->right != fake_root_) ? min_right->right : fake_root_;
-      }
-      if (min_right->right != fake_root_)
-      {
-        min_right->right->parent = parent;
-      }
-      path.push(parent);
-      NodeTypeo_erase = min_right;
-    }
-    NodeType* new_root = path.top();
-    if (new_root != nullptr)
-    {
-      fake_root_->left = new_root;
-      new_root->parent = fake_root_;
+      delete NodeTypeo_erase;
+      return end();
     }
     delete NodeTypeo_erase;
     size_--;
@@ -616,7 +626,7 @@ namespace averenkov
   {
     try
     {
-      auto val = at(key);
+      at(key);
     }
     catch (...)
     {
@@ -848,10 +858,10 @@ namespace averenkov
 
 template < class Key, class Value, class Compare >
   template < typename F >
-  F Tree< Key, Value, Compare >::traverse_lnr(F f) const
+  F Tree< Key, Value, Compare >::lnr_first_traversal(NodeType* root, F f) const
   {
     Stack< NodeType* > stack;
-    NodeType* current = getRoot();
+    NodeType* current = root;
     while (current || !stack.empty())
     {
       while (current)
@@ -870,10 +880,10 @@ template < class Key, class Value, class Compare >
 
   template < class Key, class Value, class Compare >
   template < typename F >
-  F Tree< Key, Value, Compare >::traverse_rnl(F f) const
+  F Tree< Key, Value, Compare >::rnl_first_traversal(NodeType* root, F f) const
   {
     Stack< NodeType* > stack;
-    NodeType* current = getRoot();
+    NodeType* current = root;
     while (current || !stack.empty())
     {
       while (current)
@@ -889,16 +899,16 @@ template < class Key, class Value, class Compare >
     return f;
   }
 
-  template < class Key, class Value, class Compare >
+  template <class Key, class Value, class Compare>
   template < typename F >
-  F Tree< Key, Value, Compare >::traverse_breadth(F f) const
+  F Tree< Key, Value, Compare >::breadth_first_traversal(NodeType* root, F f) const
   {
-    if (!getRoot())
+    if (!root)
     {
       return f;
     }
     Queue< NodeType* > queue;
-    queue.push(getRoot());
+    queue.push(root);
     while (!queue.empty())
     {
       NodeType* current = queue.front();
@@ -916,73 +926,46 @@ template < class Key, class Value, class Compare >
     return f;
   }
 
-  template < class Key, class Value, class Compare >
-  template < typename F >
-  F Tree< Key, Value, Compare >::traverse_lnr(F f)
+  template <class Key, class Value, class Compare>
+  template <typename F>
+  F Tree<Key, Value, Compare>::traverse_lnr(F f) const
   {
-    Stack< NodeType* > stack;
-    NodeType* current = getRoot();
-    while (current || !stack.empty())
-    {
-      while (current)
-      {
-        stack.push(current);
-        current = current->left;
-      }
-      current = stack.top();
-      stack.pop();
-      f(current->data);
-      current = current->right;
-    }
-    return f;
+    return lnr_first_traversal(getRoot(), f);
+  }
+
+  template <class Key, class Value, class Compare>
+  template <typename F>
+  F Tree<Key, Value, Compare>::traverse_rnl(F f) const
+  {
+    return rnl_first_traversal(getRoot(), f);
   }
 
   template < class Key, class Value, class Compare >
   template < typename F >
-  F Tree< Key, Value, Compare >::traverse_rnl(F f)
+  F Tree<Key, Value, Compare>::traverse_breadth(F f) const
   {
-    Stack< NodeType* > stack;
-    NodeType* current = getRoot();
-    while (current || !stack.empty())
-    {
-      while (current)
-      {
-        stack.push(current);
-        current = current->right;
-      }
-      current = stack.top();
-      stack.pop();
-      f(current->data);
-      current = current->left;
-    }
-    return f;
+    return breadth_first_traversal(getRoot(), f);
   }
 
-  template < class Key, class Value, class Compare >
-  template < typename F >
-  F Tree< Key, Value, Compare >::traverse_breadth(F f)
+  template <class Key, class Value, class Compare>
+  template <typename F>
+  F Tree<Key, Value, Compare>::traverse_lnr(F f)
   {
-    if (!getRoot())
-    {
-      return f;
-    }
-    Queue< NodeType* > queue;
-    queue.push(getRoot());
-    while (!queue.empty())
-    {
-      NodeType* current = queue.front();
-      queue.pop();
-      f(current->data);
-      if (current->left)
-      {
-        queue.push(current->left);
-      }
-      if (current->right)
-      {
-        queue.push(current->right);
-      }
-    }
-    return f;
+    return lnr_first_traversal(getRoot(), f);
+  }
+
+  template <class Key, class Value, class Compare>
+  template <typename F>
+  F Tree<Key, Value, Compare>::traverse_rnl(F f)
+  {
+    return rnl_first_traversal(getRoot(), f);
+  }
+
+  template <class Key, class Value, class Compare>
+  template <typename F>
+  F Tree<Key, Value, Compare>::traverse_breadth(F f)
+  {
+    return breadth_first_traversal(getRoot(), f);
   }
 
 }

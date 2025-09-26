@@ -19,8 +19,10 @@ namespace averenkov
 
   public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = std::conditional_t< isConst, const std::pair< Key, Value >, std::pair< Key, Value > >;
+    using value_type = std::conditional_t< isConst, const detail::Bucket< Key, Value >, detail::Bucket< Key, Value > >;
     using difference_type = std::ptrdiff_t;
+    using pointer = value_type*;
+    using reference = value_type&;
 
     IteratorHash() noexcept;
 
@@ -34,7 +36,7 @@ namespace averenkov
     bool operator!=(const IteratorHash& other) const noexcept;
 
   private:
-    using BucketPtr = std::conditional_t< isConst, const Bucket< Key, Value >*, Bucket< Key, Value >* >;
+    using BucketPtr = std::conditional_t< isConst, const detail::Bucket< Key, Value >*, detail::Bucket< Key, Value >* >;
 
     BucketPtr current_;
     BucketPtr end_;
@@ -73,17 +75,17 @@ averenkov::IteratorHash< Key, Value, Hash, Equal, isConst >::IteratorHash(Bucket
 }
 
 template < class Key, class Value, class Hash, class Equal, bool isConst >
-typename averenkov::IteratorHash< Key, Value, Hash, Equal, isConst >::value_type&
+typename averenkov::IteratorHash< Key, Value, Hash, Equal, isConst >::reference
 averenkov::IteratorHash< Key, Value, Hash, Equal, isConst >::operator*() const noexcept
 {
-  return current_->data;
+  return *current_;
 }
 
 template < class Key, class Value, class Hash, class Equal, bool isConst >
-typename averenkov::IteratorHash< Key, Value, Hash, Equal, isConst >::value_type*
+typename averenkov::IteratorHash< Key, Value, Hash, Equal, isConst >::pointer
 averenkov::IteratorHash< Key, Value, Hash, Equal, isConst >::operator->() const noexcept
 {
-  return std::addressof(current_->data);
+  return current_;
 }
 
 template < class Key, class Value, class Hash, class Equal, bool isConst >
@@ -131,7 +133,7 @@ bool averenkov::IteratorHash< Key, Value, Hash, Equal, isConst >::is_valid_data(
   try
   {
     static Key dummy;
-    key_equal_(bucket->data.first, dummy);
+    key_equal_(bucket->key, dummy);
     return true;
   }
   catch (...)

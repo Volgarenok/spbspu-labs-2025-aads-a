@@ -3,15 +3,27 @@
 
 #include <utility>
 
-namespace averenkov
+namespace averenkov::detail
 {
   template< class Key, class Value >
   struct Bucket
   {
-    std::pair< Key, Value > data;
+    Key key;
+    Value value;
     bool occupied = false;
     bool deleted = false;
+
+    Bucket();
   };
 }
+
+template< class Key, class Value >
+averenkov::detail::Bucket< Key, Value >::Bucket():
+  key(Key{}),
+  value(Value{}),
+  occupied(false),
+  deleted(false)
+{}
+
 
 #endif

@@ -10,16 +10,13 @@ namespace averenkov
   class Array
   {
 
-    template< typename Key, typename Value, typename Hash, typename Equal >
-    friend class HashTable;
-
   public:
     Array();
     Array(const Array &rhs);
     Array(Array &&rhs) noexcept;
-    explicit Array(size_t size);
     Array &operator=(const Array &rhs) noexcept;
     Array &operator=(Array &&rhs) noexcept;
+    explicit Array(size_t size);
     ~Array();
 
     bool empty() const noexcept;
@@ -32,31 +29,40 @@ namespace averenkov
     const T& back() const noexcept;
     T& back() noexcept;
 
-    T* begin() noexcept;
-    T* end() noexcept;
-    const T* begin() const noexcept;
-    const T* end() const noexcept;
-    const T* cbegin() const noexcept;
-    const T* cend() const noexcept;
-
-    void push_back(const T& rhs);
+    void push_back(T rhs);
     void pop_front();
     void pop_back() noexcept;
 
     const T& operator[](size_t index) const;
     T& operator[](size_t index);
-    void clear() noexcept;
 
-    void resize(size_t capac);
-    void resize();
+    T* get_data();
+    const T* get_data() const;
 
   private:
     T* data_;
     size_t last_;
     size_t capacity_;
     size_t first_;
+    void resize(size_t capac);
+    void resize();
     Array< T > copy(const Array& other, size_t capacity);
+
+    T* copy_data(const Array& other, size_t capacity);
+
   };
+
+  template< class T >
+  T* Array< T >::get_data()
+  {
+    return data_;
+  }
+
+  template< class T >
+  const T* Array< T >::get_data() const
+  {
+    return data_;
+  }
 
   template< class T >
   Array< T >::Array():
@@ -68,21 +74,20 @@ namespace averenkov
 
   template< typename T >
   Array< T >::Array(size_t size):
-    data_(new T[size]),
+    data_(new T[size]()),
     last_(size),
     capacity_(size),
     first_(0)
-  {}
+  {
+  }
 
   template< class T >
   Array< T >::Array(const Array& rhs):
-    data_(nullptr),
-    last_(0),
-    capacity_(1),
-    first_(0)
-  {
-    *this = copy(rhs, rhs.capacity_);
-  }
+    data_(copy_data(rhs, rhs.capacity_)),
+    last_(rhs.last_),
+    capacity_(rhs.capacity_),
+    first_(rhs.first_)
+  {}
 
 
   template< class T >
@@ -166,43 +171,7 @@ namespace averenkov
   }
 
   template< class T >
-  T* Array< T >::begin() noexcept
-  {
-    return std::addressof(data_[first_]);
-  }
-
-  template< class T >
-  T* Array< T >::end() noexcept
-  {
-    return std::addressof(data_[last_]);
-  }
-
-  template< class T >
-  const T* Array< T >::begin() const noexcept
-  {
-    return std::addressof(data_[first_]);
-  }
-
-  template< class T >
-  const T* Array< T >::end() const noexcept
-  {
-    return std::addressof(data_[last_]);
-  }
-
-  template< class T >
-  const T* Array< T >::cbegin() const noexcept
-  {
-    return std::addressof(data_[first_]);
-  }
-
-  template< class T >
-  const T* Array< T >::cend() const noexcept
-  {
-    return std::addressof(data_[last_]);
-  }
-
-  template< class T >
-  void Array< T >::push_back(const T& rhs)
+  void Array< T >::push_back(T rhs)
   {
     if (last_ == capacity_)
     {
@@ -291,25 +260,25 @@ namespace averenkov
   }
 
   template< class T >
-  void Array< T >::clear() noexcept
+  T* Array< T >::copy_data(const Array& other, size_t capacity)
   {
-    if (data_ != nullptr)
+    T* new_data = nullptr;
+    try
     {
-      delete[] data_;
-      try
+      new_data = new T[capacity];
+      for (size_t i = 0; i < other.last_; ++i)
       {
-        data_ = new T[1];
-      }
-      catch (...)
-      {
-        delete[] data_;
-        data_ = nullptr;
+        new_data[i] = other.data_[i];
       }
     }
-    last_ = 0;
-    capacity_ = 0;
-    first_ = 0;
+    catch (...)
+    {
+      delete[] new_data;
+      throw;
+    }
+    return new_data;
   }
+
 }
 
 #endif
