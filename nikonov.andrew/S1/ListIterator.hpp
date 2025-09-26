@@ -9,9 +9,7 @@ namespace nikonov
   template< typename T >
   struct ListIterator: public std::iterator< std::forward_iterator_tag, T >
   {
-    detail::ListNode< T > * node;
     using this_t = ListIterator< T >;
-
     ListIterator();
     explicit ListIterator(detail::ListNode< T > * ptr = nullptr);
     ~ListIterator() = default;
@@ -25,6 +23,8 @@ namespace nikonov
     const T * operator->() const noexcept;
     bool operator!=(const this_t & rhs) const noexcept;
     bool operator==(const this_t & rhs) const noexcept;
+  private:
+    detail::ListNode< T > * node;
   };
 
   template< typename T >
@@ -94,9 +94,7 @@ namespace nikonov
   template< typename T >
   struct ConstListIterator: public std::iterator< std::forward_iterator_tag, T >
   {
-    const detail::ListNode< T > * node;
     using this_t = ConstListIterator< T >;
-
     explicit ConstListIterator(detail::ListNode< T > * ptr = nullptr);
     ConstListIterator();
     ~ConstListIterator() = default;
@@ -108,6 +106,8 @@ namespace nikonov
     const T * operator->() const noexcept;
     bool operator!=(const this_t & rhs) const noexcept;
     bool operator==(const this_t & rhs) const noexcept;
+  private:
+    const detail::ListNode< T > * node;
   };
 
   template< typename T >

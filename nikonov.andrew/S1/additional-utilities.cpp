@@ -4,7 +4,7 @@
 #include <stdexcept>
 namespace
 {
-  nikonov::ListIterator< size_t > getIterAt(nikonov::List< size_t > & list, size_t id);
+  nikonov::ConstListIterator< size_t > getIterAt(const nikonov::List< size_t > & list, size_t id);
   void printNumsNSums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt);
   void printOnlyNums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt);
 }
@@ -80,7 +80,7 @@ void nikonov::processPList(List< std::pair< std::string, List< size_t > > > pLis
 }
 namespace
 {
-  nikonov::ListIterator< size_t > getIterAt(nikonov::List< size_t > & list, size_t id)
+  nikonov::ConstListIterator< size_t > getIterAt(const nikonov::List< size_t > & list, size_t id)
   {
     auto iter = list.begin();
     for (size_t i = 0; i < id; ++i, ++iter);

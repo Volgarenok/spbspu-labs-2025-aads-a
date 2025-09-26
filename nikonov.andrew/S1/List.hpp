@@ -35,6 +35,8 @@ namespace nikonov
     List(InputIterator begin, InputIterator end);
     ~List() noexcept;
 
+    List< T > & operator=(const List< T > & rhs);
+    List< T > & operator=(List< T > && rhs);
     List< T > & operator=(std::initializer_list< T > il);
     bool operator==(const List< T > & rhs) const noexcept;
     bool operator!=(const List< T > & rhs) const noexcept;
@@ -173,6 +175,27 @@ namespace nikonov
   {
     clear();
     free(fake);
+  }
+
+  template< typename T >
+  List< T > & List< T >::operator=(const List< T > & rhs)
+  {
+    if (this != std::addressof(rhs))
+    {
+      List< T > tempList(rhs);
+      swap(tempList);
+    }
+    return *this;
+  }
+
+  template< typename T >
+  List< T > & List< T >::operator=(List< T > && rhs)
+  {
+    if (this != std::addressof(rhs))
+    {
+      swap(rhs);
+    }
+    return *this;
   }
 
   template< typename T >
