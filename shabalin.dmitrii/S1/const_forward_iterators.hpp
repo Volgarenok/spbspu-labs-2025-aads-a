@@ -6,10 +6,6 @@
 #include <cassert>
 #include "node.hpp"
 
-#include <iterator>
-#include <forward_list>
-#include "node.hpp"
-
 namespace shabalin
 {
   template < typename T >
