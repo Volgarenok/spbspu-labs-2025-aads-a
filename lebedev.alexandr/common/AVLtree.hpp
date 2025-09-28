@@ -71,9 +71,9 @@ namespace lebedev
     cmp_(),
     size_(0)
   {
-    fakeLeaf_->parent = fakeRoot_;
-    fakeRoot_->left = fakeLeaf_;
-    fakeRoot_->right = fakeLeaf_;
+    fakeleaf_->parent = fakeroot_;
+    fakeroot_->left = fakeleaf_;
+    fakeroot_->right = fakeleaf_;
   }
 
   template< class Key, class Value, class Cmp >
@@ -620,7 +620,7 @@ namespace lebedev
   void AVLtree< Key, Value, Cmp >::swap(AVLtree< Key, Value, Cmp >& other) noexcept
   {
     std::swap(fakeroot_, other.fakeroot_);
-    std::swap(fakeleaf_, other.fakeleaf_)
+    std::swap(fakeleaf_, other.fakeleaf_);
     std::swap(root_, other.root_);
     std::swap(cmp_, other.cmp_);
     std::swap(size_, other.size_);
