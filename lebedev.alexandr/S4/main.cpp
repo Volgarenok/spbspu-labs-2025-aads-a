@@ -13,11 +13,10 @@ int main(int argc, char* argv[])
     std::cout << "Empty parameter\n";
     return 1;
   }
-  std::string filename = argv[1];
-  std::ifstream inputFile(filename);
+  std::ifstream inputFile(argv[1]);
   if (!inputFile.is_open())
   {
-    std::cout << "Error open file: " << filename << "\n";
+    std::cout << "Error open file: " << argv[1] << "\n";
     return 1;
   }
   lebedev::AVLtree< std::string, lebedev::AVLtree< int, std::string > > dictOfDicts;

@@ -44,10 +44,10 @@ namespace lebedev
   template< class Key, class Value, class Cmp >
   TreeIterator< Key, Value, Cmp >& TreeIterator< Key, Value, Cmp >::operator++() noexcept
   {
-    if (node_->right && node_->right->height != 0)
+    if (node_->right)
     {
       node_ = node_->right;
-      while (node_->left && node_->left->height != 0)
+      while (node_->left)
       {
         node_ = node_->left;
       }
@@ -76,10 +76,10 @@ namespace lebedev
   template< class Key, class Value, class Cmp >
   TreeIterator< Key, Value, Cmp >& TreeIterator< Key, Value, Cmp >::operator--() noexcept
   {
-    if (node_->left && node_->left->height != 0)
+    if (node_->left)
     {
       node_ = node_->left;
-      while (node_->right && node_->left->height != 0)
+      while (node_->right)
       {
         node_ = node_->right;
       }
