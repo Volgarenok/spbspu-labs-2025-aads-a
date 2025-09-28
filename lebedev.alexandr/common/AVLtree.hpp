@@ -40,9 +40,9 @@ namespace lebedev
     const Value& at(const Key &) const;
     std::pair< iter, bool > insert(const std::pair< Key, Value >&);
     Value& operator[](const Key&);
+
     ~AVLtree();
   private:
-    node_t* fakeleaf_;
     node_t* fakeroot_;
     node_t* root_;
     Cmp cmp_;
@@ -66,19 +66,16 @@ namespace lebedev
 
   template< class Key, class Value, class Cmp >
   AVLtree< Key, Value, Cmp >::AVLtree():
-    fakeleaf_(new node_t(Key(), Value(), nullptr)),
     fakeroot_(new node_t(Key(), Value(), nullptr)),
+    root_(nullptr),
     cmp_(),
     size_(0)
   {
-    fakeleaf_->parent = fakeroot_;
-    fakeroot_->left = fakeleaf_;
-    fakeroot_->right = fakeleaf_;
+    fakeroot_->left = nullptr;
   }
 
   template< class Key, class Value, class Cmp >
   AVLtree< Key, Value, Cmp >::AVLtree(const AVLtree& other):
-    fakeleaf_(new node_t(Key(), Value(), nullptr)),
     fakeroot_(new node_t(Key(), Value(), nullptr)),
     cmp_(other.cmp_),
     size_(other.size_)
@@ -95,14 +92,12 @@ namespace lebedev
     catch(...)
     {
       delete fakeroot_;
-      delete fakeleaf_;
       throw;
     }
   }
 
   template< class Key, class Value, class Cmp >
   AVLtree< Key, Value, Cmp >::AVLtree(AVLtree&& other):
-    fakeleaf_(other.fakeleaf_),
     fakeroot_(other.fakeroot_),
     root_(other.root_),
     cmp_(other.cmp_),
@@ -620,7 +615,6 @@ namespace lebedev
   void AVLtree< Key, Value, Cmp >::swap(AVLtree< Key, Value, Cmp >& other) noexcept
   {
     std::swap(fakeroot_, other.fakeroot_);
-    std::swap(fakeleaf_, other.fakeleaf_);
     std::swap(root_, other.root_);
     std::swap(cmp_, other.cmp_);
     std::swap(size_, other.size_);
@@ -697,7 +691,6 @@ namespace lebedev
   {
     clear(fakeroot_->left);
     delete fakeroot_;
-    delete fakeleaf_;
   }
 }
 
