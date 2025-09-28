@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <numeric>
 #include <vector>
-#include <map>
+#include <tree/tree.hpp>
 #include "stream-guard.hpp"
 #include "music-io-utils.hpp"
 
@@ -35,7 +35,7 @@ namespace
 
 void aleksandrov::processCommands(std::istream& in, std::ostream& out, Sequences& seqs)
 {
-  std::map< std::string, std::function< void() > > commands;
+  Tree< std::string, std::function< void() > > commands;
   commands["list"] = std::bind(listSeqs, std::ref(out), std::cref(seqs));
   commands["new"] = std::bind(newSeq, std::ref(in), std::ref(seqs));
   commands["load"] = std::bind(loadSeq, std::ref(in), std::ref(seqs));
@@ -61,7 +61,7 @@ void aleksandrov::processCommands(std::istream& in, std::ostream& out, Sequences
     }
     catch (const std::out_of_range&)
     {
-      out << "ERROR: Invalid command!\n";
+      out << "ERROR: Invalid command!" << '\n';
       in.clear();
       in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     }
@@ -78,13 +78,16 @@ void aleksandrov::listSeqs(std::ostream& out, const Sequences& seqs)
 {
   if (seqs.empty())
   {
-    out << "No sequences.\n";
+    out << "No sequences." << '\n';
     return;
   }
-  std::ostream_iterator< std::string > outIt(out, "\n");
   KeyReturner< std::string, Sequence > returner;
+  std::vector< std::string > seqsNames;
+  std::transform(seqs.begin(), seqs.end(), std::back_inserter(seqsNames), returner);
+
+  std::ostream_iterator< std::string > outIt(out, "\n");
   StreamGuard guard(out);
-  std::transform(seqs.begin(), seqs.end(), outIt, returner);
+  std::copy(seqsNames.begin(), seqsNames.end(), outIt);
 }
 
 void aleksandrov::newSeq(std::istream& in, Sequences& seqs)
@@ -93,7 +96,7 @@ void aleksandrov::newSeq(std::istream& in, Sequences& seqs)
   in >> seqName;
   if (seqs.find(seqName) != seqs.end())
   {
-    throw std::logic_error("Sequence '" + seqName + "' already exists!");
+    throw std::logic_error("Sequence already exists!");
   }
   seqs[seqName];
 }
@@ -130,7 +133,7 @@ void aleksandrov::saveSeq(std::istream& in, Sequences& seqs)
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   std::string fileName;
   in >> fileName;
@@ -156,7 +159,7 @@ void aleksandrov::clearSeq(std::istream& in, Sequences& seqs)
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("There is no such sequence '" + seqName + "'");
+    throw std::logic_error("There is no such sequence!");
   }
   seqIt->second.clear();
 }
@@ -168,7 +171,7 @@ void aleksandrov::deleteSeq(std::istream& in, Sequences& seqs)
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   seqs.erase(seqIt);
 }
@@ -180,13 +183,13 @@ void aleksandrov::cloneSeq(std::istream& in, Sequences& seqs)
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   std::string seqCloneName;
   in >> seqCloneName;
   if (seqs.find(seqCloneName) != seqs.end())
   {
-    throw std::logic_error("Sequence '" + seqCloneName + "' already exists!");
+    throw std::logic_error("Sequence already exists!");
   }
   seqs.insert({ seqCloneName, seqIt->second });
 }
@@ -198,7 +201,7 @@ void aleksandrov::addToSeq(std::istream& in, Sequences& seqs)
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   MusicalElement element;
   if (!(in >> element))
@@ -228,7 +231,7 @@ void aleksandrov::removeFromSeq(std::istream& in, Sequences& seqs)
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   Sequence& sequence = seqIt->second;
   if (in.peek() == '\n' || in.peek() == EOF)
@@ -253,18 +256,14 @@ void aleksandrov::mergeSeqs(std::istream& in, Sequences& seqs)
   std::string newSeqName;
   in >> seqName1 >> seqName2 >> newSeqName;
   auto seqIt1 = seqs.find(seqName1);
-  if (seqIt1 == seqs.end())
-  {
-    throw std::logic_error("No such sequence '" + seqName1 + "'");
-  }
   auto seqIt2 = seqs.find(seqName2);
-  if (seqIt2 == seqs.end())
+  if (seqIt1 == seqs.end() || seqIt2 == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName2 + "'");
+    throw std::logic_error("No such sequence!");
   }
   if (seqs.find(newSeqName) != seqs.end())
   {
-    throw std::logic_error("Sequence '" + newSeqName + "' already exists!");
+    throw std::logic_error("Sequence already exists!");
   }
   Sequence merged;
   const Sequence& seq1 = seqIt1->second;
@@ -283,9 +282,10 @@ void aleksandrov::printSeq(std::istream& in, std::ostream& out, const Sequences&
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   const Sequence& sequence = seqIt->second;
+
   std::ostream_iterator< MusicalElement > outIt(out, "\n");
   StreamGuard guard(out);
   std::copy(sequence.begin(), sequence.end(), outIt);
@@ -298,9 +298,11 @@ void aleksandrov::elementsSeq(std::istream& in, std::ostream& out, const Sequenc
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   size_t seqSize = seqIt->second.size();
+
+  StreamGuard guard(out);
   out << "Total number of elements in '" << seqName << "': " << seqSize << '\n';
 }
 
@@ -311,12 +313,15 @@ void aleksandrov::notesSeq(std::istream& in, std::ostream& out, const Sequences&
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   const Sequence& sequence = seqIt->second;
   std::vector< size_t > noteCounts(sequence.size());
   std::transform(sequence.begin(), sequence.end(), noteCounts.begin(), countNotes);
+
   size_t notesCount = std::accumulate(noteCounts.begin(), noteCounts.end(), 0);
+
+  StreamGuard guard(out);
   out << "Total number of notes in '" << seqName << "': " << notesCount << '\n';
 }
 
@@ -327,7 +332,7 @@ void aleksandrov::typeSeq(std::istream& in, std::ostream& out, const Sequences& 
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   const Sequence& sequence = seqIt->second;
   size_t position = 0;
@@ -335,6 +340,8 @@ void aleksandrov::typeSeq(std::istream& in, std::ostream& out, const Sequences& 
   {
     throw std::logic_error("Incorrect position!");
   }
+
+  StreamGuard guard(out);
   out << sequence[position - 1] << ": ";
   switch (sequence[position - 1].getType())
   {
@@ -360,7 +367,7 @@ void aleksandrov::inverseSeq(std::istream& in, Sequences& seqs)
   auto seqIt = seqs.find(seqName);
   if (seqIt == seqs.end())
   {
-    throw std::logic_error("No such sequence '" + seqName + "'");
+    throw std::logic_error("No such sequence!");
   }
   Sequence& sequence = seqIt->second;
   size_t position = 0;
@@ -390,6 +397,7 @@ void aleksandrov::inverseSeq(std::istream& in, Sequences& seqs)
 
 void aleksandrov::printHelp(std::ostream& out)
 {
+  StreamGuard guard(out);
   out << "list\n";
   out << "- print loaded/created sequences in this session\n";
   out << "new <name>\n";
