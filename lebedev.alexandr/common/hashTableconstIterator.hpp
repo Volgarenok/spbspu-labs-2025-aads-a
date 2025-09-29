@@ -2,7 +2,7 @@
 #define HASHTABLECONSTITERATOR_hpp
 #include <iterator>
 
-namespace finaev
+namespace lebedev
 {
   template< class Key, class Value, class Hash, class Equal >
   class HashTable;
