@@ -9,12 +9,14 @@ namespace averenkov
   template< class T >
   class Array
   {
+
   public:
     Array();
     Array(const Array &rhs);
     Array(Array &&rhs) noexcept;
     Array &operator=(const Array &rhs) noexcept;
     Array &operator=(Array &&rhs) noexcept;
+    explicit Array(size_t size);
     ~Array();
 
     bool empty() const noexcept;
@@ -31,6 +33,12 @@ namespace averenkov
     void pop_front();
     void pop_back() noexcept;
 
+    const T& operator[](size_t index) const;
+    T& operator[](size_t index);
+
+    T* get_data();
+    const T* get_data() const;
+
   private:
     T* data_;
     size_t last_;
@@ -39,9 +47,22 @@ namespace averenkov
     void resize(size_t capac);
     void resize();
     Array< T > copy(const Array& other, size_t capacity);
+
     T* copy_data(const Array& other, size_t capacity);
 
   };
+
+  template< class T >
+  T* Array< T >::get_data()
+  {
+    return data_;
+  }
+
+  template< class T >
+  const T* Array< T >::get_data() const
+  {
+    return data_;
+  }
 
   template< class T >
   Array< T >::Array():
@@ -50,6 +71,15 @@ namespace averenkov
     capacity_(1),
     first_(0)
   {}
+
+  template< typename T >
+  Array< T >::Array(size_t size):
+    data_(new T[size]()),
+    last_(size),
+    capacity_(size),
+    first_(0)
+  {
+  }
 
   template< class T >
   Array< T >::Array(const Array& rhs):
@@ -167,6 +197,26 @@ namespace averenkov
     {
       --last_;
     }
+  }
+
+  template< class T >
+  const T& Array< T >::operator[](size_t index) const
+  {
+    if (index >= size())
+    {
+      throw std::out_of_range("Index out of range");
+    }
+    return data_[first_ + index];
+  }
+
+  template< class T >
+  T& Array< T >::operator[](size_t index)
+  {
+    if (index >= size())
+    {
+      throw std::out_of_range("Index out of range");
+    }
+    return data_[first_ + index];
   }
 
   template< class T >
