@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "hash_table.hpp"
+#include <hashtable/hash_table.hpp>
 
 using namespace zholobov;
 

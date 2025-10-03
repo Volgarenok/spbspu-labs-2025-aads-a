@@ -2,7 +2,9 @@
 #define GRAPH_HPP
 
 #include <string>
-#include "hash_table.hpp"
+
+#include <hashtable/hash_table.hpp>
+
 #include "list/CircularFwdList.hpp"
 #include "tree/tree.hpp"
 
