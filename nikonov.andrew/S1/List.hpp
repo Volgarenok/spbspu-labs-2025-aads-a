@@ -131,7 +131,6 @@ namespace nikonov
   List< T >::List(size_t k, const T & value):
     List()
   {
-    detail::ListNode< T > * tailNode = nullptr;
     try
     {
       for (size_t i = 0; i < k; ++i)
@@ -174,7 +173,6 @@ namespace nikonov
   List< T >::List(InputIterator begin, InputIterator end):
     List()
   {
-    detail::ListNode< T > * curr = fake_;
     try
     {
       for (; begin != end; ++begin)
@@ -488,13 +486,13 @@ namespace nikonov
   template< typename T >
   void List< T >::splice(const_iterator< T > pos, List< T > & x) noexcept
   {
-    splice(pos, std::move(x), x.begin(), x.end());
+    splice(pos, std::move(x), x.cbegin(), x.cend());
   }
 
   template< typename T >
   void List< T >::splice(const_iterator< T > pos, List< T > && x) noexcept
   {
-    splice(pos, std::move(x), x.begin(), x.end());
+    splice(pos, std::move(x), x.cbegin(), x.cend());
   }
 
   template< typename T >
