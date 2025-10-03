@@ -39,23 +39,23 @@ namespace ivanova
     List& operator=(List&& moved) noexcept;
 
     void assign(size_type n, const_reference value);
-    
+
     template < typename IterType >
     void assign(IterType first, IterType last);
-    
+
     void push_back(const_reference value);
     void push_front(const_reference value);
     void pop_back();
     void pop_front();
     void swap(List& other) noexcept;
     void clear();
-    
+
     void splice(iterator position, List& other);
     void splice(iterator position, List& other, iterator i);
     void splice(iterator position, List& other, iterator first, iterator last);
-    
+
     void remove(const_reference value);
-    
+
     template < typename Predicate >
     void removeIf(Predicate pred);
 
@@ -81,10 +81,10 @@ namespace ivanova
 
     void savePush(const_reference value, bool back);
     void pop(bool back);
-    
+
     template < typename... Args >
     node_type* createNode(Args&&... args);
-    
+
     void deleteNode(node_type* node);
     void cutNodes(node_type* first, node_type* last);
     void linkNodes(node_type* first, node_type* second);
@@ -93,7 +93,9 @@ namespace ivanova
     struct EqualValue
     {
       const_reference value_;
-      EqualValue(const_reference value): value_(value) {}
+      EqualValue(const_reference value):
+        value_(value)
+      {}
       bool operator()(const_reference x) const
       {
         return x == value_;
@@ -564,4 +566,5 @@ namespace ivanova
     return count;
   }
 }
+
 #endif

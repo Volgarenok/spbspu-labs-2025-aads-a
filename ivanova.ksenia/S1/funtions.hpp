@@ -121,7 +121,7 @@ void countSums(List< NamedList >& data, List< uint64_t >& sums)
       {
         uint64_t value = *(it->pos);
         ++(it->pos);
-        
+
         if (sum > max_number - value)
         {
           throw std::overflow_error("can't count sum, overflow");
