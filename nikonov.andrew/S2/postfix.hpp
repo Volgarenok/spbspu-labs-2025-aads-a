@@ -20,7 +20,7 @@ namespace nikonov
     Postfix & operator/=(const Postfix & rhs);
     Postfix operator%(const Postfix & rhs);
     Postfix & operator%=(const Postfix & rhs);
-  
+
     friend std::ostream & operator<<(std::ostream & out, const Postfix & toOut)
     {
       out << toOut.expression;
