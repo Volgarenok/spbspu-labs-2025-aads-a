@@ -106,10 +106,10 @@ BOOST_AUTO_TEST_CASE(ListEnd_test)
   constexpr int data1 = 10;
   constexpr int data2 = 100;
   nikonov::List< int > list{ data1, data2 };
-  nikonov::ListIterator< int > data1It = list.begin();
-  nikonov::ListIterator< int > data2It = data1It++;
-  BOOST_TEST(*list.end() != data1It);
-  BOOST_TEST(*list.end() != data2It);
+  auto data1It = list.begin();
+  auto data2It = data1It++;
+  BOOST_TEST(list.end() != data1It);
+  BOOST_TEST(list.end() != data2It);
 }
 BOOST_AUTO_TEST_CASE(ListFront_test)
 {
@@ -225,19 +225,14 @@ BOOST_AUTO_TEST_CASE(ListSpliceEntireList_test)
   nikonov::List< int > list1{ 10, 20, 30 };
   nikonov::List< int > list2{ 40, 50, 60 };
   auto iter1 = list1.cbegin();
-  auto iter2 = list2.cbegin();
-  *iter1++;
-  *iter1++;
-  *iter1++;
+  ++iter1; ++iter1; ++iter1;
   list1.splice(iter1, list2);
-  iter1 = list1.cbegin();
-  *iter1++;
-  *iter1++;
-  *iter1++;
   BOOST_TEST(list2.empty());
-  BOOST_TEST(*(iter1++) == *(iter2++));
-  BOOST_TEST(*(iter1++) == *(iter2++));
-  BOOST_TEST(*iter1 == *iter2);
+  iter1 = list1.cbegin();
+  ++iter1; ++iter1; ++iter1;
+  BOOST_TEST(*(iter1++) == 40);
+  BOOST_TEST(*(iter1++) == 50);
+  BOOST_TEST(*iter1 == 60);
 }
 BOOST_AUTO_TEST_CASE(ListSpliceSingleEl_test)
 {
@@ -249,7 +244,7 @@ BOOST_AUTO_TEST_CASE(ListSpliceSingleEl_test)
   auto iter2 = list2.cbegin();
   list1.splice(iter1, list2, iter2);
   iter1 = list1.cbegin();
-  BOOST_TEST(list2.size() == --size2BeforeSplice);
+  BOOST_TEST(list2.size() == (size2BeforeSplice - 1));
   BOOST_TEST(*(iter1) == first2ListElem);
 }
 BOOST_AUTO_TEST_CASE(ListSpliceElRange_test)
@@ -405,5 +400,5 @@ BOOST_AUTO_TEST_CASE(ListErase_test)
   nikonov::ConstListIterator< int > last = list.cend();
   nikonov::ListIterator< int > lastAfterErase = list.erase(first, last);
   BOOST_TEST(list.size() == 0);
-  BOOST_TEST(*list.end() == lastAfterErase);
+  BOOST_TEST(lastAfterErase == list.end());
 }
