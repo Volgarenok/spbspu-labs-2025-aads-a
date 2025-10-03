@@ -1,8 +1,8 @@
 #include <iostream>
 #include <limits>
 #include "inputProcess.hpp"
-#include "list.hpp"
-#include "iterators.hpp"
+#include <list/list.hpp>
+#include <list/iterators.hpp>
 
 int main()
 {

@@ -9,8 +9,8 @@
 
 namespace lebedev
 {
-  lebedev::Queue< std::string > convertInfToPost(const std::string& expr);
-  long long calculatePost(lebedev::Queue< std::string >& post);
-  lebedev::Stack< std::string > inputExpressions(std::istream& input);
+  Queue< std::string > convertInfToPost(const std::string& expr);
+  long long calculatePost(Queue< std::string >& post);
+  Stack< std::string > inputExpressions(std::istream& input);
 }
 #endif

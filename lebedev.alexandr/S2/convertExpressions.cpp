@@ -24,8 +24,8 @@ int getPriority(char op)
 
 lebedev::Queue< std::string > lebedev::convertInfToPost(const std::string& expr)
 {
-  lebedev::Stack< char > ops;
-  lebedev::Queue< std::string > output;
+  Stack< char > ops;
+  Queue< std::string > output;
   std::string temp;
 
   for (size_t i = 0; i < expr.size(); i++)
@@ -99,9 +99,9 @@ lebedev::Queue< std::string > lebedev::convertInfToPost(const std::string& expr)
   return output;
 }
 
-long long lebedev::calculatePost(lebedev::Queue< std::string >& post)
+long long lebedev::calculatePost(Queue< std::string >& post)
 {
-  lebedev::Stack< long long > ops;
+  Stack< long long > ops;
   while (!post.isEmpty())
   {
     std::string token = post.top();
@@ -137,7 +137,7 @@ long long lebedev::calculatePost(lebedev::Queue< std::string >& post)
 
 lebedev::Stack< std::string > lebedev::inputExpressions(std::istream& input)
 {
-  lebedev::Stack< std::string > res;
+  Stack< std::string > res;
   std::string line;
 
   while (input)
