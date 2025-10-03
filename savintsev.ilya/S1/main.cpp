@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "list.hpp"
+#include <list.hpp>
 
 int main()
 {

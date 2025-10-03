@@ -2,6 +2,7 @@
 #define STACK_HPP
 #include <cstddef>
 #include <utility>
+#include <exception>
 
 namespace lebedev
 {
@@ -14,7 +15,6 @@ namespace lebedev
     Stack(Stack< T >&&) noexcept;
     Stack< T >& operator=(const Stack< T >& other);
     Stack< T >& operator=(Stack< T >&& other) noexcept;
-    void addSize();
     bool isEmpty() const noexcept;
     size_t size() const noexcept;
     void push(const T& rhs);
@@ -23,6 +23,7 @@ namespace lebedev
     void swap(Stack< T >& other) noexcept;
     ~Stack();
   private:
+    void addSize();
     size_t capacity_;
     size_t size_;
     T* data_;
@@ -30,7 +31,7 @@ namespace lebedev
 
   template< class T >
   Stack< T >::Stack():
-    capacity_(1),
+    capacity_(0),
     size_(0),
     data_(new T[capacity_])
   {}
@@ -103,16 +104,17 @@ namespace lebedev
   template < class T >
   void Stack< T >::addSize()
   {
-    const size_t newCapacity = capacity_ + 50;
-    T* newArr = new T[newCapacity];
+    const size_t newCapacity = (capacity_ == 0) ? 10 : capacity_ * 2;
+    T* newArr = nullptr;
     try
     {
+      newArr = new T[newCapacity];
       for (size_t i = 0; i < size_; ++i)
       {
         newArr[i] = std::move(data_[i]);
       }
     }
-    catch(...)
+    catch(const std::bad_alloc& e)
     {
       delete[] newArr;
       throw;

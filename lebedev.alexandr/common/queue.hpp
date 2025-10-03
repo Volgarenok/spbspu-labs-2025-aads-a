@@ -2,6 +2,7 @@
 #define QUEUE_HPP
 #include <cstddef>
 #include <utility>
+#include <exception>
 
 namespace lebedev
 {
@@ -14,7 +15,6 @@ namespace lebedev
     Queue(Queue< T >&&) noexcept;
     Queue< T >& operator=(const Queue< T >&);
     Queue< T >& operator=(Queue< T >&&) noexcept;
-    void addSize();
     bool isEmpty() const noexcept;
     size_t size() const noexcept;
     void push(const T& rhs);
@@ -23,6 +23,7 @@ namespace lebedev
     void swap(Queue< T >&) noexcept;
     ~Queue();
   private:
+    void addSize();
     size_t capacity_;
     size_t size_;
     size_t head_;
@@ -32,7 +33,7 @@ namespace lebedev
 
   template< class T >
   Queue< T >::Queue():
-    capacity_(1),
+    capacity_(0),
     size_(0),
     head_(0),
     tail_(0),
@@ -117,30 +118,17 @@ namespace lebedev
   template < class T >
   void Queue< T >::addSize()
   {
-    const size_t newCapacity = capacity_ + 50;
-    T* newArr = new T[newCapacity];
+    const size_t newCapacity = (capacity_ == 0) ? 10 : capacity_ * 2;
+    T* newArr = nullptr;
     try
     {
-      if (head_ < tail_)
+      newArr = new T[newCapacity];
+      for (size_t i = 0; i < size_; ++i)
       {
-        for (size_t i = 0; i < size_; ++i)
-        {
-          newArr[i] = data_[i];
-        }
-      }
-      else
-      {
-        for (size_t i = 0; i < (capacity_ - head_); ++i)
-        {
-          newArr[i] = std::move(data_[head_ + i]);
-        }
-        for (size_t i = 0; i < tail_; ++i)
-        {
-          newArr[capacity_ - head_ + i] = std::move(data_[i]);
-        }
+        newArr[i] = data_[i];
       }
     }
-    catch(...)
+    catch(const std::bad_alloc& e)
     {
       delete[] newArr;
       throw;
@@ -172,7 +160,7 @@ namespace lebedev
       addSize();
     }
     data_[tail_] = rhs;
-    tail_ = (tail_ + 1) % capacity_;
+    ++tail_;
     ++size_;
   }
 
@@ -185,7 +173,7 @@ namespace lebedev
   template< class T >
   void Queue< T >::pop()
   {
-    head_ = (head_ + 1) % capacity_;
+    ++head_;
     --size_;
   }
 

@@ -10,7 +10,7 @@ void lebedev::printCMD(std::ostream& out, const dictOfDicts& dict)
   const lebedev::AVLtree< int, std::string >& current = dict.at(name);
   if (current.empty())
   {
-    std::cout << "<EMPTY>";
+    out << "<EMPTY>\n";
     return;
   }
   out << name;

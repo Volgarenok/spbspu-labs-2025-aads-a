@@ -1,6 +1,6 @@
 #ifndef ACTIONSWITHLIST_HPP
 #define ACTIONSWITHLIST_HPP
-#include <sstream>
+#include <ostream>
 #include <string>
 #include "list.hpp"
 

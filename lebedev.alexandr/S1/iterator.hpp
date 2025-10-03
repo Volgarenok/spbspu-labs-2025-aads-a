@@ -6,12 +6,14 @@
 namespace lebedev
 {
   template< class T >
+  struct List;
+
+  template< class T >
   struct Iterator: public std::iterator< std::bidirectional_iterator_tag, T >
   {
   public:
     using this_t = Iterator< T >;
     Iterator();
-    explicit Iterator(Node< T >* node);
     ~Iterator() = default;
     T& operator*();
     T* operator->();
@@ -23,6 +25,8 @@ namespace lebedev
     bool operator!=(const this_t& it) const;
   private:
     Node< T >* node_;
+    explicit Iterator(Node< T >* node);
+    friend class List< T >;
   };
 
   template< class T >
