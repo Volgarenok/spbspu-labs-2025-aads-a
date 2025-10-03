@@ -15,7 +15,8 @@ struct NamedList
   List< uint64_t >::iterator pos;
 
   NamedList(const std::string& name):
-    name(name)
+    name(name),
+    pos(list.begin())
   {}
 
   void reset()
@@ -35,6 +36,10 @@ void inputData(List< NamedList >& data, std::istream& ist)
     }
     else
     {
+      if (data.empty())
+      {
+        continue;
+      }
       NamedList& back = data.back();
       back.list.push_back(std::stoull(token));
     }
@@ -43,12 +48,16 @@ void inputData(List< NamedList >& data, std::istream& ist)
 
 void printDataNames(const List< NamedList >& data)
 {
-  List< NamedList >::const_iterator it = data.begin();
-  if (it != data.end())
+  if (data.empty())
   {
-    std::cout << it->name;
-    ++it;
+    std::cout << "\n";
+    return;
   }
+
+  auto it = data.begin();
+  std::cout << it->name;
+  ++it;
+
   for (; it != data.end(); ++it)
   {
     std::cout << " " << it->name;
@@ -58,32 +67,33 @@ void printDataNames(const List< NamedList >& data)
 
 void printDataValues(List< NamedList >& data)
 {
-  for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
+  for (auto it = data.begin(); it != data.end(); ++it)
   {
     it->reset();
   }
-  bool flag = true;
-  while (flag)
+
+  bool hasValues = true;
+  while (hasValues)
   {
-    flag = false;
-    for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
+    hasValues = false;
+    bool firstValue = true;
+
+    for (auto it = data.begin(); it != data.end(); ++it)
     {
       if (it->pos != it->list.end())
       {
-        size_t value = *(it->pos);
+        if (!firstValue)
+        {
+          std::cout << " ";
+        }
+        std::cout << *(it->pos);
         ++(it->pos);
-        if (!flag)
-        {
-          std::cout << value;
-        }
-        else
-        {
-          std::cout << " " << value;
-        }
-        flag = true;
+        hasValues = true;
+        firstValue = false;
       }
     }
-    if (flag)
+
+    if (hasValues)
     {
       std::cout << "\n";
     }
@@ -93,25 +103,28 @@ void printDataValues(List< NamedList >& data)
 void countSums(List< NamedList >& data, List< uint64_t >& sums)
 {
   const uint64_t max_number = std::numeric_limits< uint64_t >::max();
-  for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
+
+  for (auto it = data.begin(); it != data.end(); ++it)
   {
     it->reset();
   }
-  size_t sum = 0;
-  do
-  {
-    sum = 0;
-    bool hasElements = false;
 
-    for (List< NamedList >::iterator it = data.begin(); it != data.end(); ++it)
+  bool hasElements = true;
+  while (hasElements)
+  {
+    uint64_t sum = 0;
+    hasElements = false;
+
+    for (auto it = data.begin(); it != data.end(); ++it)
     {
       if (it->pos != it->list.end())
       {
-        size_t value = *(it->pos);
+        uint64_t value = *(it->pos);
         ++(it->pos);
+        
         if (sum > max_number - value)
         {
-          throw std::logic_error("can't count sum, overflow");
+          throw std::overflow_error("can't count sum, overflow");
         }
         sum += value;
         hasElements = true;
@@ -123,7 +136,6 @@ void countSums(List< NamedList >& data, List< uint64_t >& sums)
       sums.push_back(sum);
     }
   }
-  while (sum > 0);
 }
 
 template < typename T >
