@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "queue.hpp"
+#include <queue.hpp>
 
 BOOST_AUTO_TEST_CASE(test_capacity_queue)
 {
