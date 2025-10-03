@@ -10,7 +10,7 @@ namespace nikonov::detail
   };
   template< typename T >
   struct FakeListNode
-  { 
+  {
     ListNode< T > * next;
   };
 }

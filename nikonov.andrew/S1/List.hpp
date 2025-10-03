@@ -24,7 +24,7 @@ namespace nikonov
   template< typename T >
   class List
   {
-    detail::ListNode< T > * fake;
+    detail::ListNode< T > * fake_;
   public:
     List();
     List(const List & copy);
@@ -83,7 +83,7 @@ namespace nikonov
     void assign(size_t n, const T & val) noexcept;
     void assign(iterator< T > begin, iterator< T > end) noexcept;
     void assign(std::initializer_list< T > il) noexcept;
-    iterator< T > insert(const_iterator< T > position, const T& val);
+    iterator< T > insert(const_iterator< T > position, const T & val);
     iterator< T > insert(const_iterator< T > position, size_t n, const T & val);
     template < typename InputIterator >
     iterator< T > insert(const_iterator< T > position, InputIterator first, InputIterator last);
@@ -94,79 +94,99 @@ namespace nikonov
   };
   template< typename T >
   List< T >::List():
-  fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
+    fake_(reinterpret_cast< detail::ListNode< T > * >(new char[sizeof(detail::ListNode< T >)]))
   {
-    fake->next = fake;
+    fake_->next = fake_;
   }
 
   template< typename T >
   List< T >::List(const List< T > & copy):
-    fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
+    List()
   {
-    fake->next = fake;
-    const_iterator< T > iter = copy.cbegin();
-    detail::ListNode< T > * curr = fake;
-    while (iter != copy.cend())
+    ConstListIterator< T > cIter = copy.cbegin();
+    try
     {
-      detail::ListNode< T > * newNode = new detail::ListNode< T >{ *(iter++), fake };
-      curr->next = newNode;
-      curr = newNode;
+      while (cIter != copy.end())
+      {
+        push_back(*cIter);
+      }
     }
+    catch(const std::bad_alloc&)
+    {
+      clear();
+      delete[] reinterpret_cast< char * >(fake_);
+      throw;
+    }
+    
   }
   template< typename T >
   List< T >::List(List && copy):
-    fake(copy.fake)
+    fake_(copy.fake_)
   {
-    copy.fake = static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >)));
-    copy.fake->next = copy.fake;
+    copy.fake_ = reinterpret_cast< detail::ListNode< T > * >(new char[sizeof(detail::ListNode< T >)]);
+    copy.fake_->next = copy.fake_;
   }
 
   template< typename T >
   List< T >::List(size_t k, const T & value):
-    fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
+    List()
   {
-    fake->next = fake;
     detail::ListNode< T > * tailNode = nullptr;
-    for (size_t i = 0; i < k; ++i)
+    try
     {
-      detail::ListNode< T > * newNode = new detail::ListNode< T >{ value, fake };
-      if (fake->next == fake)
+      for (size_t i = 0; i < k; ++i)
       {
-        fake->next = newNode;
-        tailNode = newNode;
-        continue;
+        push_back(value);
       }
-      tailNode->next = newNode;
-      tailNode = newNode;
+    }
+    catch (const std::bad_alloc&)
+    {
+      clear();
+      delete[] reinterpret_cast< char * >(fake_);
+      throw;
     }
   }
 
   template< typename T >
   List< T >::List(std::initializer_list< T > il):
-    fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
+    List()
   {
-    fake->next = fake;
-    detail::ListNode< T > * curr = fake;
-    for (auto el: il)
+    detail::ListNode< T > * curr = fake_;
+    try
     {
-      detail::ListNode< T > * newNode = new detail::ListNode< T >{ el, fake };
-      curr->next = newNode;
-      curr = newNode;
+      for (auto el: il)
+      {
+        detail::ListNode< T > * newNode = new detail::ListNode< T >{ el, fake_ };
+        curr->next = newNode;
+        curr = newNode;
+      }
+    }
+    catch(const std::bad_alloc&)
+    {
+      clear();
+      delete[] reinterpret_cast< char * >(fake_);
+      throw;
     }
   }
 
   template< typename T >
   template< typename InputIterator >
   List< T >::List(InputIterator begin, InputIterator end):
-    fake(static_cast< detail::ListNode< T > * >(malloc(sizeof(detail::ListNode< T >))))
+    List()
   {
-    fake->next = fake;
-    detail::ListNode< T > * curr = fake;
-    for (; begin != end; ++begin)
+    detail::ListNode< T > * curr = fake_;
+    try
     {
-      detail::ListNode< T > * newNode = new detail::ListNode< T >{ *begin, fake };
-      curr->next = newNode;
-      curr = newNode;
+      for (; begin != end; ++begin)
+      {
+        push_back(*begin);
+      }
+    }
+    catch (const std::bad_alloc&)
+    {
+      clear();
+      delete[] reinterpret_cast< char * >(fake_);
+      throw;
     }
   }
 
@@ -174,7 +194,7 @@ namespace nikonov
   List< T >::~List() noexcept
   {
     clear();
-    free(fake);
+    delete[] reinterpret_cast< char * >(fake_);
   }
 
   template< typename T >
@@ -241,12 +261,7 @@ namespace nikonov
   template< typename T >
   bool List< T >::operator>(const List< T > & rhs) const noexcept
   {
-    if (size() > rhs.size())
-    {
-      return true;
-    }
-    std::greater< T > cmp;
-    return detail::compareLists(*this, rhs, cmp);
+    return rhs < *this;
   }
 
   template< typename T >
@@ -264,37 +279,37 @@ namespace nikonov
   template< typename T >
   iterator< T > List< T >::begin() noexcept
   {
-    return iterator< T >(fake->next);
+    return iterator< T >(fake_->next);
   }
 
   template< typename T >
   const_iterator< T > List< T >::begin() const noexcept
   {
-    return const_iterator< T >(fake->next);
+    return const_iterator< T >(fake_->next);
   }
 
   template< typename T >
   const_iterator< T > List< T >::cbegin() const noexcept
   {
-    return const_iterator< T >(fake->next);
+    return const_iterator< T >(fake_->next);
   }
 
   template< typename T >
   iterator< T > List< T >::end() noexcept
   {
-    return iterator< T >(fake);
+    return iterator< T >(fake_);
   }
 
   template< typename T >
   const_iterator< T > List< T >::end() const noexcept
   {
-    return const_iterator< T >(fake);
+    return const_iterator< T >(fake_);
   }
 
   template< typename T >
   const_iterator< T > List< T >::cend() const noexcept
   {
-    return const_iterator< T >(fake);
+    return const_iterator< T >(fake_);
   }
 
   template< typename T >
@@ -315,8 +330,8 @@ namespace nikonov
   const T & List< T >::back() const noexcept
   {
     assert(!empty());
-    detail::ListNode< T > * iter = fake->next;
-    while (iter->next != fake)
+    detail::ListNode< T > * iter = fake_->next;
+    while (iter->next != fake_)
     {
       iter = iter->next;
     }
@@ -333,7 +348,7 @@ namespace nikonov
   template< typename T >
   bool List< T >::empty() const noexcept
   {
-    return fake->next == fake;
+    return fake_->next == fake_;
   }
 
   template< typename T >
@@ -352,24 +367,25 @@ namespace nikonov
   template< typename T >
   void List< T >::push_front(const T & value)
   {
-    detail::ListNode< T > * next = fake->next;
+    detail::ListNode< T > * next = fake_->next;
     detail::ListNode< T > * newNode = new detail::ListNode< T >{ value, next };
-    fake->next = newNode;
+    fake_->next = newNode;
   }
 
   template< typename T >
   void List< T >::push_front(T && value)
   {
-    T * copy(new T(value));
-    push_front(*copy);
+    detail::ListNode< T > * next = fake_->next;
+    detail::ListNode< T > * newNode = new detail::ListNode< T >{ std::move(value), next };
+    fake_->next = newNode;
   }
 
   template< typename T >
   void List< T >::push_back(const T & value)
   {
-    detail::ListNode< T > * newNode = new detail::ListNode< T >{ value, fake };
-    detail::ListNode< T > * iter = fake;
-    while (iter->next != fake)
+    detail::ListNode< T > * newNode = new detail::ListNode< T >{ value, fake_ };
+    detail::ListNode< T > * iter = fake_;
+    while (iter->next != fake_)
     {
       iter = iter->next;
     }
@@ -379,17 +395,22 @@ namespace nikonov
   template< typename T >
   void List< T >::push_back(T && value)
   {
-    T * copy(new T(value));
-    push_back(*copy);
+    detail::ListNode< T > * newNode = new detail::ListNode< T >{ std::move(value), fake_ };
+    detail::ListNode< T > * iter = fake_;
+    while (iter->next != fake_)
+    {
+      iter = iter->next;
+    }
+    iter->next = newNode;
   }
 
   template< typename T >
   void List< T >::pop_front() noexcept
   {
     assert(!empty());
-    detail::ListNode< T > * toDelete = fake->next;
+    detail::ListNode< T > * toDelete = fake_->next;
     detail::ListNode< T > * subhead = toDelete->next;
-    fake->next = subhead;
+    fake_->next = subhead;
     delete toDelete;
   }
 
@@ -397,34 +418,34 @@ namespace nikonov
   void List< T >::pop_back() noexcept
   {
     assert(!empty());
-    detail::ListNode< T > * toDelete = fake;
-    detail::ListNode< T > * subhead = fake;
-    while (toDelete->next != fake)
+    detail::ListNode< T > * toDelete = fake_;
+    detail::ListNode< T > * subhead = fake_;
+    while (toDelete->next != fake_)
     {
       subhead = toDelete;
       toDelete = toDelete->next;
     }
     delete toDelete;
-    subhead->next = fake;
+    subhead->next = fake_;
   }
 
   template< typename T >
   void List< T >::swap(List< T > & rhs) noexcept
   {
-    std::swap(fake, rhs.fake);
+    std::swap(fake_, rhs.fake_);
   }
 
   template< typename T >
   void List< T >::clear() noexcept
   {
-    detail::ListNode< T > * toDelite = fake->next;
-    while (toDelite != fake)
+    detail::ListNode< T > * toDelite = fake_->next;
+    while (toDelite != fake_)
     {
       detail::ListNode< T > * next = toDelite->next;
       delete toDelite;
       toDelite = next;
     }
-    fake->next = fake;
+    fake_->next = fake_;
   }
 
   template< typename T >
@@ -446,9 +467,9 @@ namespace nikonov
   template< typename Predicate >
   void List< T >::remove_if(Predicate pred) noexcept
   {
-    detail::ListNode< T > * curr = fake->next;
-    detail::ListNode< T > * subhead = fake;
-    while (curr != fake)
+    detail::ListNode< T > * curr = fake_->next;
+    detail::ListNode< T > * subhead = fake_;
+    while (curr != fake_)
     {
       detail::ListNode< T > * next = curr->next;
       if (pred(curr->data))
@@ -467,60 +488,25 @@ namespace nikonov
   template< typename T >
   void List< T >::splice(const_iterator< T > pos, List< T > & x) noexcept
   {
-    splice(pos, std::move(x));
+    splice(pos, std::move(x), x.begin(), x.end());
   }
 
   template< typename T >
   void List< T >::splice(const_iterator< T > pos, List< T > && x) noexcept
   {
-    if (x.empty())
-    {
-      return;
-    }
-    iterator< T > curr = begin();
-    while (curr.node->next != pos.node)
-    {
-      ++curr;
-    }
-    detail::ListNode< T > * prevNext = curr.node->next;
-    curr.node->next = x.fake->next;
-    detail::ListNode< T > * listIter = x.fake;
-    while (listIter->next != x.fake)
-    {
-      listIter = listIter->next;
-    }
-    listIter->next = prevNext;
-    x.fake->next = x.fake;
+    splice(pos, std::move(x), x.begin(), x.end());
   }
 
   template< typename T >
   void List< T >::splice(const_iterator< T > pos, List< T > & x, const_iterator< T > i) noexcept
   {
-    splice(pos, std::move(x), i);
+    splice(pos, std::move(x), i, std::next(i));
   }
 
   template< typename T >
   void List< T >::splice(const_iterator< T > pos, List< T > && x, const_iterator< T > i) noexcept
   {
-    if (x.empty())
-    {
-      return;
-    }
-    iterator< T > curr = begin();
-    while (curr.node->next != pos.node)
-    {
-      ++curr;
-    }
-    detail::ListNode< T > * prevNext = curr.node->next;
-    iterator< T > subheadX = x.begin();
-    while (subheadX.node->next != i.node)
-    {
-      ++subheadX;
-    }
-    detail::ListNode< T > * toMove = subheadX.node->next;
-    subheadX.node->next = toMove->next;
-    curr.node->next = toMove;
-    toMove->next = prevNext;
+    splice(pos, std::move(x), i, std::next(i));
   }
 
   template< typename T >
@@ -532,22 +518,22 @@ namespace nikonov
   template< typename T >
   void List< T >::splice(const_iterator< T > pos, List< T > && x, const_iterator< T > first, const_iterator< T > last) noexcept
   {
-    if (x.empty())
+    if (x.empty() || first == last)
     {
       return;
     }
-    iterator< T > curr = begin();
-    while (curr.node->next != pos.node)
+    iterator< T > prevCurr = begin();
+    while (prevCurr.node->next != pos.node)
     {
-      ++curr;
+      ++prevCurr;
     }
-    detail::ListNode< T > * prevNext = curr.node->next;
+    detail::ListNode< T > * prevNext = prevCurr.node->next;
     iterator< T > subheadX = x.begin();
     while (subheadX.node->next != first.node)
     {
       ++subheadX;
     }
-    curr.node->next = subheadX.node->next;
+    prevCurr.node->next = subheadX.node->next;
     iterator< T > currTail(subheadX.node);
     iterator< T > endX(subheadX.node->next);
     while (currTail.node->next != last.node)
@@ -562,9 +548,9 @@ namespace nikonov
   template< typename T >
   void List< T >::reverse() noexcept
   {
-    detail::ListNode< T > * prevPtr = fake;
+    detail::ListNode< T > * prevPtr = fake_;
     detail::ListNode< T > * iter = prevPtr->next;
-    while (iter != fake)
+    while (iter != fake_)
     {
       detail::ListNode< T > * next = iter->next;
       iter->next = prevPtr;
@@ -598,8 +584,8 @@ namespace nikonov
   template< typename T >
   iterator< T > List< T >::insert(const_iterator< T > position, const T& val)
   {
-    detail::ListNode< T > * subhead = fake;
-    detail::ListNode< T > * next = fake->next;
+    detail::ListNode< T > * subhead = fake_;
+    detail::ListNode< T > * next = fake_->next;
     while (next != position.node)
     {
       subhead = next;
@@ -650,14 +636,16 @@ namespace nikonov
   template< typename T >
   iterator< T > List< T >::insert(const_iterator< T > position, T && val)
   {
-    iterator< T > curr = begin();
-    while (curr.node != position.node)
+    detail::ListNode< T > * subhead = fake_;
+    detail::ListNode< T > * next = fake_->next;
+    while (next != position.node)
     {
-      ++curr;
+      subhead = next;
+      next = next->next;
     }
-    T tempObj(val);
-    insert(position, tempObj);
-    return curr;
+    detail::ListNode< T > * newNode = new detail::ListNode< T >{ std::move(val), next };
+    subhead->next = newNode;
+    return iterator< T >{ newNode };
   }
 
   template< typename T >
@@ -681,8 +669,8 @@ namespace nikonov
   template< typename T >
   iterator< T > List< T >::erase(const_iterator< T > position) noexcept
   {
-    detail::ListNode< T > * subhead = fake;
-    detail::ListNode< T > * curr = fake->next;
+    detail::ListNode< T > * subhead = fake_;
+    detail::ListNode< T > * curr = fake_->next;
     detail::ListNode< T > * next = curr->next;
     while (curr != position.node)
     {
@@ -698,7 +686,7 @@ namespace nikonov
   template< typename T >
   iterator< T > List< T >::erase(const_iterator< T > first, const_iterator< T > last) noexcept
   {
-    iterator< T > returnIter(fake);
+    iterator< T > returnIter(fake_);
     while (first != last)
     {
       returnIter = erase(first++);

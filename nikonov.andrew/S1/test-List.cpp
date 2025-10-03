@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE(ListEnd_test)
   nikonov::List< int > list{ data1, data2 };
   nikonov::ListIterator< int > data1It = list.begin();
   nikonov::ListIterator< int > data2It = data1It++;
-  BOOST_TEST(list.end().node != data1It.node);
-  BOOST_TEST(list.end().node != data2It.node);
+  BOOST_TEST(*list.end() != data1It);
+  BOOST_TEST(*list.end() != data2It);
 }
 BOOST_AUTO_TEST_CASE(ListFront_test)
 {
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE(ListReverse_test)
   list2.reverse();
   auto iter2 = list2.cbegin();
   BOOST_TEST(*(iter2++) == 50);
-  BOOST_TEST(iter2.node == list2.cend().node);
+  BOOST_TEST(iter2 == list2.cend());
 }
 BOOST_AUTO_TEST_CASE(ListAssignFill_test)
 {
@@ -405,5 +405,5 @@ BOOST_AUTO_TEST_CASE(ListErase_test)
   nikonov::ConstListIterator< int > last = list.cend();
   nikonov::ListIterator< int > lastAfterErase = list.erase(first, last);
   BOOST_TEST(list.size() == 0);
-  BOOST_TEST(list.end().node == lastAfterErase.node);
+  BOOST_TEST(*list.end() == lastAfterErase);
 }
