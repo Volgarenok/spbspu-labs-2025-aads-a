@@ -26,11 +26,6 @@ namespace ivanova
       node_(nullptr)
     {}
 
-    ListIterator(ptr_list list, ptr_node node):
-      list_(list),
-      node_(node)
-    {}
-
     ListIterator(const ListIterator& other):
       list_(other.list_),
       node_(other.node_)
@@ -97,6 +92,11 @@ namespace ivanova
     }
 
   private:
+    ListIterator(ptr_list list, ptr_node node):
+      list_(list),
+      node_(node)
+    {}
+
     ptr_list list_;
     ptr_node node_;
   };

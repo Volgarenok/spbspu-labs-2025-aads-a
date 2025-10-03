@@ -16,7 +16,14 @@ namespace ivanova
       next(nullptr),
       prev(nullptr),
       value(value)
-      {}
+    {}
+
+    template < typename... Args >
+    ListNode(Args&&... args):
+      next(nullptr),
+      prev(nullptr),
+      value(std::forward< Args >(args)...)
+    {}
   };
 }
 
