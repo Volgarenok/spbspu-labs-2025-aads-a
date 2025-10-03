@@ -45,7 +45,8 @@ namespace lebedev
   {}
 
   template< class T >
-  List< T >::List(size_t count, const T& value): List()
+  List< T >::List(size_t count, const T& value):
+    List()
   {
     for (size_t i = 0; i < count; i++)
     {
@@ -54,7 +55,8 @@ namespace lebedev
   }
 
   template< class T >
-  List< T >::List(const List& other): List()
+  List< T >::List(const List& other):
+    List()
   {
     for (constIterator< T > it = other.constBegin(); it != other.constEnd(); it++)
     {
@@ -95,7 +97,10 @@ namespace lebedev
   {
     if (this != std::addressof(other))
     {
-      swap(other);
+      clear();
+      head_ = other.head_;
+      tail_ = other.tail_;
+      size_ = other.size_;
       other.head_ = nullptr;
       other.tail_ = nullptr;
       other.size_ = 0;
@@ -206,7 +211,7 @@ namespace lebedev
   {
     if (empty())
     {
-      return;
+      throw std::out_of_range("List is empty!\n");
     }
     Node< T >* tmp = tail_;
     tail_ = tail_->prev;
@@ -227,7 +232,7 @@ namespace lebedev
   {
     if (empty())
     {
-      return;
+      throw std::out_of_range("List is empty!\n");
     }
     Node< T >* tmp = head_;
     head_ = head_->next;

@@ -4,14 +4,15 @@
 
 int main(int argc, char* argv[])
 {
+  if (argc > 2)
+  {
+    std::cerr << "Too much arguments!\n";
+    return 1;
+  }
+  std::ifstream in;
+  lebedev::Stack< std::string > res;
   try
   {
-    if (argc > 2)
-    {
-      std::cerr << "Too much arguments!\n";
-      return 1;
-    }
-    std::ifstream in;
     if (argc == 2)
     {
       in.open(argv[1]);
@@ -20,7 +21,6 @@ int main(int argc, char* argv[])
         throw std::logic_error("Cannot open file!\n");
       }
     }
-    lebedev::Stack< std::string > res;
     if (in.is_open())
     {
       res = lebedev::inputExpressions(in);
@@ -29,27 +29,27 @@ int main(int argc, char* argv[])
     {
       res = lebedev::inputExpressions(std::cin);
     }
-    if (res.isEmpty())
-    {
-      std::cout << '\n';
-      return 0;
-    }
-    else
-    {
-      std::cout << res.top();
-      res.pop();
-      while (!res.isEmpty())
-      {
-        std::cout << ' ' << res.top();
-        res.pop();
-      }
-      std::cout << '\n';
-    }
-    return 0;
   }
   catch (const std::exception& e)
   {
     std::cerr << e.what() << '\n';
     return 1;
   }
+  if (res.isEmpty())
+  {
+    std::cout << '\n';
+    return 0;
+  }
+  else
+  {
+    std::cout << res.top();
+    res.pop();
+    while (!res.isEmpty())
+    {
+      std::cout << ' ' << res.top();
+      res.pop();
+    }
+    std::cout << '\n';
+  }
+  return 0;
 }

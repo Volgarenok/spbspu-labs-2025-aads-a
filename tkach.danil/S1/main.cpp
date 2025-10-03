@@ -2,7 +2,7 @@
 #include <string>
 #include <cstddef>
 #include <limits>
-#include "list.hpp"
+#include <list.hpp>
 
 namespace
 {
@@ -69,7 +69,7 @@ namespace
         it->second.popFront();
         it++;
       }
-      while (it != fd_pair_list.begin());
+      while (it != fd_pair_list.end());
       if (!new_list.empty())
       {
         out << new_list.front();

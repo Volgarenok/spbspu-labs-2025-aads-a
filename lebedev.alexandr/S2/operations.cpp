@@ -13,7 +13,7 @@ namespace
     }
     else if (a < 0 && b < (std::numeric_limits< long long >::min() - a))
     {
-      throw std::overflow_error("Overflow!\n");
+      throw std::underflow_error("Overflow!\n");
     }
     return a + b;
   }
@@ -24,7 +24,7 @@ namespace
     {
       if (a < (std::numeric_limits< long long >::min() + b))
       {
-        throw std::overflow_error("Overflow!\n");
+        throw std::underflow_error("Overflow!\n");
       }
     }
     else if (b < 0)
@@ -50,14 +50,14 @@ namespace
     {
       if (a < (std::numeric_limits< long long >::min() / b))
       {
-        throw std::overflow_error("Overflow!\n");
+        throw std::underflow_error("Overflow!\n");
       }
     }
     else if (a > 0 && b < 0)
     {
       if (b < (std::numeric_limits< long long >::min() / a))
       {
-        throw std::overflow_error("Overflow!\n");
+        throw std::underflow_error("Overflow!\n");
       }
     }
     else if (a < 0 && b < 0)

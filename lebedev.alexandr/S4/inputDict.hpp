@@ -7,7 +7,7 @@
 namespace lebedev
 {
 
-using dictOfDicts = lebedev::AVLtree< std::string, lebedev::AVLtree< int, std::string > >;
+using dictOfDicts = AVLtree< std::string, AVLtree< int, std::string > >;
 void inputDicts(std::istream& in, dictOfDicts& dict);
 
 }
