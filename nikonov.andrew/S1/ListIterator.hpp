@@ -3,6 +3,7 @@
 #include <iterator>
 #include <memory>
 #include <cassert>
+#include <ostream>
 #include "ListNode.hpp"
 namespace nikonov
 {
@@ -166,6 +167,25 @@ namespace nikonov
   bool ConstListIterator< T >::operator==(const this_t & rhs) const noexcept
   {
     return node == rhs.node;
+  }
+
+  template< typename T >
+  std::ostream & operator<<(std::ostream & os, const ListIterator<T> & it)
+  {
+    if (it == ListIterator< T >())
+    {
+      return os << "ListIterator<null>";
+    }
+    return os << *it;
+  }
+  template< typename T >
+  std::ostream & operator<<(std::ostream & os, const ConstListIterator<T> & it)
+  {
+    if (it == ConstListIterator< T >())
+    {
+      return os << "ConstListIterator<null>";
+    }
+    return os << *it;
   }
 }
 #endif
