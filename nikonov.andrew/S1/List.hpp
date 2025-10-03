@@ -106,9 +106,10 @@ namespace nikonov
     ConstListIterator< T > cIter = copy.cbegin();
     try
     {
-      while (cIter++ != copy.end())
+      while (cIter != copy.end())
       {
         push_back(*cIter);
+        ++cIter;
       }
     }
     catch(const std::bad_alloc&)
