@@ -117,7 +117,6 @@ namespace nikonov
       delete[] reinterpret_cast< char * >(fake_);
       throw;
     }
-    
   }
   template< typename T >
   List< T >::List(List && copy):
