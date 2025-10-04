@@ -28,9 +28,15 @@ namespace ivanova
       buffer_(other.buffer_)
     {}
 
-    Queue(Queue&& other)
+    Queue(Queue&& other) noexcept:
+      head_(other.head_),
+      tail_(other.tail_),
+      size_(other.size_),
+      buffer_(std::move(other.buffer_))
     {
-      swap(other);
+      other.head_ = 0;
+      other.tail_ = 0;
+      other.size_ = 0;
     }
 
     ~Queue() = default;
@@ -90,8 +96,22 @@ namespace ivanova
       tail_ = (tail_ + 1) % buffer_.size();
       if (tail_ == head_)
       {
-        shiftBuffer();
-        buffer_.push_back(value);
+        Array< T > newBuffer(buffer_.size() * 2);
+        size_t newIndex = 0;
+
+        for (size_t i = head_; i < buffer_.size(); ++i)
+        {
+          newBuffer[newIndex++] = buffer_[i];
+        }
+        for (size_t i = 0; i <= tail_; ++i)
+        {
+          newBuffer[newIndex++] = buffer_[i];
+        }
+
+        buffer_.swap(newBuffer);
+        head_ = 0;
+        tail_ = size_;
+        buffer_[tail_] = value;
         ++size_;
         return;
       }
@@ -132,20 +152,6 @@ namespace ivanova
     size_type tail_ = 0;
     size_type size_ = 0;
     Array< T > buffer_;
-
-    void shiftBuffer()
-    {
-      if (head_ == 0)
-      {
-        tail_ = size_;
-        return;
-      }
-      std::reverse(buffer_.begin(), buffer_.begin() + head_);
-      std::reverse(buffer_.begin() + head_, buffer_.end());
-      std::reverse(buffer_.begin(), buffer_.end());
-      head_ = 0;
-      tail_ = size_;
-    }
   };
 }
 

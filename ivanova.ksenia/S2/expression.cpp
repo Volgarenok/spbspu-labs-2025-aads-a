@@ -9,17 +9,27 @@
 
 inline bool isNumber(const std::string& token)
 {
-  if (token.empty() || (token.size() == 1 && !std::isdigit(token[0])))
+  if (token.empty())
   {
     return false;
   }
-  size_t start = token[0] == '+' || token[0] == '-' ? 1 : 0;
-  bool flag = true;
-  for (size_t i = start; i < token.size() && flag; ++i)
+  size_t start = 0;
+  if (token[0] == '+' || token[0] == '-')
   {
-    flag = std::isdigit(token[i]);
+    if (token.size() == 1)
+    {
+      return false;
+    }
+    start = 1;
   }
-  return flag;
+  for (size_t i = start; i < token.size(); ++i)
+  {
+    if (!std::isdigit(token[i]))
+    {
+      return false;
+    }
+  }
+  return true;
 }
 
 inline bool isOperation(const std::string& token)
@@ -73,8 +83,8 @@ inline ivanova::Queue< std::string > getPostfix(ivanova::Queue< std::string >& t
     else if (isOperation(token))
     {
       while (!operations.empty() &&
-          isOperation(operations.top()) &&
-          prior(operations.top()) >= prior(token))
+        isOperation(operations.top()) &&
+        prior(operations.top()) >= prior(token))
       {
         postfix.push(operations.top());
         operations.pop();
@@ -123,7 +133,7 @@ inline ivanova::Queue< std::string > getPostfix(ivanova::Queue< std::string >& t
 inline int64_t saveAdd(int64_t a, int64_t b)
 {
   if ((b > 0 && a > std::numeric_limits< int64_t >::max() - b) ||
-      (b < 0 && a < std::numeric_limits< int64_t >::min() - b))
+    (b < 0 && a < std::numeric_limits< int64_t >::min() - b))
   {
     throw std::logic_error("addition overflow");
   }
@@ -133,7 +143,7 @@ inline int64_t saveAdd(int64_t a, int64_t b)
 inline int64_t saveSub(int64_t a, int64_t b)
 {
   if ((b < 0 && a > std::numeric_limits< int64_t >::max() + b) ||
-      (b > 0 && a < std::numeric_limits< int64_t >::min() + b))
+    (b > 0 && a < std::numeric_limits< int64_t >::min() + b))
   {
     throw std::logic_error("subtraction overflow");
   }
@@ -241,7 +251,7 @@ inline int64_t evalPostfix(ivanova::Queue< std::string >& postfix)
     {
       if (stack.size() < 2)
       {
-        std::string message = "binary operation '" + token + "' expected 2 arguments, but was one";
+        std::string message = "binary operation '" + token + "' expected 2 arguments, but got " + std::to_string(stack.size());
         throw std::logic_error(message);
       }
       int64_t b = stack.top();

@@ -25,10 +25,9 @@ namespace ivanova
       buffer_(other.buffer_)
     {}
 
-    Stack(Stack&& other)
-    {
-      swap(other);
-    }
+    Stack(Stack&& other) noexcept:
+      buffer_(std::move(other.buffer_))
+    {}
 
     ~Stack() = default;
 
@@ -42,14 +41,14 @@ namespace ivanova
       return *this;
     }
 
-    Stack& operator=(Stack&& other)
+    Stack& operator=(Stack&& other) noexcept
     {
       Stack temp(std::move(other));
       swap(temp);
       return *this;
     }
 
-    void swap(Stack& other)
+    void swap(Stack& other) noexcept
     {
       buffer_.swap(other.buffer_);
     }

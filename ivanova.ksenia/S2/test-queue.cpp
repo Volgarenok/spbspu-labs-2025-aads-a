@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(QueuePushPop)
   a.push(1);
   a.push(2);
   a.push(3);
-  for (int i = 1; i < = 3; ++i)
+  for (int i = 1; i <= 3; ++i)
   {
     BOOST_CHECK_EQUAL(a.front(), i);
     a.pop();

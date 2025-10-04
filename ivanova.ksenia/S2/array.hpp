@@ -228,9 +228,12 @@ namespace ivanova
 
     static void destruct(pointer data, size_type size)
     {
-      for (size_type i = 0; i < size; ++i)
+      if (data != nullptr)
       {
-        data[i].~value_type();
+        for (size_type i = 0; i < size; ++i)
+        {
+          data[i].~value_type();
+        }
       }
     }
   };

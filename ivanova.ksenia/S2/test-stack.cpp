@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(StackMoveConstructor)
 BOOST_AUTO_TEST_CASE(StackPush)
 {
   ivanova::Stack< int > a;
-  for (int i = 0; i <  10; ++i)
+  for (int i = 0; i < 10; ++i)
   {
     a.push(i * 10);
     BOOST_CHECK_EQUAL(a.top(), i * 10);
@@ -46,12 +46,12 @@ BOOST_AUTO_TEST_CASE(StackPushPop)
   a.pop();
   BOOST_CHECK(a.empty());
 
-  for (int i = 1; i < = 5; ++i)
+  for (int i = 1; i <= 5; ++i)
   {
     a.push(i);
     BOOST_CHECK_EQUAL(a.top(), i);
   }
-  for (int i = 1; i < = 5; ++i)
+  for (int i = 1; i <= 5; ++i)
   {
     BOOST_CHECK_EQUAL(a.top(), 6 - i);
     a.pop();
