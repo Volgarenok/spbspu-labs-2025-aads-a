@@ -40,11 +40,21 @@ namespace krylov
 
   template< typename Key, typename T, typename Cmp >
   BiTree< Key, T, Cmp >::BiTree():
-    fakeRoot_(new BiTreeNode< Key, T >{ std::pair< Key, T >{}, nullptr, nullptr, nullptr }),
-    fakeLeaf_(new BiTreeNode< Key, T >{ std::pair< Key, T >{}, nullptr, nullptr, nullptr }),
+    fakeRoot_(nullptr),
+    fakeLeaf_(nullptr),
     size_(0),
     cmp_(Cmp{})
   {
+    fakeRoot_ = new BiTreeNode< Key, T >{ std::pair< Key, T >{}, nullptr, nullptr, nullptr };
+    try
+    {
+      fakeLeaf_ = new BiTreeNode< Key, T >{ std::pair< Key, T >{}, nullptr, nullptr, nullptr };
+    }
+    catch (const std::bad_alloc& e)
+    {
+      delete fakeRoot_;
+      throw;
+    }
     fakeLeaf_->parent = fakeRoot_;
     fakeRoot_->left = fakeLeaf_;
     fakeRoot_->right = fakeLeaf_;
@@ -76,7 +86,14 @@ namespace krylov
     cmp_(rhs.cmp_)
   {
     rhs.fakeRoot_ = new BiTreeNode< Key, T >{ std::pair< Key, T >{}, nullptr, nullptr, nullptr };
-    rhs.fakeLeaf_ = new BiTreeNode< Key, T >{ std::pair< Key, T >{}, nullptr, nullptr, rhs.fakeRoot_ };
+    try
+    {
+      rhs.fakeLeaf_ = new BiTreeNode< Key, T >{ std::pair< Key, T >{}, nullptr, nullptr, rhs.fakeRoot_ };
+    }
+    catch (const std::bad_alloc& e)
+    {
+      delete rhs.fakeRoot_;
+    }
     rhs.fakeRoot_->left = rhs.fakeLeaf_;
     rhs.fakeRoot_->right = rhs.fakeLeaf_;
     rhs.size_ = 0;
@@ -106,7 +123,15 @@ namespace krylov
       size_ = rhs.size_;
       cmp_ = std::move(rhs.cmp_);
       rhs.fakeRoot_ = new BiTreeNode< Key, T >{std::pair< Key, T >{}, nullptr, nullptr, nullptr};
-      rhs.fakeLeaf_ = new BiTreeNode< Key, T >{std::pair< Key, T >{}, nullptr, nullptr, rhs.fakeRoot_};
+      try
+      {
+        rhs.fakeLeaf_ = new BiTreeNode< Key, T >{std::pair< Key, T >{}, nullptr, nullptr, rhs.fakeRoot_};
+      }
+      catch (const std::bad_alloc& e)
+      {
+        delete rhs.fakeRoot;
+        throw;
+      }
       rhs.fakeRoot_->left = rhs.fakeLeaf_;
       rhs.fakeRoot_->right = rhs.fakeLeaf_;
       rhs.size_ = 0;
@@ -194,8 +219,8 @@ namespace krylov
     {
       if (cmp_(key, current->data.first))
       {
-          parent = current;
-          current = current->left;
+        parent = current;
+        current = current->left;
       }
       else if (cmp_(current->data.first, key))
       {
