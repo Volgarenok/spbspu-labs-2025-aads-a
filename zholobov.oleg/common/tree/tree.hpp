@@ -396,7 +396,7 @@ namespace zholobov {
   template < typename Key, typename T, typename Compare >
   typename Tree< Key, T, Compare >::iterator Tree< Key, T, Compare >::erase(iterator position)
   {
-    erase(const_iterator(position));
+    return erase(const_iterator(position));
   }
 
   template < typename Key, typename T, typename Compare >
