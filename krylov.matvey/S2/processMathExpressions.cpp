@@ -6,26 +6,6 @@
 
 namespace
 {
-  bool isNumber(const std::string& str)
-  {
-    try
-    {
-      std::stoll(str);
-    }
-    catch (const std::exception& e)
-    {
-      return false;
-    }
-    for (size_t i = 0; i < str.size(); ++i)
-    {
-      if (!std::isdigit(str[i]))
-      {
-        return false;
-      }
-    }
-    return true;
-  }
-
   constexpr long long int max = std::numeric_limits< long long int >::max();
   constexpr long long int min = std::numeric_limits< long long int >::min();
 
@@ -194,11 +174,11 @@ long long int krylov::calculatePostfix(Queue< std::string >* postfixQueue)
   {
     symb = postfixQueue->front();
     postfixQueue->pop();
-    if (isNumber(symb))
+    try
     {
       calculatingStack.push(std::stoll(symb));
     }
-    else
+    catch (const std::exception& e)
     {
       long long int rightOperand = calculatingStack.top();
       calculatingStack.pop();
@@ -296,10 +276,6 @@ krylov::Queue< std::string >* krylov::getPostfixExpression(const std::string& st
       processingStack.pop();
       bracketActive = false;
     }
-    else if (isNumber(symb))
-    {
-      postfixQueue->push(symb);
-    }
     else if (isLowPriorityOp(symb))
     {
       if (!processingStack.empty())
@@ -324,7 +300,12 @@ krylov::Queue< std::string >* krylov::getPostfixExpression(const std::string& st
       }
       processingStack.push(symb);
     }
-    else
+    try
+    {
+      unsigned long long test = stoull(symb);
+      postfixQueue->push(std::to_string(test));
+    }
+    catch (const std::exception& e)
     {
       delete postfixQueue;
       throw std::logic_error("Incorrect expression!");
