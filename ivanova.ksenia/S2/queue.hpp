@@ -96,22 +96,22 @@ namespace ivanova
       tail_ = (tail_ + 1) % buffer_.size();
       if (tail_ == head_)
       {
-        Array< T > newBuffer(buffer_.size() * 2);
+        Array<T> newBuffer(buffer_.size() * 2);
         size_t newIndex = 0;
-
         for (size_t i = head_; i < buffer_.size(); ++i)
         {
-          newBuffer[newIndex++] = buffer_[i];
+          newBuffer.push_back(buffer_[i]);
+          ++newIndex;
         }
-        for (size_t i = 0; i <= tail_; ++i)
+        for (size_t i = 0; i < head_; ++i)
         {
-          newBuffer[newIndex++] = buffer_[i];
+          newBuffer.push_back(buffer_[i]);
+          ++newIndex;
         }
-
+        newBuffer.push_back(value);
         buffer_.swap(newBuffer);
         head_ = 0;
         tail_ = size_;
-        buffer_[tail_] = value;
         ++size_;
         return;
       }
