@@ -27,6 +27,12 @@ namespace ivanova
       data_(nullptr)
     {}
 
+    explicit Array(size_type capacity):
+      size_(0),
+      capacity_(capacity),
+      data_(allocate(capacity_))
+    {}
+
     Array(const Array& other):
       size_(other.size_),
       capacity_(other.capacity_),
