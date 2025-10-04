@@ -1,8 +1,10 @@
 #include "utils.hpp"
 
-std::vector< std::string > zholobov::splitTokens(const std::string& line)
+#include <array.hpp>
+
+zholobov::Array< std::string > zholobov::splitTokens(const std::string& line)
 {
-  std::vector< std::string > tokens;
+  zholobov::Array< std::string > tokens;
   std::size_t pos = 0;
   while (true) {
     pos = line.find_first_not_of(" \t\r\n", pos);
@@ -27,9 +29,9 @@ std::istream& operator>>(std::istream& in, zholobov::Words& words)
     in.setstate(std::ios::eofbit);
     return in;
   }
-  std::vector< std::string > toks = zholobov::splitTokens(line);
-  for (const auto& t: toks) {
-    words.push_back(t);
+  zholobov::Array< std::string > toks = zholobov::splitTokens(line);
+  for (size_t i = 0; i < toks.size(); ++i) {
+    words.push_back(toks[i]);
   }
   return in;
 }
@@ -37,10 +39,9 @@ std::istream& operator>>(std::istream& in, zholobov::Words& words)
 std::ostream& operator<<(std::ostream& out, const zholobov::Words& words)
 {
   if (!words.empty()) {
-    auto it = words.cbegin();
-    out << *it++;
-    for (; it != words.cend(); ++it) {
-      out << " " << *it;
+    out << words[0];
+    for (size_t i = 1; i < words.size(); ++i) {
+      out << " " << words[i];
     }
   }
   return out;

@@ -6,13 +6,17 @@
 #include <vector>
 
 #include <array.hpp>
+#include <hashtable/hash_table.hpp>
 #include <list/CircularFwdList.hpp>
 #include <tree/tree.hpp>
 
 namespace zholobov {
 
+  template < typename T >
+  using HashSet = HashTable< T, char >;
+
   using Word = std::string;
-  using Words = CircularFwdList< Word >;
+  using Words = Array< Word >;
   using Dictionary = Tree< Word, Words >;
   using Dictionaries = Tree< std::string, Dictionary >;
 

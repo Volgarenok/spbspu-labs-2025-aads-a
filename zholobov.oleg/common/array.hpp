@@ -23,6 +23,7 @@ namespace zholobov {
     void push_back(T&& value);
     const T& operator[](size_t idx) const;
     T& operator[](size_t idx);
+    void erase(size_t idx);
     const T& front() const;
     T& front();
     const T& back() const;
@@ -159,6 +160,24 @@ T& zholobov::Array< T >::operator[](size_t idx)
     throw std::out_of_range("Out of bounds");
   }
   return data_[(head_ + idx) % capacity_];
+}
+
+template < typename T >
+void zholobov::Array< T >::erase(size_t idx)
+{
+  if (size_ == 0 || idx >= size_) {
+    throw std::out_of_range("Out of bounds");
+  }
+  data_[(head_ + idx) % capacity_].~T();
+  for (; idx < size_ - 1; ++idx) {
+    new (data_ + ((head_ + idx) % capacity_)) T(std::move_if_noexcept(data_[(head_ + idx + 1) % capacity_]));
+  }
+  if (--size_ == 0) {
+    operator delete[](data_);
+    data_ = nullptr;
+    capacity_ = 0;
+    head_ = 0;
+  }
 }
 
 template < typename T >

@@ -2,19 +2,21 @@
 #include <functional>
 #include <iostream>
 
+#include <array.hpp>
+#include <tree/tree.hpp>
+
 #include "commands.hpp"
 #include "utils.hpp"
 
 int main(int argc, char* argv[])
 {
-  using namespace zholobov;
   if (argc > 2) {
     std::cerr << "<INCORRECT ARGUMENTS>\n";
     return 1;
   }
   if (argc == 2) {
     if (std::strcmp(argv[1], "--help") == 0) {
-      printHelp(std::cout);
+      zholobov::printHelp(std::cout);
       std::cout << '\n';
       return 0;
     }
@@ -22,31 +24,32 @@ int main(int argc, char* argv[])
 
   zholobov::Dictionaries dictionaries;
 
-  std::map< Word, std::function< void(zholobov::Dictionaries&, const std::vector< Word >&) > > keywords;
+  using Handler = std::function< void(zholobov::Dictionaries&, const zholobov::Array< zholobov::Word >&) >;
+  zholobov::Tree< zholobov::Word, Handler > keywords;
 
-  keywords["dict-create"] = cmdDictCreate;
-  keywords["dict-remove"] = cmdDictRemove;
-  keywords["dict-import"] = cmdDictImport;
-  keywords["dict-export"] = cmdDictExport;
-  keywords["dict-count"] = cmdDictCount;
-  keywords["dict-list"] = cmdDictList;
-  keywords["dict-print-words"] = cmdDictPrintWords;
-  keywords["dict-print-translations"] = cmdDictPrintTranslations;
-  keywords["dict-clear"] = cmdDictClear;
-  keywords["add-word"] = cmdAddWord;
-  keywords["remove-word"] = cmdRemoveWord;
-  keywords["count-words"] = cmdCountWords;
-  keywords["add-translation"] = cmdAddTranslation;
-  keywords["remove-translation"] = cmdRemoveTranslation;
-  keywords["change-word"] = cmdChangeWord;
-  keywords["translate-word"] = cmdTranslateWord;
-  keywords["union"] = cmdUnion;
-  keywords["intersect"] = cmdIntersect;
-  keywords["rare"] = cmdRare;
+  keywords["dict-create"] = zholobov::cmdDictCreate;
+  keywords["dict-remove"] = zholobov::cmdDictRemove;
+  keywords["dict-import"] = zholobov::cmdDictImport;
+  keywords["dict-export"] = zholobov::cmdDictExport;
+  keywords["dict-count"] = zholobov::cmdDictCount;
+  keywords["dict-list"] = zholobov::cmdDictList;
+  keywords["dict-print-words"] = zholobov::cmdDictPrintWords;
+  keywords["dict-print-translations"] = zholobov::cmdDictPrintTranslations;
+  keywords["dict-clear"] = zholobov::cmdDictClear;
+  keywords["add-word"] = zholobov::cmdAddWord;
+  keywords["remove-word"] = zholobov::cmdRemoveWord;
+  keywords["count-words"] = zholobov::cmdCountWords;
+  keywords["add-translation"] = zholobov::cmdAddTranslation;
+  keywords["remove-translation"] = zholobov::cmdRemoveTranslation;
+  keywords["change-word"] = zholobov::cmdChangeWord;
+  keywords["translate-word"] = zholobov::cmdTranslateWord;
+  keywords["union"] = zholobov::cmdUnion;
+  keywords["intersect"] = zholobov::cmdIntersect;
+  keywords["rare"] = zholobov::cmdRare;
 
   std::string line;
   while (std::getline(std::cin, line)) {
-    std::vector< std::string > tokens = splitTokens(line);
+    zholobov::Array< std::string > tokens = zholobov::splitTokens(line);
     if (tokens.empty()) {
       continue;
     }
@@ -54,7 +57,7 @@ int main(int argc, char* argv[])
     const std::string& cmd = tokens[0];
     try {
       keywords.at(cmd)(dictionaries, tokens);
-    } catch (const InvalidParams&) {
+    } catch (const zholobov::InvalidParams&) {
       std::cout << "<ERROR IN PARAMETERS>\n";
     } catch (const std::out_of_range&) {
       std::cout << "<INVALID COMMAND>\n";

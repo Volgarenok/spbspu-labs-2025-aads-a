@@ -88,9 +88,16 @@ void zholobov::cmdDictImport(Dictionaries& dictionaries, const Array< std::strin
     }
 
     Words& entry = dict[eng];
-    for (auto it = tokens.cbegin(); it != tokens.cend(); ++it) {
-      if (std::find(entry.cbegin(), entry.cend(), *it) == entry.cend()) {
-        entry.push_back(*it);
+    for (size_t i = 0; i < tokens.size(); ++i) {
+      bool found = false;
+      for (size_t k = 0; k < entry.size(); ++k) {
+        if (entry[k] == tokens[i]) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        entry.push_back(tokens[i]);
       }
     }
     ++imported;
@@ -264,8 +271,8 @@ void zholobov::cmdAddTranslation(Dictionaries& dictionaries, const Array< std::s
     return;
   }
 
-  for (const auto& t: wit->second) {
-    if (t == args[3]) {
+  for (size_t i = 0; i < wit->second.size(); ++i) {
+    if (wit->second[i] == args[3]) {
       std::cout << "<TRANSLATION EXISTS>\n";
       return;
     }
@@ -289,12 +296,19 @@ void zholobov::cmdRemoveTranslation(Dictionaries& dictionaries, const Array< std
     return;
   }
   auto& lst = wit->second;
-  auto lit = std::find(lst.begin(), lst.end(), args[3]);
-  if (lit == lst.end()) {
+  bool found = false;
+  size_t i = 0;
+  for (; i < lst.size(); ++i) {
+    if (lst[i] == args[3]) {
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
     std::cout << "<INVALID TRANSLATION>\n";
     return;
   }
-  lst.erase(lit);
+  lst.erase(i);
   if (lst.empty()) {
     dit->second.erase(wit);
     std::cout << "<REMOVED LAST TRANSLATION. WORD REMOVED>\n";
@@ -329,12 +343,12 @@ void zholobov::cmdTranslateWord(Dictionaries& dictionaries, const Array< std::st
   if (args.size() != 2) {
     throw InvalidParams();
   }
-  std::set< Word > uniq;
+  HashSet< Word > uniq;
   for (const auto& dict: dictionaries) {
     auto wit = dict.second.find(args[1]);
     if (wit != dict.second.end()) {
-      for (const auto& t: wit->second) {
-        uniq.insert(t);
+      for (size_t i = 0; i < wit->second.size(); ++i) {
+        uniq[wit->second[i]] = {};
       }
     }
   }
@@ -344,9 +358,9 @@ void zholobov::cmdTranslateWord(Dictionaries& dictionaries, const Array< std::st
   }
 
   auto it = uniq.cbegin();
-  std::cout << *it;
+  std::cout << it->first;
   for (++it; it != uniq.cend(); ++it) {
-    std::cout << " " << *it;
+    std::cout << " " << it->first;
   }
   std::cout << '\n';
 }
@@ -366,21 +380,25 @@ void zholobov::cmdUnion(Dictionaries& dictionaries, const Array< std::string >& 
     }
   }
 
-  std::map< Word, std::set< Word > > temp;
+  Tree< Word, HashSet< Word > > temp;
   for (std::size_t i = 2; i < args.size(); ++i) {
     const auto it = dictionaries.find(args[i]);
     const Dictionary& src = it->second;
     for (const auto& kv: src) {
-      std::set< Word >& s = temp[kv.first];
-      for (const auto& tr: kv.second) {
-        s.insert(tr);
+      HashSet< Word >& s = temp[kv.first];
+      for (size_t k = 0; k < kv.second.size(); ++k) {
+        s[kv.second[k]] = {};
       }
     }
   }
 
   Dictionary result;
   for (const auto& kv: temp) {
-    result[kv.first] = Words(kv.second.begin(), kv.second.end());
+    Words words;
+    for (auto it = kv.second.cbegin(); it != kv.second.cend(); ++it) {
+      words.push_back(it->first);
+    }
+    result[kv.first] = words;
   }
 
   dictionaries[newName] = std::move(result);
@@ -403,17 +421,17 @@ void zholobov::cmdIntersect(Dictionaries& dictionaries, const Array< std::string
 
   const auto firstIt = dictionaries.find(args[2]);
   const Dictionary& firstDict = firstIt->second;
-  std::set< Word > commonKeys;
+  HashSet< Word > commonKeys;
   for (const auto& kv: firstDict) {
-    commonKeys.insert(kv.first);
+    commonKeys[kv.first] = {};
   }
 
   for (std::size_t i = 3; i < args.size(); ++i) {
     const auto it = dictionaries.find(args[i]);
     const Dictionary& d = it->second;
-    std::set< Word > newCommon;
+    HashSet< Word > newCommon;
     for (const auto& key: commonKeys) {
-      if (d.find(key) != d.end()) newCommon.insert(key);
+      if (d.find(key.first) != d.end()) newCommon[key.first] = {};
     }
     commonKeys.swap(newCommon);
     if (commonKeys.empty()) {
@@ -423,16 +441,22 @@ void zholobov::cmdIntersect(Dictionaries& dictionaries, const Array< std::string
 
   Dictionary result;
   for (const auto& key: commonKeys) {
-    std::set< Word > uniq;
+    HashSet< Word > uniq;
     for (std::size_t i = 2; i < args.size(); ++i) {
       const auto it = dictionaries.find(args[i]);
       const Dictionary& d = it->second;
-      auto wit = d.find(key);
+      auto wit = d.find(key.first);
       if (wit != d.end()) {
-        for (const auto& tr: wit->second) uniq.insert(tr);
+        for (size_t i = 0; i < wit->second.size(); ++i) {
+          uniq[wit->second[i]] = {};
+        }
       }
     }
-    result[key] = Words(uniq.begin(), uniq.end());
+    Words words;
+    for (auto it = uniq.cbegin(); it != uniq.cend(); ++it) {
+      words.push_back(it->first);
+    }
+    result[key.first] = words;
   }
 
   dictionaries[newName] = std::move(result);
@@ -466,7 +490,7 @@ void zholobov::cmdRare(Dictionaries& dictionaries, const Array< std::string >& a
     }
   }
 
-  std::map< Word, int > wordFrequency;
+  Tree< Word, int > wordFrequency;
   for (std::size_t i = 3; i < args.size(); ++i) {
     const auto& dict = dictionaries[args[i]];
     for (const auto& kv: dict) {
@@ -474,20 +498,26 @@ void zholobov::cmdRare(Dictionaries& dictionaries, const Array< std::string >& a
     }
   }
 
-  std::map< Word, std::set< Word > > temp;
+  Tree< Word, HashSet< Word > > temp;
   for (std::size_t i = 3; i < args.size(); ++i) {
     const auto& dict = dictionaries[args[i]];
     for (const auto& kv: dict) {
       if (wordFrequency[kv.first] <= n) {
-        std::set< Word >& s = temp[kv.first];
-        s.insert(kv.second.begin(), kv.second.end());
+        HashSet< Word >& s = temp[kv.first];
+        for (size_t i = 0; i < kv.second.size(); ++i) {
+          s[kv.second[i]] = {};
+        }
       }
     }
   }
 
   Dictionary result;
   for (const auto& kv: temp) {
-    result[kv.first] = Words(kv.second.begin(), kv.second.end());
+    Words words;
+    for (auto it = kv.second.cbegin(); it != kv.second.cend(); ++it) {
+      words.push_back(it->first);
+    }
+    result[kv.first] = words;
   }
 
   dictionaries[newName] = std::move(result);

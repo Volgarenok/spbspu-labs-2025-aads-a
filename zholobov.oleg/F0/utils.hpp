@@ -9,7 +9,7 @@
 
 namespace zholobov {
 
-  std::vector< std::string > splitTokens(const std::string& line);
+  Array< std::string > splitTokens(const std::string& line);
 
 }
 
