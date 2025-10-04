@@ -226,14 +226,7 @@ long long int krylov::calculateInfix(const std::string& str)
 {
   Queue< std::string > postfixExpression = getPostfixExpression(str);
   long long int res = 0;
-  try
-  {
-    res = calculatePostfix(postfixExpression);
-  }
-  catch (const std::exception& e)
-  {
-    throw;
-  }
+  res = calculatePostfix(postfixExpression);
   return res;
 }
 
