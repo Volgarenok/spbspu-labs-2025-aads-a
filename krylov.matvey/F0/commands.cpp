@@ -93,27 +93,22 @@ namespace krylov
 
   void CommandProcessor::addText(const std::vector< std::string >& args)
   {
-    if (args.size() <  2)
+    if (args.size() < 2)
     {
       throw std::invalid_argument("Invalid number of arguments for add");
     }
     const std::string& indexName = args[0];
-    auto indexIt = indexes_.find(indexName);
-    if (indexIt == indexes_.cend())
-    {
-      throw std::invalid_argument("Index not found");
-    }
+    DocumentIndex& docIndex = indexes_[indexName];
     std::string text;
-    for (std::size_t i = 1; i <  args.size(); i++)
+    for (std::size_t i = 1; i < args.size(); i++)
     {
-      if (i  > 1) text += " ";
+      if (i > 1) text += " ";
       text += args[i];
     }
-    DocumentIndex& docIndex = const_cast< DocumentIndex& >(indexIt->second);
     docIndex.textLines.push_back(text);
     std::size_t lineNumber = docIndex.textLines.size();
     std::vector< std::string > words = splitTextIntoWords(text);
-    for (std::size_t i = 0; i <  words.size(); i++)
+    for (std::size_t i = 0; i < words.size(); i++)
     {
       addWordToIndex(docIndex.wordReferences, words[i], lineNumber);
     }
@@ -132,9 +127,9 @@ namespace krylov
       throw std::invalid_argument("Index not found or empty");
     }
     const std::vector< std::string >& textLines = indexIt->second.textLines;
-    for (std::size_t i = 0; i <  textLines.size(); i++)
+    for (std::size_t i = 0; i < textLines.size(); i++)
     {
-      out_ <<  (i + 1) <<  ": " <<  textLines[i] <<  "\n";
+      out_ << (i + 1) << ": " << textLines[i] << "\n";
     }
   }
 
@@ -154,7 +149,7 @@ namespace krylov
     for (auto it = index.cbegin(); it != index.cend(); it++)
     {
       IndexEntry entry(*it);
-      out_ <<  entry <<  "\n";
+      out_ << entry << "\n";
     }
   }
 
@@ -178,7 +173,7 @@ namespace krylov
       throw std::invalid_argument("Word not found in index");
     }
     IndexEntry entry(*wordIt);
-    out_ <<  entry <<  "\n";
+    out_ << entry << "\n";
   }
 
   void CommandProcessor::zipIndexes(const std::vector< std::string >& args)
@@ -199,12 +194,12 @@ namespace krylov
     const std::vector< std::string >& text1 = indexes_[index1].textLines;
     const std::vector< std::string >& text2 = indexes_[index2].textLines;
     std::vector< std::string > newText;
-    std::size_t maxSize = text1.size()  > text2.size() ? text1.size() : text2.size();
-    for (std::size_t i = 0; i <  maxSize; i++)
+    std::size_t maxSize = text1.size() > text2.size() ? text1.size() : text2.size();
+    for (std::size_t i = 0; i < maxSize; i++)
     {
       std::string line;
-      if (i <  text1.size()) line += text1[i];
-      if (i <  text2.size()) line += text2[i];
+      if (i < text1.size()) line += text1[i];
+      if (i < text2.size()) line += text2[i];
       newText.push_back(line);
     }
     DocumentIndex result;
@@ -233,14 +228,14 @@ namespace krylov
     std::vector< std::string > newText;
     std::size_t i = 0;
     std::size_t j = 0;
-    while (i <  text1.size() || j <  text2.size())
+    while (i < text1.size() || j < text2.size())
     {
-      if (i <  text1.size())
+      if (i < text1.size())
       {
         newText.push_back(text1[i]);
         i++;
       }
-      if (j <  text2.size())
+      if (j < text2.size())
       {
         newText.push_back(text2[j]);
         j++;
@@ -332,18 +327,14 @@ namespace krylov
     }
     const std::string& indexName = args[0];
     const std::string& word = args[1];
-    auto indexIt = indexes_.find(indexName);
-    if (indexIt == indexes_.cend())
-    {
-      throw std::invalid_argument("Index not found");
-    }
-    WordReferenceMap& wordRefs = const_cast< WordReferenceMap& >(indexIt->second.wordReferences);
+    DocumentIndex& docIndex = indexes_[indexName];
+    WordReferenceMap& wordRefs = docIndex.wordReferences;
     auto wordIt = wordRefs.find(word);
-    if (wordIt == wordRefs.cend())
+    if (wordIt == wordRefs.end())
     {
       throw std::invalid_argument("Word not found in index");
     }
-    const_cast< std::set< std::size_t >& >(wordIt->second).clear();
+    wordIt->second.clear();
   }
 
   void CommandProcessor::deleteIndex(const std::vector< std::string >& args)
@@ -353,12 +344,7 @@ namespace krylov
       throw std::invalid_argument("Invalid number of arguments for delete");
     }
     const std::string& indexName = args[0];
-    auto indexIt = indexes_.find(indexName);
-    if (indexIt == indexes_.cend())
-    {
-      throw std::invalid_argument("Index not found");
-    }
-    DocumentIndex& docIndex = const_cast< DocumentIndex& >(indexIt->second);
+    DocumentIndex& docIndex = indexes_[indexName];
     docIndex.wordReferences.clear();
     docIndex.textLines.clear();
     docIndex.sourceFileName.clear();
@@ -372,7 +358,7 @@ namespace krylov
     }
     for (auto it = indexes_.cbegin(); it != indexes_.cend(); it++)
     {
-      out_ <<  it->first <<  "\n";
+      out_ << it->first << "\n";
     }
   }
 }
