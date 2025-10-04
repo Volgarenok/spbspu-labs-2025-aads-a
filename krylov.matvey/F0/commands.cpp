@@ -198,8 +198,14 @@ namespace krylov
     for (std::size_t i = 0; i < maxSize; i++)
     {
       std::string line;
-      if (i < text1.size()) line += text1[i];
-      if (i < text2.size()) line += text2[i];
+      if (i < text1.size())
+      {
+        line += text1[i];
+      }
+      if (i < text2.size())
+      {
+        line += text2[i];
+      }
       newText.push_back(line);
     }
     DocumentIndex result;
