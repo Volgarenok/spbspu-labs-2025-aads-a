@@ -21,7 +21,7 @@ void krylov::vertexes(std::istream& in, std::ostream& out, const graphsTree& gra
   {
     throw std::logic_error("<INVALID COMMAND>");
   }
-  std::map< std::string, bool > vertexes = graphs.at(name).getVertexes();
+  std::set< std::string > vertexes = graphs.at(name).getVertexes();
   if (vertexes.empty())
   {
     out << "\n";
@@ -29,7 +29,7 @@ void krylov::vertexes(std::istream& in, std::ostream& out, const graphsTree& gra
   }
   for (auto it = vertexes.cbegin(); it != vertexes.cend(); ++it)
   {
-    out << it->first << "\n";
+    out << *it << "\n";
   }
 }
 

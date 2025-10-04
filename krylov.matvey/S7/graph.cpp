@@ -4,7 +4,7 @@
 
 void krylov::Graph::addVertex(const std::string & str)
 {
-  vertexes_.insert(std::make_pair(str, true));
+  vertexes_.insert(str);
 }
 
 void krylov::Graph::addEdge(std::string first, std::string second, size_t weigth)
@@ -48,7 +48,7 @@ bool krylov::Graph::removeEdge(const std::string& first, const std::string& seco
   return true;
 }
 
-std::map< std::string, bool > krylov::Graph::getVertexes() const
+std::set< std::string > krylov::Graph::getVertexes() const
 {
   return vertexes_;
 }
