@@ -60,6 +60,7 @@ namespace krylov
     catch (const std::exception& e)
     {
       delete[] data;
+      throw;
     }
   }
 
@@ -164,15 +165,22 @@ namespace krylov
   {
     constexpr size_t k = 161;
     T* array = new T[capacity_ + k];
-    for (size_t i = 0; i < size_; ++i)
+    try
     {
-      array[i] = data_[i];
+      for (size_t i = 0; i < size_; ++i)
+      {
+        array[i] = data_[i];
+      }
+      delete[] data_;
     }
-    delete[] data_;
+    catch (const std::exception& e)
+    {
+      delete[] array;
+      throw;
+    }
     data_ = array;
     capacity_ += k;
   }
-
 }
 
 #endif
