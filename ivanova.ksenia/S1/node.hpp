@@ -1,6 +1,8 @@
 #ifndef NODE_HPP
 #define NODE_HPP
 
+#include <utility>
+
 namespace ivanova
 {
   template < typename T >
@@ -16,7 +18,14 @@ namespace ivanova
       next(nullptr),
       prev(nullptr),
       value(value)
-      {}
+    {}
+
+    template < typename... Args >
+    ListNode(Args&&... args):
+      next(nullptr),
+      prev(nullptr),
+      value(std::forward< Args >(args)...)
+    {}
   };
 }
 
