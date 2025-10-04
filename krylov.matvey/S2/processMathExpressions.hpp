@@ -6,10 +6,10 @@
 
 namespace krylov
 {
-  long long int calculatePostfix(Queue< std::string >* expr);
+  long long int calculatePostfix(Queue< std::string > expr);
   std::istream& calculateExpression(std::istream& in);
   long long int calculateInfix(const std::string& str);
-  Queue< std::string >* getPostfixExpression(const std::string& str);
+  Queue< std::string > getPostfixExpression(const std::string& str);
 }
 
 #endif

@@ -1,7 +1,6 @@
 #include "processMathExpressions.hpp"
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <limits>
 
 namespace
@@ -166,7 +165,7 @@ namespace
   }
 }
 
-long long int krylov::calculatePostfix(Queue< std::string >* postfixQueue)
+long long int krylov::calculatePostfix(Queue< std::string > postfixQueue)
 {
   Stack< long long int > calculatingStack;
   std::string symb;
@@ -225,7 +224,7 @@ std::istream& krylov::calculateExpression(std::istream& in)
 
 long long int krylov::calculateInfix(const std::string& str)
 {
-  Queue< std::string >* postfixExpression = getPostfixExpression(str);
+  Queue< std::string > postfixExpression = getPostfixExpression(str);
   long long int res = 0;
   try
   {
@@ -233,24 +232,20 @@ long long int krylov::calculateInfix(const std::string& str)
   }
   catch (const std::exception& e)
   {
-    delete postfixExpression;
     throw;
   }
-  delete postfixExpression;
   return res;
 }
 
-krylov::Queue< std::string >* krylov::getPostfixExpression(const std::string& str)
+krylov::Queue< std::string > krylov::getPostfixExpression(const std::string& str)
 {
   Queue< std::string > infixQueue;
-  std::stringstream ss(str);
-  std::string symb;
-  while (ss >> symb)
+  for (size_t i = 0; i < str.length(); ++i)
   {
-    infixQueue.push(symb);
+    infixQueue.push(std::string(1, str[i]));
   }
   Stack< std::string > processingStack;
-  Queue< std::string >* postfixQueue = new Queue< std::string >;
+  Queue< std::string > postfixQueue;
   bool bracketActive = false;
   while (!infixQueue.empty())
   {
@@ -265,7 +260,6 @@ krylov::Queue< std::string >* krylov::getPostfixExpression(const std::string& st
     {
       if (bracketActive == false)
       {
-        delete postfixQueue;
         throw std::logic_error("Incorrect expression!");
       }
       while (processingStack.top() != "(")
@@ -307,7 +301,6 @@ krylov::Queue< std::string >* krylov::getPostfixExpression(const std::string& st
     }
     catch (const std::exception& e)
     {
-      delete postfixQueue;
       throw std::logic_error("Incorrect expression!");
     }
   }
@@ -318,7 +311,6 @@ krylov::Queue< std::string >* krylov::getPostfixExpression(const std::string& st
   }
   if (bracketActive == true)
   {
-    delete postfixQueue;
     throw std::logic_error("Incorrect expression!");
   }
   return postfixQueue;
