@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "queue.hpp"
+#include <queue.hpp>
 
 using namespace kushekbaev;
 
@@ -10,11 +10,11 @@ BOOST_AUTO_TEST_CASE(queueCopyConstructor)
   Queue< int > queue;
   queue.push(10);
   queue.push(20);
-  Queue< int > Qcopy(queue);
-  BOOST_TEST(Qcopy.front() == 10);
-  BOOST_TEST(Qcopy.back() == 20);
-  BOOST_TEST(Qcopy.size() == 2);
-  BOOST_TEST(queue.back() == Qcopy.back());
+  Queue< int > queuecopy(queue);
+  BOOST_TEST(queuecopy.front() == 10);
+  BOOST_TEST(queuecopy.back() == 20);
+  BOOST_TEST(queuecopy.size() == 2);
+  BOOST_TEST(queue.back() == queuecopy.back());
 }
 
 BOOST_AUTO_TEST_CASE(queueMoveConstructor)
@@ -22,10 +22,10 @@ BOOST_AUTO_TEST_CASE(queueMoveConstructor)
   Queue< int > queue;
   queue.push(10);
   queue.push(20);
-  Queue< int > Qcopy(std::move(queue));
-  BOOST_TEST(Qcopy.front() == 10);
-  BOOST_TEST(Qcopy.back() == 20);
-  BOOST_TEST(Qcopy.size() == 2);
+  Queue< int > queuecopy(std::move(queue));
+  BOOST_TEST(queuecopy.front() == 10);
+  BOOST_TEST(queuecopy.back() == 20);
+  BOOST_TEST(queuecopy.size() == 2);
   BOOST_TEST(queue.empty());
 }
 
@@ -33,11 +33,11 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_CASE(queueAssignment)
 {
-  Queue< int > Q1;
-  Q1.push(10);
-  Queue< int > Q2;
-  Q2 = Q1;
-  BOOST_TEST(Q2.front() == 10);
+  Queue< int > queue1;
+  queue1.push(10);
+  Queue< int > queue2;
+  queue2 = queue1;
+  BOOST_TEST(queue2.front() == 10);
 }
 
 BOOST_AUTO_TEST_SUITE(queueElementAccess)
