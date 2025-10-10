@@ -31,6 +31,17 @@ namespace kushekbaev
 
       void swap(Vector& other) noexcept;
 
+      using iterator = T*;
+      using const_iterator = const T*;
+
+      iterator begin() noexcept;
+      iterator end() noexcept;
+      const_iterator cbegin() const noexcept;
+      const_iterator cend() const noexcept;
+
+      T& operator[](size_t index) noexcept;
+      const T& operator[](size_t index) const noexcept;
+
     private:
       T* data_;
       size_t size_;
@@ -204,6 +215,42 @@ namespace kushekbaev
     std::swap(data_, other.data_);
     std::swap(size_, other.size_);
     std::swap(capacity_, other.capacity_);
+  }
+
+  template< typename T >
+  typename Vector< T >::iterator Vector< T >::begin() noexcept
+  {
+    return data_;
+  }
+
+  template< typename T >
+  typename Vector< T >::iterator Vector< T >::end() noexcept
+  {
+    return data_ + size_;
+  }
+
+  template< typename T >
+  typename Vector< T >::const_iterator Vector< T >::cbegin() const noexcept
+  {
+    return data_;
+  }
+
+  template< typename T >
+  typename Vector< T >::const_iterator Vector< T >::cend() const noexcept
+  {
+    return data_ + size_;
+  }
+
+  template< typename T >
+  T& Vector< T >::operator[](size_t index) noexcept
+  {
+    return data_[index];
+  }
+
+  template< typename T >
+  const T& Vector< T >::operator[](size_t index) const noexcept
+  {
+    return data_[index];
   }
 
   template< typename T >
