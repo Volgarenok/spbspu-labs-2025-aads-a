@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
-
 #include "queue.hpp"
 #include "stack.hpp"
 #include "types.hpp"
