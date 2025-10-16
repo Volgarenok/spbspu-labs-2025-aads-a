@@ -31,6 +31,8 @@ namespace kushekbaev
 
     It begin();
     It end();
+    cIt begin() const;
+    cIt end() const;
     cIt cbegin() const;
     cIt cend() const;
 
@@ -49,6 +51,8 @@ namespace kushekbaev
     std::pair< It, bool > insert(const pair& val);
 
     void rehash(size_t n);
+
+    size_t count(const Key& key) const;
 
     private:
       size_t DEFAULT_HASHTABLE_SIZE = 17;
@@ -98,10 +102,23 @@ namespace kushekbaev
   }
 
   template< typename Key, typename Value, typename Hash, typename Equal >
+  typename HashTable< Key, Value, Hash, Equal >::cIt HashTable< Key, Value, Hash, Equal >::end() const
+  {
+    return cIt{ this, table_.size() };
+  }
+
+  template< typename Key, typename Value, typename Hash, typename Equal >
+  typename HashTable< Key, Value, Hash, Equal >::cIt HashTable< Key, Value, Hash, Equal >::begin() const
+  {
+    return cIt{ this, 0 };
+  }
+
+  template< typename Key, typename Value, typename Hash, typename Equal >
   typename HashTable< Key, Value, Hash, Equal >::It HashTable< Key, Value, Hash, Equal >::end()
   {
     return It{ this, table_.size() };
   }
+
 
   template< typename Key, typename Value, typename Hash, typename Equal >
   typename HashTable< Key, Value, Hash, Equal >::cIt HashTable< Key, Value, Hash, Equal >::cbegin() const
@@ -301,6 +318,12 @@ namespace kushekbaev
     table_[currNode].deleted = false;
     ++size_;
     return std::make_pair(It(this, currNode), true);
+  }
+
+  template< typename Key, typename Value, typename Hash, typename Equal >
+  size_t HashTable< Key, Value, Hash, Equal >::count(const Key& key) const
+  {
+    return (find_index(key) != table_.size()) ? 1 : 0;
   }
 }
 

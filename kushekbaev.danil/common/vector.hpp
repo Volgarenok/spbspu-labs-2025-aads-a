@@ -36,11 +36,24 @@ namespace kushekbaev
 
       iterator begin() noexcept;
       iterator end() noexcept;
+      const_iterator begin() const noexcept;
+      const_iterator end() const noexcept;
       const_iterator cbegin() const noexcept;
       const_iterator cend() const noexcept;
 
       T& operator[](size_t index) noexcept;
       const T& operator[](size_t index) const noexcept;
+
+      void clear() noexcept;
+      bool contains(const T& value) const;
+      size_t count(const T& value) const;
+      iterator find(const T& value);
+      const_iterator find(const T& value) const;
+      void insert(const T& value);
+      template< typename InputIterator >
+      void insert(InputIterator first, InputIterator last);
+      void erase(iterator position);
+      size_t erase(const T& value);
 
     private:
       T* data_;
@@ -230,6 +243,18 @@ namespace kushekbaev
   }
 
   template< typename T >
+  typename Vector< T >::const_iterator Vector< T >::begin() const noexcept
+  {
+    return data_;
+  }
+
+  template< typename T >
+  typename Vector< T >::const_iterator Vector< T >::end() const noexcept
+  {
+    return data_ + size_;
+  }
+
+  template< typename T >
   typename Vector< T >::const_iterator Vector< T >::cbegin() const noexcept
   {
     return data_;
@@ -251,6 +276,111 @@ namespace kushekbaev
   const T& Vector< T >::operator[](size_t index) const noexcept
   {
     return data_[index];
+  }
+
+  template< typename T >
+  void Vector< T >::clear() noexcept
+  {
+    size_ = 0;
+  }
+
+  template< typename T >
+  bool Vector< T >::contains(const T& value) const
+  {
+    for (size_t i = 0; i < size_; ++i)
+    {
+      if (data_[i] == value)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  template< typename T >
+  size_t Vector< T >::count(const T& value) const
+  {
+    size_t counter = 0;
+    for (size_t i = 0; i < size_; ++i)
+    {
+      if (data_[i] == value)
+      {
+        ++counter;
+      }
+    }
+    return counter;
+  }
+
+  template< typename T >
+  typename Vector< T >::iterator Vector< T >::find(const T& value)
+  {
+    for (size_t i = 0; i < size_; ++i)
+    {
+      if (data_[i] == value)
+      {
+        return data_ + i;
+      }
+    }
+    return end();
+  }
+
+  template< typename T >
+  typename Vector< T >::const_iterator Vector< T >::find(const T& value) const
+  {
+    for (size_t i = 0; i < size_; ++i)
+    {
+      if (data_[i] == value)
+      {
+        return data_ + i;
+      }
+    }
+    return cend();
+  }
+
+  template< typename T >
+  void Vector< T >::insert(const T& value)
+  {
+    if (!contains(value))
+    {
+      pushBack(value);
+    }
+  }
+
+  template< typename T >
+  template< typename InputIterator >
+  void Vector< T >::insert(InputIterator first, InputIterator last)
+  {
+    for (auto it = first; it != last; ++it)
+    {
+      insert(*it);
+    }
+  }
+
+  template< typename T >
+  void Vector< T >::erase(iterator position)
+  {
+    if (position < begin() || position >= end())
+    {
+      return;
+    }
+    size_t index = position - begin();
+    for (size_t i = index; i < size_ - 1; ++i)
+    {
+      data_[i] = std::move(data_[i + 1]);
+    }
+    --size_;
+  }
+
+  template< typename T >
+  size_t Vector< T >::erase(const T& value)
+  {
+    auto it = find(value);
+    if (it != end())
+    {
+      erase(it);
+      return 1;
+    }
+    return 0;
   }
 
   template< typename T >
