@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <stdexcept>
-#include "FwdList.hpp"
+#include <FwdList/FwdList.hpp>
 
 BOOST_AUTO_TEST_SUITE(iterator_tests)
 

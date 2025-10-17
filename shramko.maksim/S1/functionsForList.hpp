@@ -5,7 +5,7 @@
 #include <string>
 #include <ostream>
 #include <limits>
-#include <FwdList.hpp>
+#include <FwdList/FwdList.hpp>
 
 namespace shramko
 {
