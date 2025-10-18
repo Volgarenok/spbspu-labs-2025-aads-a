@@ -14,7 +14,7 @@ namespace karnauhova
     using value = std::pair< Key, Value >;
     using Iterator = HashCIterator< Key, Value, Hash, Equal >;
     HashTable();
-    explicit HashTable(size_t size):
+    explicit HashTable(size_t size);
     HashTable(const HashTable& table);
     HashTable(HashTable&& table);
     HashTable& operator=(const HashTable& table);
@@ -75,6 +75,46 @@ namespace karnauhova
   {}
 
   template < typename Key, typename Value, typename Hash, typename Equal >
+  HashTable< Key, Value, Hash, Equal >::HashTable(size_t size):
+    slots_(size),
+    count_(0)
+  {}
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  HashTable< Key, Value, Hash, Equal >::HashTable(const HashTable& table):
+    HashTable()
+  {
+    maxLoadFactor_ = table.maxLoadFactor_;
+    for (ConstIterator it = table.cbegin(); it != table.cend(); ++it)
+    {
+      insert(*it);
+    }
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  HashTable< Key, Value, Hash, Equal >::HashTable(HashTable&& table):
+    slots_(std::move(table.slots_)),
+    count_(std::exchange(table.count_, 0)),
+    maxLoadFactor_(std::exchange(table.maxLoadFactor_, 0))
+  {}
+  
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  HashTable< Key, Value, Hash, Equal >& HashTable< Key, Value, Hash, Equal >::operator=(const HashTable& table)
+  {
+    HashTable cpy(table);
+    swap(cpy);
+    return *this;
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  HashTable< Key, Value, Hash, Equal >& HashTable< Key, Value, Hash, Equal >::operator=(HashTable&& table)
+  {
+    HashTable temp(table);
+    swap(temp);
+    return *this;
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
   size_t HashTable< Key, Value, Hash, Equal >::size() const noexcept
   {
     return count_;
@@ -84,12 +124,6 @@ namespace karnauhova
   bool HashTable< Key, Value, Hash, Equal >::empty() const noexcept
   {
     return count_ == 0;
-  }
-
-  template < typename Key, typename Value, typename Hash, typename Equal >
-  std::pair< HashCIterator< Key, Value, Hash, Equal >, bool > HashTable< Key, Value, Hash, Equal >::insert(const value& val)
-  {
-
   }
 
   template < typename Key, typename Value, typename Hash, typename Equal >
