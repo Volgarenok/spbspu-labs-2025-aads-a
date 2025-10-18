@@ -135,6 +135,14 @@ namespace shabalin
     clear();
   }
 
+  template<typename T>
+  std::ostream& operator<<(std::ostream& os, const shabalin::ListIterator<T>&)
+  {
+    os << "ListIterator";
+    return os;
+  }
+
+
   template < typename T >
   List< T > & List< T >::operator=(const List & other)
   {
@@ -345,6 +353,26 @@ namespace shabalin
       throw;
     }
   }
+
+  void assign(size_type count, const T& value)
+  {
+    clear();
+    for (size_type i = 0; i < count; ++i)
+    {
+      push_back(value);
+    }
+  }
+
+  template<typename InputIterator>
+  void assign(InputIterator first, InputIterator last)
+  {
+    clear();
+    for (; first != last; ++first)
+    {
+      push_back(*first);
+    }
+  }
+
 
   template < typename T >
   template < typename InputIterator >
