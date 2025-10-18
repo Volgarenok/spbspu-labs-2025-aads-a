@@ -7,18 +7,18 @@
 
 namespace karnauhova
 {
-  template < typename Key, typename Value, typename Hash1 = std::hash< Key >, typename Equal = std::equal_to< Key >>
+  template < typename Key, typename Value, typename Hash = std::hash< Key >, typename Equal = std::equal_to< Key >>
   class HashTable
   {
   public:
     using value = std::pair< Key, Value >;
-    using Iterator = HashCIterator< Key, Value, Hash1, Equal >;
+    using Iterator = HashCIterator< Key, Value, Hash, Equal >;
     HashTable();
     explicit HashTable(size_t size):
     HashTable(const HashTable& table);
     HashTable(HashTable&& table);
     HashTable& operator=(const HashTable& table);
-    HashTable& operator=(HashTable>&& table);
+    HashTable& operator=(HashTable&& table);
 
     Value& operator[](const Key& key);
     Value& at(const Key& key);
@@ -41,72 +41,139 @@ namespace karnauhova
 
     std::pair< Iterator, bool > insert(const value& val);
     std::pair< Iterator, bool > insert(value&& val);
+    template< class InputIt >
+    void insert(InputIt first, InputIt last);
 
-    void clear() noexcept;
     void swap(HashTable& table) noexcept;
     float loadFactor() const;
 
     void rehash(size_t count);
   private:
 
-  enum class Status
-  {
-    EMPTY,
-    DELETED,
-    OCCUPIED
-  };
+    enum class Status
+    {
+      EMPTY,
+      DELETED,
+      OCCUPIED
+    };
 
-  struct Box
-  {
-    std::pair< Key, Value > pair;
-    Status status = Status::EMPTY;
-  };
+    struct Box
+    {
+      std::pair< Key, Value > pair;
+      Status status = Status::EMPTY;
+    };
 
     std::vector< Box > slots_;
     size_t count_;
     float maxLoadFactor_ = 0.6;
   };
 
-  template < typename Key, typename Value, typename Hash1, typename Equal >
-  HashTable< Key, Value, Hash1, Equal >::HashTable():
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  HashTable< Key, Value, Hash, Equal >::HashTable():
     slots_(10),
     count_(0)
   {}
 
-  template < typename Key, typename Value, typename Hash1, typename Equal >
-  size_t HashTable< Key, Value, Hash1, Equal >::size() const noexcept
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  size_t HashTable< Key, Value, Hash, Equal >::size() const noexcept
   {
     return count_;
   }
 
-  template < typename Key, typename Value, typename Hash1, typename Equal >
-  bool HashTable< Key, Value, Hash1, Equal >::empty() const noexcept
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  bool HashTable< Key, Value, Hash, Equal >::empty() const noexcept
   {
     return count_ == 0;
   }
 
-  template < typename Key, typename Value, typename Hash1, typename Equal >
-  std::pair< HashCIterator< Key, Value, Hash1, Equal >, bool > HashTable< Key, Value, Hash1, Equal >::insert(const value& val)
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  std::pair< HashCIterator< Key, Value, Hash, Equal >, bool > HashTable< Key, Value, Hash, Equal >::insert(const value& val)
   {
 
   }
 
-  template < typename Key, typename Value, typename Hash1, typename Equal >
-  float HashTable< Key, Value, Hash1, Equal >::loadFactor() const
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  float HashTable< Key, Value, Hash, Equal >::loadFactor() const
   {
     return static_cast< float >(count_) / slots_.size();
   }
 
-  template < typename Key, typename Value, typename Hash1, typename Equal >
-  void HashTable< Key, Value, Hash1, Equal >::swap(HashTable& table) noexcept
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  void HashTable< Key, Value, Hash, Equal >::swap(HashTable& table) noexcept
   {
     std::swap(slots_, table.slots_);
     std::swap(count_, table.count_);
     std::swap(maxLoadFactor_, table.maxLoadFactor_);
   }
 
-  template < typename Key, typename Value, typename Hash1, typename Equal >
-  void HashTable< Key, Value, Hash1, Equal >::rehash(size_t count)
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  std::pair< typename HashTable< Key, Value, Hash, Equal >::Iterator, bool > HashTable< Key, Value, Hash, Equal >::insert(const value& val)
+  {
+    if (loadFactor() >= maxLoadFactor_)
+    {
+        rehash(slots_.size() * 2);
+    }
+    
+    size_t posIn = slots_.size();
+    size_t hash = Hash{}(val.first);
+    
+    for (size_t i = 0; i < slots_.size(); ++i)
+    {
+      size_t pos = (hash + i) % slots_.size();
+      if (slots_[pos].status == Status::OCCUPIED)
+      {
+        if (equal(slots_[pos].pair.first, val.first))
+        {
+          return { Iterator(this, pos), false };
+        }
+      }
+      else
+      {
+        if (posIn == slots_.size())
+        {
+          posIn = pos;
+        }
+        if (slots_[pos].status == Status::EMPTY)
+        {
+          posIn = pos;
+          break;
+        }
+      }
+    }
+
+    if (posIn == slots_.size())
+    {
+      rehash(slots_.size() * 2);
+      return insert(val);
+    }
+    
+    slots_[posIn].pair = val;
+    slots_[posIn].status = Status::OCCUPIED;
+    count_++;
+    return { Iterator(this, posIn), true };
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  std::pair< typename HashTable< Key, Value, Hash, Equal >::Iterator, bool > HashTable< Key, Value, Hash, Equal >::insert(value&& val)
+  {
+    return insert(std::move(val));
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  template< class InputIt >
+  void HashTable< Key, Value, Hash, Equal >::insert(InputIt first, InputIt last)
+  {
+    HashTable< Key, Value, Hash, Equal > temp(*this);
+    for (; first != last; ++first)
+    {
+      temp.insert(*first);
+    }
+    swap(temp);
+  }
+    
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  void HashTable< Key, Value, Hash, Equal >::rehash(size_t count)
   {
     size_t minSize = static_cast< size_t >(std::ceil(count_ / maxLoadFactor_));
     if (count < minSize)
