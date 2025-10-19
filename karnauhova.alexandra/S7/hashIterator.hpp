@@ -5,6 +5,12 @@
 
 namespace karnauhova
 {
+  template< class Key, class Value, class Hash, class Equal >
+  class HashTable;
+
+  template< class Key, class Value, class Hash, class Equal >
+  class HashCIterator;
+
   template< typename Key, typename Value, typename Hash, typename Equal >
   struct HashIterator
   {
@@ -28,7 +34,10 @@ namespace karnauhova
   private:
     Table* table_;
     size_t index_;
-    HashIterator(Table table, size_t index) noexcept;
+    HashIterator(Table table, size_t index) noexcept;\
+
+    friend class HashCIterator< Key, Value, Hash, Equal >;
+    friend class HashTable< Key, Value, Hash, Equal >;
   };
 
   template< typename Key, typename Value, typename Hash, typename Equal >

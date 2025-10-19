@@ -36,7 +36,6 @@ namespace karnauhova
 
     Iterator erase(Iterator pos);
     Iterator erase(ConstIterator pos);
-    size_t erase(const Key& key);
 
     Iterator find(const Key& key);
     ConstIterator find(const Key& key) const;
@@ -249,15 +248,15 @@ namespace karnauhova
   }
 
   template < typename Key, typename Value, typename Hash, typename Equal >
-typename HashTable< Key, Value, Hash, Equal >::Iterator HashTable< Key, Value, Hash, Equal >::begin() noexcept
-{
-  size_t index = 0;
-  while (index < slots_.size() && slots_[index].status != Status::OCCUPIED)
+  typename HashTable< Key, Value, Hash, Equal >::Iterator HashTable< Key, Value, Hash, Equal >::begin() noexcept
   {
-    ++index;
+    size_t index = 0;
+    while (index < slots_.size() && slots_[index].status != Status::OCCUPIED)
+    {
+      ++index;
+    }
+    return Iterator(this, index);
   }
-  return Iterator(this, index);
-}
 
   template < typename Key, typename Value, typename Hash, typename Equal >
   typename HashTable< Key, Value, Hash, Equal >::Iterator HashTable< Key, Value, Hash, Equal >::end() noexcept
