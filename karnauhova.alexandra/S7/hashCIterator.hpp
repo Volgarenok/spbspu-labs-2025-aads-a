@@ -19,7 +19,7 @@ namespace karnauhova
     using this_t = HashCIterator< Key, Value, Hash, Equal >;
   public:
     HashCIterator();
-    HashCIterator(const this_t&);
+    HashCIterator(const HashIterator< Key, Value, Hash, Equal >&);
 
     const data& operator*() const noexcept;
     const data* operator->() const noexcept;
@@ -66,7 +66,7 @@ namespace karnauhova
   }
 
   template< typename Key, typename Value, typename Hash, typename Equal >
-  HashCIterator< Key, Value, Hash, Equal >::HashCIterator(const HashCIterator& oth):
+  HashCIterator< Key, Value, Hash, Equal >::HashCIterator(const HashIterator< Key, Value, Hash, Equal >& oth):
     table_(oth.table_),
     index_(oth.index_)
   {}

@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <vector>
+#include <cmath>
 #include "hashCIterator.hpp"
 #include "hashIterator.hpp"
 
@@ -312,6 +313,30 @@ namespace karnauhova
   typename HashTable< Key, Value, Hash, Equal >::ConstIterator HashTable< Key, Value, Hash, Equal >::find(const Key& key) const
   {
     return ConstIterator(find(key));
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  Value& HashTable< Key, Value, Hash, Equal >::operator[](const Key& key)
+  {
+    Iterator res = insert({ key, Value() }).first;
+    return res->second;
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  Value& HashTable< Key, Value, Hash, Equal >::at(const Key& key)
+  {
+    return const_cast< Value& >(static_cast< const HashTable< Key, Value, Hash, Equal > >(*this).at(key));
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  const Value& HashTable< Key, Value, Hash, Equal >::at(const Key& key) const
+  {
+    ConstIterator it = find(key);
+    if (it == cend())
+    {
+      throw std::out_of_range("There is no such key");
+    }
+    return it->second;
   }
 }
 
