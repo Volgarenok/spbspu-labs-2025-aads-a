@@ -112,7 +112,7 @@ namespace nikonov
         ++cIter;
       }
     }
-    catch(const std::bad_alloc&)
+    catch (const std::bad_alloc&)
     {
       clear();
       delete[] reinterpret_cast< char * >(fake_);
@@ -160,7 +160,7 @@ namespace nikonov
         curr = newNode;
       }
     }
-    catch(const std::bad_alloc&)
+    catch (const std::bad_alloc&)
     {
       clear();
       delete[] reinterpret_cast< char * >(fake_);

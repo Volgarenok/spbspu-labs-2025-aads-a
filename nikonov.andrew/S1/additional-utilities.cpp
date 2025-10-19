@@ -26,21 +26,24 @@ nikonov::List< std::pair< std::string, nikonov::List< size_t > > > nikonov::getP
       {
         name = data;
       }
-      if (in >> data && std::isdigit(data[0]))
+      if (in >> data)
       {
-        dataIsName = false;
-        size_t currElem = std::stoull(data);
-        vals.push_back(currElem);
-        if (currSum > std::numeric_limits< size_t >::max() - currElem)
+        try
         {
-          overflowFlag = true;
+          size_t currElem = std::stoull(data);
+          dataIsName = false;
+          vals.push_back(currElem);
+          if (currSum > std::numeric_limits< size_t >::max() - currElem)
+          {
+            overflowFlag = true;
+          }
+          currSum += currElem;
         }
-        currSum += currElem;
-      }
-      else
-      {
-        dataIsName = true;
-        break;
+        catch (const std::invalid_argument&)
+        {
+          dataIsName = true;
+          break;
+        }
       }
     }
     pair_t Pair{ name, vals };
