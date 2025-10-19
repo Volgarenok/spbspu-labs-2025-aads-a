@@ -29,7 +29,7 @@ namespace karnauhova
   private:
     const Table* table_;
     size_t index_;
-    //HashCIterator(Table table, size_t index) noexcept;
+    HashCIterator(Table table, size_t index) noexcept;
   };
 
   template< typename Key, typename Value, typename Hash, typename Equal >
@@ -38,6 +38,14 @@ namespace karnauhova
     index_(0)
   {}
 
+  template< typename Key, typename Value, typename Hash, typename Equal >
+  HashCIterator< Key, Value, Hash, Equal >::HashCIterator(Table table, size_t index) noexcept:
+    table_(table),
+    index_(index)
+  {
+
+  }
+  
   template< typename Key, typename Value, typename Hash, typename Equal >
   const typename HashCIterator< Key, Value, Hash, Equal >::data& HashCIterator< Key, Value, Hash, Equal >::operator*() const noexcept
   {

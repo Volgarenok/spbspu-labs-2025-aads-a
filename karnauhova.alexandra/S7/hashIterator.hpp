@@ -28,13 +28,19 @@ namespace karnauhova
   private:
     Table* table_;
     size_t index_;
-    //HashIterator(Table table, size_t index) noexcept;
+    HashIterator(Table table, size_t index) noexcept;
   };
 
   template< typename Key, typename Value, typename Hash, typename Equal >
   HashIterator< Key, Value, Hash, Equal >::HashIterator():
     table_(nullptr),
     index_(0)
+  {}
+
+  template< typename Key, typename Value, typename Hash, typename Equal >
+  HashIterator< Key, Value, Hash, Equal >::HashIterator(Table table, size_t index) noexcept:
+    table_(table),
+    index_(index)
   {}
 
   template< typename Key, typename Value, typename Hash, typename Equal >

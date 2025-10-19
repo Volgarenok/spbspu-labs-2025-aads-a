@@ -4,6 +4,7 @@
 #include <functional>
 #include <vector>
 #include "hashCIterator.hpp"
+#include "hashIterator.hpp"
 
 namespace karnauhova
 {
@@ -12,7 +13,8 @@ namespace karnauhova
   {
   public:
     using value = std::pair< Key, Value >;
-    using Iterator = HashCIterator< Key, Value, Hash, Equal >;
+    using Iterator = HashIterator< Key, Value, Hash, Equal >;
+    using ConstIterator = HashCIterator< Key, Value, Hash, Equal >;
     HashTable();
     explicit HashTable(size_t size);
     HashTable(const HashTable& table);
@@ -205,6 +207,29 @@ namespace karnauhova
     swap(temp);
   }
     
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  typename HashTable< Key, Value, Hash, Equal >::Iterator HashTable< Key, Value, Hash, Equal >::erase(ConstIterator pos)
+  {
+    if (pos == end())
+    {
+      return Iterator(this, pos.index_);
+    }
+    if (pos.index_ >= slots_.size() || slots_[pos.index_].status != Status::OCCUPIED)
+    {
+      return end();
+    }
+    slots_[pos.index_].status = Status::DELETED;
+    --count_;
+    ++pos;
+    return Iterator(this, pos.index_);
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  typename HashTable< Key, Value, Hash, Equal >::Iterator HashTable< Key, Value, Hash, Equal >::erase(Iterator pos)
+  {
+    ConstIterator it(pos);
+    return erase(it);
+  }
 
   template < typename Key, typename Value, typename Hash, typename Equal >
   void HashTable< Key, Value, Hash, Equal >::rehash(size_t count)
@@ -221,6 +246,73 @@ namespace karnauhova
     HashTable newTable(count);
     newTable.insert(this->cbegin(), this->cend());
     swap(newTable);
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+typename HashTable< Key, Value, Hash, Equal >::Iterator HashTable< Key, Value, Hash, Equal >::begin() noexcept
+{
+  size_t index = 0;
+  while (index < slots_.size() && slots_[index].status != Status::OCCUPIED)
+  {
+    ++index;
+  }
+  return Iterator(this, index);
+}
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  typename HashTable< Key, Value, Hash, Equal >::Iterator HashTable< Key, Value, Hash, Equal >::end() noexcept
+  {
+    return Iterator(this, slots_.size());
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  typename HashTable< Key, Value, Hash, Equal >::ConstIterator HashTable< Key, Value, Hash, Equal >::cbegin() const noexcept
+  {
+    size_t index = 0;
+    while (index < slots_.size() && slots_[index].status != Status::OCCUPIED)
+    {
+      ++index;
+    }
+    return ConstIterator(this, index);
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  typename HashTable< Key, Value, Hash, Equal >::ConstIterator HashTable< Key, Value, Hash, Equal >::cend() const noexcept
+  {
+    return ConstIterator(this, slots_.size());
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  typename HashTable< Key, Value, Hash, Equal >::Iterator HashTable< Key, Value, Hash, Equal >::find(const Key& key)
+  {
+    if (slots_.empty())
+    {
+      return end();
+    }
+    
+    size_t hash = Hash{}(key);
+    
+    for (size_t i = 0; i < slots_.size(); ++i)
+    {
+      size_t pos = (hash + i) % slots_.size();  
+      if (slots_[pos].status == Status::EMPTY)
+      {
+        return end();
+      }
+        
+      if (slots_[pos].status == Status::OCCUPIED && equal(slots_[pos].pair.first, key))
+      {
+        return Iterator(this, pos);
+      }
+    }
+
+    return end();
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  typename HashTable< Key, Value, Hash, Equal >::ConstIterator HashTable< Key, Value, Hash, Equal >::find(const Key& key) const
+  {
+    return ConstIterator(find(key));
   }
 }
 
