@@ -506,15 +506,7 @@ namespace guseynov
     List< T > temp;
     for (size_t i = 0; i < n; i++)
     {
-      try
-      {
-        temp.push_back(val);
-      }
-      catch (const std::bad_alloc &)
-      {
-        temp.clear();
-        throw;
-      }
+      temp.push_back(val);
     }
     swap(temp);
   }
@@ -525,15 +517,7 @@ namespace guseynov
     List< T > temp;
     for (auto it = first; it != last; ++it)
     {
-      try
-      {
-        temp.push_back(*it);
-      }
-      catch (const std::bad_alloc &)
-      {
-        temp.clear();
-        throw;
-      }
+      temp.push_back(*it);
     }
     swap(temp);
   }
@@ -544,15 +528,7 @@ namespace guseynov
     List< T > temp;
     for (auto it = il.begin(); it != il.end(); ++it)
     {
-      try
-      {
-        temp.push_back(*it);
-      }
-      catch (const std::bad_alloc &)
-      {
-        temp.clear();
-        throw;
-      }
+      temp.push_back(*it);
     }
     swap(temp);
   }

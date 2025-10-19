@@ -34,12 +34,12 @@ namespace
     }
   }
 
-  bool isOperator(std::string op)
+  bool isOperator(const std::string &op)
   {
     return op == "*" || op == "/" || op == "%" || op == "+" || op == "-";
   }
 
-  int getOperatorPriority(std::string op)
+  int getOperatorPriority(const std::string &op)
   {
     if (op == "+" || op == "-")
     {

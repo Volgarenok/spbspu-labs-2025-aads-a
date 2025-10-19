@@ -121,11 +121,7 @@ namespace guseynov
   template< typename T >
   T & Stack< T >::top()
   {
-    if (empty())
-    {
-      throw std::logic_error("Stack is empty");
-    }
-    return data_[currentSize_ - 1];
+    return const_cast<T&>(static_cast<const Stack<T>&>(*this).top());
   }
 
   template< typename T >
