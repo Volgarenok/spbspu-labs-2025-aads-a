@@ -2,15 +2,20 @@
 #define ARRAY_HPP
 #include <iostream>
 #include <stdexcept>
-
+#include <iteratorArray.hpp>
 
 namespace averenkov
 {
+  template< class T, bool IsConst >
+  class ArrayIterator;
+
   template< class T >
   class Array
   {
-
   public:
+    using Iterator = ArrayIterator< T, false >;
+    using ConstIterator = ArrayIterator< T, true >;
+
     Array();
     Array(const Array &rhs);
     Array(Array &&rhs) noexcept;
@@ -23,6 +28,7 @@ namespace averenkov
     size_t size() const noexcept;
 
     void swap(Array& rhs) noexcept;
+    void clear();
 
     const T& front() const noexcept;
     T& front() noexcept;
@@ -39,13 +45,21 @@ namespace averenkov
     T* get_data();
     const T* get_data() const;
 
+    Iterator begin() noexcept;
+    Iterator end() noexcept;
+    ConstIterator begin() const noexcept;
+    ConstIterator end() const noexcept;
+    ConstIterator cbegin() const noexcept;
+    ConstIterator cend() const noexcept;
+
+    void resize(size_t capac);
+    void resize();
+
   private:
     T* data_;
     size_t last_;
     size_t capacity_;
     size_t first_;
-    void resize(size_t capac);
-    void resize();
     Array< T > copy(const Array& other, size_t capacity);
 
     T* copy_data(const Array& other, size_t capacity);
@@ -123,6 +137,16 @@ namespace averenkov
   Array< T >::~Array()
   {
     delete[] data_;
+  }
+
+  template< class T >
+  void Array< T >::clear()
+  {
+    delete[] data_;
+    data_ = new T[1];
+    last_ = 0;
+    first_ = 0;
+    capacity_ = 1;
   }
 
   template< class T >
@@ -277,6 +301,42 @@ namespace averenkov
       throw;
     }
     return new_data;
+  }
+
+  template< class T >
+  typename Array< T >::Iterator Array< T >::begin() noexcept
+  {
+    return Iterator(data_ + first_);
+  }
+
+  template< class T >
+  typename Array< T >::Iterator Array< T >::end() noexcept
+  {
+    return Iterator(data_ + last_);
+  }
+
+  template< class T >
+  typename Array< T >::ConstIterator Array< T >::begin() const noexcept
+  {
+    return ConstIterator(data_ + first_);
+  }
+
+  template< class T >
+  typename Array< T >::ConstIterator Array< T >::end() const noexcept
+  {
+    return ConstIterator(data_ + last_);
+  }
+
+  template< class T >
+  typename Array< T >::ConstIterator Array< T >::cbegin() const noexcept
+  {
+    return ConstIterator(data_ + first_);
+  }
+
+  template< class T >
+  typename Array< T >::ConstIterator Array< T >::cend() const noexcept
+  {
+    return ConstIterator(data_ + last_);
   }
 
 }
