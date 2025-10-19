@@ -4,6 +4,8 @@
 #include <utility>
 #include <functional>
 #include <stdexcept>
+#include <stack>
+#include <queue>
 #include "node.hpp"
 #include "iterator.hpp"
 #include "constIterator.hpp"
@@ -45,6 +47,24 @@ namespace sharifullina
 
     std::pair< iter, bool > insert(const std::pair< Key, Value >&);
     Value& operator[](const Key&);
+
+    template< typename F >
+    F traverse_lnr(F f) const;
+
+    template< typename F >
+    F traverse_lnr(F f);
+
+    template< typename F >
+    F traverse_rnl(F f) const;
+
+    template< typename F >
+    F traverse_rnl(F f);
+
+    template< typename F >
+    F traverse_breadth(F f) const;
+
+    template< typename F >
+    F traverse_breadth(F f);
 
     ~AVLtree();
 
@@ -679,6 +699,96 @@ namespace sharifullina
   size_t AVLtree< Key, Value, Compare >::count(const Key& key) const noexcept
   {
     return find(key) != cend() ? 1 : 0;
+  }
+
+  template< class Key, class Value, class Compare >
+  template< typename F >
+  F AVLtree< Key, Value, Compare >::traverse_lnr(F f)
+  {
+    return const_cast< const AVLtree< Key, Value, Compare >* >(this)->traverse_lnr(f);
+  }
+
+  template< class Key, class Value, class Compare >
+  template< typename F >
+  F AVLtree< Key, Value, Compare >::traverse_rnl(F f)
+  {
+    return const_cast< const AVLtree< Key, Value, Compare >* >(this)->traverse_rnl(f);
+  }
+
+  template< class Key, class Value, class Compare >
+  template< typename F >
+  F AVLtree< Key, Value, Compare >::traverse_breadth(F f)
+  {
+    return const_cast< const AVLtree< Key, Value, Compare >* >(this)->traverse_breadth(f);
+  }
+
+  template< class Key, class Value, class Compare >
+  template< typename F >
+  F AVLtree< Key, Value, Compare >::traverse_lnr(F f) const
+  {
+    std::stack< node_t* > stack;
+    node_t* current = root_;
+    while (current != nullptr || !stack.empty())
+    {
+      while (current != nullptr)
+      {
+        stack.push(current);
+        current = current->left;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->right;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Compare >
+  template< typename F >
+  F AVLtree< Key, Value, Compare >::traverse_rnl(F f) const
+  {
+    std::stack< node_t* > stack;
+    node_t* current = root_;
+    while (current != nullptr || !stack.empty())
+    {
+      while (current != nullptr)
+      {
+        stack.push(current);
+        current = current->right;
+      }
+      current = stack.top();
+      stack.pop();
+      f(current->data);
+      current = current->left;
+    }
+    return f;
+  }
+
+  template< class Key, class Value, class Compare >
+  template< typename F >
+  F AVLtree< Key, Value, Compare >::traverse_breadth(F f) const
+  {
+    if (root_ == nullptr)
+    {
+      return f;
+    }
+    std::queue< node_t* > queue;
+    queue.push(root_);
+    while (!queue.empty())
+    {
+      node_t* current = queue.front();
+      queue.pop();
+      f(current->data);
+      if (current->left != nullptr)
+      {
+        queue.push(current->left);
+      }
+      if (current->right != nullptr)
+      {
+        queue.push(current->right);
+      }
+    }
+    return f;
   }
 
   template< class Key, class Value, class Compare >

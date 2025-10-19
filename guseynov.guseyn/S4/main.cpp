@@ -5,7 +5,6 @@
 #include <functional>
 #include <tree.hpp>
 
-
 using Dictionary = guseynov::Tree< size_t, std::string, std::less< size_t > >;
 using DictionaryStorage = guseynov::Tree< std::string, Dictionary, std::less< std::string > >;
 using DicFunc = std::function< void(DictionaryStorage&, const std::string&) >;
@@ -68,7 +67,7 @@ namespace
       return;
     }
     std::cout << name;
-    for (auto it = dict.begin(); it != dict.end(); ++it)
+    for (guseynov::Iterator< size_t, std::string, std::less< size_t > > it = dict.begin(); it != dict.end(); ++it)
     {
       std::cout << " " << it->first << " " << it->second;
     }
@@ -84,7 +83,7 @@ namespace
     const Dictionary& dict1 = storage.get(name1);
     const Dictionary& dict2 = storage.get(name2);
     Dictionary result;
-    for (auto it = dict1.cbegin(); it != dict1.cend(); ++it)
+    for (guseynov::ConstIterator< size_t, std::string, std::less< size_t > > it = dict1.cbegin(); it != dict1.cend(); ++it)
     {
       if (dict2.count(it->first) == 0)
       {
@@ -103,7 +102,7 @@ namespace
     const Dictionary& dict1 = storage.get(name1);
     const Dictionary& dict2 = storage.get(name2);
     Dictionary result;
-    for (auto it = dict1.cbegin(); it != dict1.cend(); ++it)
+    for (guseynov::ConstIterator< size_t, std::string, std::less< size_t > > it = dict1.cbegin(); it != dict1.cend(); ++it)
     {
       if (dict2.count(it->first) > 0)
       {
@@ -122,7 +121,7 @@ namespace
     const Dictionary& dict1 = storage.get(name1);
     const Dictionary& dict2 = storage.get(name2);
     Dictionary result = dict1;
-    for (auto it = dict2.cbegin(); it != dict2.cend(); ++it)
+    for (guseynov::ConstIterator< size_t, std::string, std::less< size_t > > it = dict2.cbegin(); it != dict2.cend(); ++it)
     {
       if (result.count(it->first) == 0)
       {

@@ -1,44 +1,61 @@
+#include <fstream>
 #include <iostream>
 #include <string>
-#include <stdexcept>
-#include "binary_search_tree.hpp"
-#include "files.hpp"
-#include "file_utils.hpp"
+#include "tree.hpp"
+#include "key_summer.hpp"
 
-int main(int argc, char* argv[]) {
-  if (argc != 3) {
-    std::cerr << "Usage: " << argv[0] << " [ascending|descending|breadth] filename" << std::endl;
+int main(int argc, char* argv[])
+{
+  if (argc != 3)
+  {
+    std::cerr << "Not enough arguments\n";
     return 1;
   }
-  std::string traversal_type = argv[1];
-  std::string filename = argv[2];
-  if (traversal_type != "ascending" && traversal_type != "descending" && traversal_type != "breadth") {
-    std::cerr << "Invalid traversal type. Use: ascending, descending, or breadth" << std::endl;
+  std::string mode(argv[1]);
+  std::string file_name(argv[2]);
+  std::ifstream file(file_name);
+  if (!file)
+  {
+    std::cerr << "Wrong filename\n";
     return 1;
   }
-  try {
-    auto tree = readTreeFromFile(filename);
-    if (tree.empty()) {
-      std::cout << "<EMPTY>" << std::endl;
-      return 0;
+  guseynov::Tree< long long, std::string, std::less< long long > > tree;
+  long long key = 0;
+  std::string value;
+  while (file >> key >> value)
+  {
+    tree.insert(std::make_pair(key, value));
+  }
+  if (tree.empty())
+  {
+    std::cout << "<EMPTY>\n";
+    return 0;
+  }
+  guseynov::KeySummer summer;
+  try
+  {
+    if (mode == "ascending")
+    {
+      tree.traverse_lnr(summer);
     }
-    KeySumm summator;
-    if (traversal_type == "ascending") {
-      tree.traverse_lnr(summator);
-    } else if (traversal_type == "descending") {
-      tree.traverse_rnl(summator);
-    } else if (traversal_type == "breadth") {
-      tree.traverse_breadth(summator);
+    else if (mode == "descending")
+    {
+      tree.traverse_rnl(summer);
     }
-    std::cout << summator.result_ << " " << summator.values_ << std::endl;
-  } catch (const std::overflow_error& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-    return 1;
-  } catch (const std::underflow_error& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-    return 1;
-  } catch (const std::exception& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
+    else if (mode == "breadth")
+    {
+      tree.traverse_breadth(summer);
+    }
+    else
+    {
+      std::cerr << "Invalid mode\n";
+      return 1;
+    }
+    std::cout << summer.result_ << " " << summer.values_ << "\n";
+  }
+  catch (const std::exception& e)
+  {
+    std::cerr << e.what();
     return 1;
   }
   return 0;

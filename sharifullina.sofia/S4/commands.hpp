@@ -3,7 +3,7 @@
 
 #include <ostream>
 #include <functional>
-#include "AVLtree.hpp"
+#include <avl_tree/AVLtree.hpp>
 
 namespace sharifullina
 {

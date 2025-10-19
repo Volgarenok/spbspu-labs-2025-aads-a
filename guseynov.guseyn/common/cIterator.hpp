@@ -87,7 +87,7 @@ namespace guseynov
   ConstIterator< Key, Value, Compare > ConstIterator< Key, Value, Compare >::operator++(int)
   {
     assert(current_ != nullptr);
-    ConstIterator temp = *this;
+    ConstIterator< Key, Value, Compare > temp = *this;
     ++(*this);
     return temp;
   }
@@ -121,7 +121,7 @@ namespace guseynov
   ConstIterator< Key, Value, Compare > ConstIterator< Key, Value, Compare >::operator--(int)
   {
     assert(current_ != nullptr);
-    ConstIterator temp = *this;
+    ConstIterator< Key, Value, Compare > temp = *this;
     --(*this);
     return temp;
   }

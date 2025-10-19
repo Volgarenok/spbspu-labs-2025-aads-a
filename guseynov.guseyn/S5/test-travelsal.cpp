@@ -1,87 +1,75 @@
 #include <boost/test/unit_test.hpp>
 #include <algorithm>
-#include "binary_search_tree.hpp"
-#include "files.hpp"
+#include "tree.hpp"
+#include "key_summer.hpp"
 
 BOOST_AUTO_TEST_CASE(simple_ascending_test)
 {
-  guseynov::BinarySearchTree< int, std::string > tree;
+  guseynov::Tree< int, std::string, std::less<int> > tree;
   tree.insert({2, "first"});
   tree.insert({1, "name"});
   tree.insert({3, "surname"});
-  KeySumm collector;
-  collector = tree.traverse_lnr(collector);
+  guseynov::KeySummer collector;
+  tree.traverse_lnr(collector);
   BOOST_TEST(collector.result_ == 6);
   BOOST_TEST(collector.values_ == "name first surname");
 }
 
 BOOST_AUTO_TEST_CASE(simple_descending_test)
 {
-  guseynov::BinarySearchTree< int, std::string > tree;
+  guseynov::Tree< int, std::string, std::less<int> > tree;
   tree.insert({2, "first"});
   tree.insert({1, "name"});
   tree.insert({3, "surname"});
-  KeySumm collector;
-  collector = tree.traverse_rnl(collector);
+  guseynov::KeySummer collector;
+  tree.traverse_rnl(collector);
   BOOST_TEST(collector.result_ == 6);
   BOOST_TEST(collector.values_ == "surname first name");
 }
 
 BOOST_AUTO_TEST_CASE(simple_breadth_test)
 {
-  guseynov::BinarySearchTree< int, std::string > tree;
+  guseynov::Tree< int, std::string, std::less<int> > tree;
   tree.insert({2, "first"});
   tree.insert({1, "name"});
   tree.insert({3, "surname"});
-  KeySumm collector;
-  collector = tree.traverse_breadth(collector);
+  guseynov::KeySummer collector;
+  tree.traverse_breadth(collector);
   BOOST_TEST(collector.result_ == 6);
-  bool has_first = collector.values_.find("first") != std::string::npos;
-  bool has_name = collector.values_.find("name") != std::string::npos;
-  bool has_surname = collector.values_.find("surname") != std::string::npos;
-  BOOST_TEST(has_first);
-  BOOST_TEST(has_name);
-  BOOST_TEST(has_surname);
-  size_t space_count = 0;
-  for (char c : collector.values_) {
-    if (c == ' ') {
-      space_count++;
-    }
-  }
-  BOOST_TEST(space_count == 2);
+  BOOST_TEST(collector.values_ == "first name surname");
 }
 
 BOOST_AUTO_TEST_CASE(empty_tree_traversal)
 {
-  guseynov::BinarySearchTree< int, std::string > tree;
-  KeySumm lnr_collector;
-  lnr_collector = tree.traverse_lnr(lnr_collector);
+  guseynov::Tree< int, std::string, std::less<int> > tree;
+  guseynov::KeySummer lnr_collector;
+  tree.traverse_lnr(lnr_collector);
   BOOST_TEST(lnr_collector.result_ == 0);
   BOOST_TEST(lnr_collector.values_.empty());
-  KeySumm rnl_collector;
-  rnl_collector = tree.traverse_rnl(rnl_collector);
+  guseynov::KeySummer rnl_collector;
+  tree.traverse_rnl(rnl_collector);
   BOOST_TEST(rnl_collector.result_ == 0);
   BOOST_TEST(rnl_collector.values_.empty());
-  KeySumm breadth_collector;
-  breadth_collector = tree.traverse_breadth(breadth_collector);
+  guseynov::KeySummer breadth_collector;
+  tree.traverse_breadth(breadth_collector);
   BOOST_TEST(breadth_collector.result_ == 0);
   BOOST_TEST(breadth_collector.values_.empty());
 }
 
 BOOST_AUTO_TEST_CASE(overflow_protection_test)
 {
-  guseynov::BinarySearchTree< int, std::string > tree;
-  tree.insert({std::numeric_limits<int>::max(), "max"});
+  guseynov::Tree< long long, std::string, std::less<long long> > tree;
+  tree.insert({std::numeric_limits<long long>::max(), "max"});
   tree.insert({1, "one"});
-  KeySumm collector;
+  guseynov::KeySummer collector;
   BOOST_CHECK_THROW(tree.traverse_lnr(collector), std::overflow_error);
 }
 
 BOOST_AUTO_TEST_CASE(underflow_protection_test)
 {
-  guseynov::BinarySearchTree< int, std::string > tree;
-  tree.insert({std::numeric_limits<int>::min(), "min"});
+  guseynov::Tree< long long, std::string, std::less<long long> > tree;
+  tree.insert({std::numeric_limits<long long>::min(), "min"});
   tree.insert({-1, "negative"});
-  KeySumm collector;
+  guseynov::KeySummer collector;
   BOOST_CHECK_THROW(tree.traverse_lnr(collector), std::underflow_error);
 }

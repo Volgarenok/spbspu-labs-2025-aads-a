@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <algorithm>
 #include <initializer_list>
+#include <stack>
+#include <queue>
 #include "iterator.hpp"
 #include "cIterator.hpp"
 
@@ -27,7 +29,7 @@ namespace guseynov
     Tree(InputIt first, InputIt last):
       Tree()
     {
-      for (auto it = first; it != last; it++)
+      for (InputIt it = first; it != last; it++)
       {
         insert(*it);
       }
@@ -183,7 +185,7 @@ namespace guseynov
     template< typename InputIt >
     void insert(InputIt first, InputIt last)
     {
-      for (auto it = first; it != last; ++it)
+      for (InputIt it = first; it != last; ++it)
       {
         push(it->first, it->second);
       }
@@ -212,10 +214,10 @@ namespace guseynov
     {
       Iterator_t it = find(key);
       if (it != end())
-      {
-        erase(it);
-        return 1;
-      }
+       {
+         erase(it);
+         return 1;
+       }
       return 0;
     }
 
@@ -230,17 +232,12 @@ namespace guseynov
 
     Value& at(const Key& key)
     {
-      Node_t* node = find(getRoot(), key);
-      if (!node)
-      {
-        throw std::out_of_range("Key not found");
-      }
-      return node->data.second;
+      return const_cast< Value& >(static_cast< const Tree* >(this)->at(key));
     }
 
     const Value& at(const Key& key) const
     {
-      Node_t* node = find(getRoot(), key);
+      const Node_t* node = find(getRoot(), key);
       if (!node)
       {
         throw std::out_of_range("Key not found");
@@ -307,7 +304,8 @@ namespace guseynov
 
     std::pair< Iterator_t, Iterator_t > equal_range(const Key& key) noexcept
     {
-      return { lower_bound(key), upper_bound(key) };
+      std::pair< ConstIterator_t, ConstIterator_t > constRange = static_cast< const Tree* >(this)->equal_range(key);
+      return { Iterator_t(const_cast< Node_t* >(constRange.first.current_) ), Iterator_t(const_cast< Node_t* >(constRange.second.current_)) };
     }
 
     std::pair< ConstIterator_t, ConstIterator_t > equal_range(const Key& key) const noexcept
@@ -317,28 +315,7 @@ namespace guseynov
 
     Iterator_t lower_bound(const Key& key) noexcept
     {
-      Node_t* current = getRoot();
-      Node_t* result = nullptr;
-      while (current)
-      {
-        if (!comp_(current->data.first, key))
-        {
-          result = current;
-          current = current->left;
-        }
-        else
-        {
-          current = current->right;
-        }
-      }
-      if (result != nullptr)
-      {
-        return Iterator_t(result);
-      }
-      else
-      {
-        return end();
-      }
+      return Iterator_t(const_cast< Node_t* >(static_cast< const Tree* >(this)->lower_bound(key).current_));
     }
 
     ConstIterator_t lower_bound(const Key& key) const noexcept
@@ -369,28 +346,7 @@ namespace guseynov
 
     Iterator_t upper_bound(const Key& key) noexcept
     {
-      Node_t* current = getRoot();
-      Node_t* result = nullptr;
-      while (current)
-      {
-        if (comp_(key, current->data.first))
-        {
-          result = current;
-          current = current->left;
-        }
-        else
-        {
-          current = current->right;
-        }
-      }
-      if (result != nullptr)
-      {
-        return Iterator_t(result);
-      }
-      else
-      {
-        return end();
-      }
+      return Iterator_t(const_cast< Node_t* >(static_cast< const Tree* >(this)->upper_bound(key).current_));
     }
 
     ConstIterator_t upper_bound(const Key& key) const noexcept
@@ -417,6 +373,80 @@ namespace guseynov
       {
         return cend();
       }
+    }
+
+    template< typename F >
+    F& traverse_lnr(F& f) const
+    {
+      if (empty())
+      {
+        return f;
+      }
+      std::stack< const Node_t* > stack;
+      const Node_t* current = getRoot();
+      while (current != nullptr || !stack.empty())
+      {
+        while (current != nullptr)
+        {
+          stack.push(current);
+          current = current->left;
+        }
+        current = stack.top();
+        stack.pop();
+        f(current->data);
+        current = current->right;
+      }
+      return f;
+    }
+
+    template< typename F >
+    F& traverse_rnl(F& f) const
+    {
+      if (empty())
+      {
+        return f;
+      }
+      std::stack< const Node_t* > stack;
+      const Node_t* current = getRoot();
+      while (current != nullptr || !stack.empty())
+      {
+        while (current != nullptr)
+        {
+          stack.push(current);
+          current = current->right;
+        }
+        current = stack.top();
+        stack.pop();
+        f(current->data);
+        current = current->left;
+      }
+      return f;
+    }
+
+    template< typename F >
+    F& traverse_breadth(F& f) const
+    {
+      if (empty())
+      {
+        return f;
+      }
+      std::queue< const Node_t* > queue;
+      queue.push(getRoot());
+      while (!queue.empty())
+      {
+        const Node_t* current = queue.front();
+        queue.pop();
+        f(current->data);
+        if (current->left)
+        {
+          queue.push(current->left);
+        }
+        if (current->right)
+        {
+          queue.push(current->right);
+        }
+      }
+      return f;
     }
 
   private:
