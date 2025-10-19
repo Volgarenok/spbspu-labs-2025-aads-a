@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-#include <cstring>
 #include <list.h>
 
 namespace guseynov
@@ -13,7 +12,10 @@ namespace guseynov
     std::string key;
     std::string text;
     List< std::string > tags;
-    Record(const std::string& k = "", const std::string& t = "") : key(k), text(t) {}
+    Record(const std::string& k = "", const std::string& t = ""):
+      key(k),
+      text(t)
+    {}
     bool operator==(const Record& other) const
     {
       return key == other.key;
@@ -24,7 +26,9 @@ namespace guseynov
   {
     std::string name;
     List< Record > records;
-    Book(const std::string& n = "") : name(n) {}
+    Book(const std::string& n = ""):
+      name(n)
+    {}
     bool operator==(const Book& other) const
     {
       return name == other.name;
@@ -33,15 +37,6 @@ namespace guseynov
 
   class BookSystem
   {
-  private:
-    List< Book > books;
-    Book* findBook(const std::string& bookName);
-    Record* findRecord(Book* book, const std::string& key);
-    bool recordHasAllTags(Record* record, const List< std::string >& tags);
-    bool recordHasAnyTag(Record* record, const List< std::string >& tags);
-    bool containsWord(const std::string& text, const std::string& word);
-    void printRecord(Record* record);
-
   public:
     void help();
     void addbook(const std::string& bookName);
@@ -60,7 +55,22 @@ namespace guseynov
     void deletebook(const std::string& bookName);
     void deleteRecord(const std::string& bookName, const std::string& key);
     void listallwithcolor(const std::string& color);
+    void statistics();
+  private:
+    List< Book > books_;
+    Book* findBook(const std::string& bookName);
+    Record* findRecord(Book* book, const std::string& key);
+    bool recordHasAllTags(Record* record, const List< std::string >& tags);
+    bool recordHasAnyTag(Record* record, const List< std::string >& tags);
+    bool containsWord(const std::string& text, const std::string& word);
+    void printRecord(Record* record);
+    bool isValidColor(const std::string& color);
   };
+
+  bool BookSystem::isValidColor(const std::string& color)
+  {
+    return (color == "red" || color == "blue" || color == "green");
+  }
 
   void BookSystem::help()
   {
@@ -81,15 +91,15 @@ namespace guseynov
     std::cout << "14. deletebook <book_name> - delete entire book\n";
     std::cout << "15. delete <book_name> <key> - delete specific record\n";
     std::cout << "16. listallwithcolor <color> - display books and records with specified color tag\n";
-    std::cout << "17. help - show this help message\n";
+    std::cout << "17. statistics - show system statistics\n";
+    std::cout << "18. help - show this help message\n";
+    std::cout << "\nValid colors: red, blue, green\n";
   }
 
   Book* BookSystem::findBook(const std::string& bookName)
   {
-    for (auto it = books.begin(); it != books.end(); ++it)
-    {
-      if (it->name == bookName)
-      {
+    for (auto it = books_.begin(); it != books_.end(); ++it) {
+      if (it->name == bookName) {
         return &(*it);
       }
     }
@@ -98,10 +108,8 @@ namespace guseynov
 
   Record* BookSystem::findRecord(Book* book, const std::string& key)
   {
-    for (auto it = book->records.begin(); it != book->records.end(); ++it)
-    {
-      if (it->key == key)
-      {
+    for (auto it = book->records.begin(); it != book->records.end(); ++it) {
+      if (it->key == key) {
         return &(*it);
       }
     }
@@ -110,19 +118,15 @@ namespace guseynov
 
   bool BookSystem::recordHasAllTags(Record* record, const List< std::string >& tags)
   {
-    for (auto tagIt = tags.begin(); tagIt != tags.end(); ++tagIt)
-    {
+    for (auto tagIt = tags.begin(); tagIt != tags.end(); ++tagIt) {
       bool found = false;
-      for (auto recordTagIt = record->tags.begin(); recordTagIt != record->tags.end(); ++recordTagIt)
-      {
-        if (*recordTagIt == *tagIt)
-        {
+      for (auto recordTagIt = record->tags.begin(); recordTagIt != record->tags.end(); ++recordTagIt) {
+        if (*recordTagIt == *tagIt) {
           found = true;
           break;
         }
       }
-      if (!found)
-      {
+      if (!found) {
         return false;
       }
     }
@@ -131,12 +135,9 @@ namespace guseynov
 
   bool BookSystem::recordHasAnyTag(Record* record, const List< std::string >& tags)
   {
-    for (auto tagIt = tags.begin(); tagIt != tags.end(); ++tagIt)
-    {
-      for (auto recordTagIt = record->tags.begin(); recordTagIt != record->tags.end(); ++recordTagIt)
-      {
-        if (*recordTagIt == *tagIt)
-        {
+    for (auto tagIt = tags.begin(); tagIt != tags.end(); ++tagIt) {
+      for (auto recordTagIt = record->tags.begin(); recordTagIt != record->tags.end(); ++recordTagIt) {
+        if (*recordTagIt == *tagIt) {
           return true;
         }
       }
@@ -147,11 +148,9 @@ namespace guseynov
   bool BookSystem::containsWord(const std::string& text, const std::string& word)
   {
     size_t pos = 0;
-    while ((pos = text.find(word, pos)) != std::string::npos)
-    {
+    while ((pos = text.find(word, pos)) != std::string::npos) {
       if ((pos == 0 || text[pos - 1] == ' ') &&
-          (pos + word.length() == text.length() || text[pos + word.length()] == ' '))
-      {
+          (pos + word.length() == text.length() || text[pos + word.length()] == ' ')) {
         return true;
       }
       pos += word.length();
@@ -164,8 +163,7 @@ namespace guseynov
     std::cout << "Key: " << record->key << "\n";
     std::cout << "Text: " << record->text << "\n";
     std::cout << "Tags: ";
-    for (auto it = record->tags.begin(); it != record->tags.end(); ++it)
-    {
+    for (auto it = record->tags.begin(); it != record->tags.end(); ++it) {
       std::cout << *it << " ";
     }
     std::cout << "\n";
@@ -173,40 +171,43 @@ namespace guseynov
 
   void BookSystem::addbook(const std::string& bookName)
   {
-    if (findBook(bookName) != nullptr)
-    {
+    if (findBook(bookName) != nullptr) {
       std::cout << "Book '" << bookName << "' already exists.\n";
       return;
     }
     Book newBook(bookName);
-    books.push_back(newBook);
+    books_.push_back(newBook);
     std::cout << "Book '" << bookName << "' created successfully.\n";
   }
 
   void BookSystem::add(const std::string& bookName, const std::string& key, const std::string& record, const List< std::string >& colors)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
+    if (colors.empty()) {
+      std::cout << "Error: At least one color tag is required.\n";
+      return;
+    }
+    for (auto it = colors.begin(); it != colors.end(); ++it) {
+      if (!isValidColor(*it)) {
+        std::cout << "Error: Invalid color '" << *it << "'. Valid colors are: red, blue, green.\n";
+        return;
+      }
+    }
     Record* existingRecord = findRecord(book, key);
-    if (existingRecord)
-    {
+    if (existingRecord) {
       existingRecord->text = record;
       existingRecord->tags.clear();
-      for (auto it = colors.begin(); it != colors.end(); ++it)
-      {
+      for (auto it = colors.begin(); it != colors.end(); ++it) {
         existingRecord->tags.push_back(*it);
       }
       std::cout << "Record '" << key << "' updated in book '" << bookName << "'.\n";
-    }
-    else
-    {
+    } else {
       Record newRecord(key, record);
-      for (auto it = colors.begin(); it != colors.end(); ++it)
-      {
+      for (auto it = colors.begin(); it != colors.end(); ++it) {
         newRecord.tags.push_back(*it);
       }
       book->records.push_back(newRecord);
@@ -217,14 +218,12 @@ namespace guseynov
   void BookSystem::rewrite(const std::string& bookName, const std::string& key, const std::string& newRecord)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
     Record* record = findRecord(book, key);
-    if (!record)
-    {
+    if (!record) {
       std::cout << "Record '" << key << "' not found in book '" << bookName << "'.\n";
       return;
     }
@@ -235,18 +234,14 @@ namespace guseynov
   void BookSystem::find(const std::string& bookName, const std::string& word)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
     bool found = false;
-    for (auto it = book->records.begin(); it != book->records.end(); ++it)
-    {
-      if (containsWord(it->text, word))
-      {
-        if (!found)
-        {
+    for (auto it = book->records.begin(); it != book->records.end(); ++it) {
+      if (containsWord(it->text, word)) {
+        if (!found) {
           std::cout << "Records containing word '" << word << "':\n";
           found = true;
         }
@@ -254,8 +249,7 @@ namespace guseynov
         std::cout << "---\n";
       }
     }
-    if (!found)
-    {
+    if (!found) {
       std::cout << "No records containing word '" << word << "' found.\n";
     }
   }
@@ -263,32 +257,23 @@ namespace guseynov
   void BookSystem::findbytags(const std::string& bookName, const std::string& logic, const List< std::string >& colors)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
     bool found = false;
-    for (auto it = book->records.begin(); it != book->records.end(); ++it)
-    {
+    for (auto it = book->records.begin(); it != book->records.end(); ++it) {
       bool match = false;
-      if (logic == "AND")
-      {
+      if (logic == "AND") {
         match = recordHasAllTags(&(*it), colors);
-      }
-      else if (logic == "OR")
-      {
+      } else if (logic == "OR") {
         match = recordHasAnyTag(&(*it), colors);
-      }
-      else
-      {
+      } else {
         std::cout << "Invalid logic operator. Use AND or OR.\n";
         return;
       }
-      if (match)
-      {
-        if (!found)
-        {
+      if (match) {
+        if (!found) {
           std::cout << "Records found with tags (logic: " << logic << "):\n";
           found = true;
         }
@@ -296,8 +281,7 @@ namespace guseynov
         std::cout << "---\n";
       }
     }
-    if (!found)
-    {
+    if (!found) {
       std::cout << "No records found with specified tags.\n";
     }
   }
@@ -305,14 +289,12 @@ namespace guseynov
   void BookSystem::read(const std::string& bookName, const std::string& key)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
     Record* record = findRecord(book, key);
-    if (!record)
-    {
+    if (!record) {
       std::cout << "Record '" << key << "' not found in book '" << bookName << "'.\n";
       return;
     }
@@ -323,22 +305,18 @@ namespace guseynov
   void BookSystem::readbook(const std::string& bookName)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
-    if (book->records.empty())
-    {
+    if (book->records.empty()) {
       std::cout << "Book '" << bookName << "' is empty.\n";
       return;
     }
     std::cout << "All records in book '" << bookName << "':\n";
-    for (auto it = book->records.begin(); it != book->records.end(); ++it)
-    {
+    for (auto it = book->records.begin(); it != book->records.end(); ++it) {
       std::cout << "Key: " << it->key << " | Tags: ";
-      for (auto tagIt = it->tags.begin(); tagIt != it->tags.end(); ++tagIt)
-      {
+      for (auto tagIt = it->tags.begin(); tagIt != it->tags.end(); ++tagIt) {
         std::cout << *tagIt << " ";
       }
       std::cout << "\n";
@@ -349,53 +327,42 @@ namespace guseynov
   {
     Book* book1 = findBook(bookName1);
     Book* book2 = findBook(bookName2);
-    if (!book1 || !book2)
-    {
+    if (!book1 || !book2) {
       std::cout << "One or both books not found.\n";
       return;
     }
-    if (findBook(resultBookName))
-    {
+    if (findBook(resultBookName)) {
       std::cout << "Result book '" << resultBookName << "' already exists.\n";
       return;
     }
     Book resultBook(resultBookName);
-    books.push_back(resultBook);
+    books_.push_back(resultBook);
     Book* newBook = findBook(resultBookName);
-    for (auto it = book1->records.begin(); it != book1->records.end(); ++it)
-    {
+    for (auto it = book1->records.begin(); it != book1->records.end(); ++it) {
       Record newRecord = *it;
       newBook->records.push_back(newRecord);
     }
-    for (auto it = book2->records.begin(); it != book2->records.end(); ++it)
-    {
+    for (auto it = book2->records.begin(); it != book2->records.end(); ++it) {
       Record* existingRecord = findRecord(newBook, it->key);
-      if (existingRecord)
-      {
+      if (existingRecord) {
         std::cout << "Conflict detected for key '" << it->key << "'. Choose option:\n";
         std::cout << "1. Overwrite with record from " << bookName2 << "\n";
         std::cout << "2. Rename key to '" << it->key << "_2'\n";
         int choice;
         std::cin >> choice;
-        if (choice == 1)
-        {
+        std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+        if (choice == 1) {
           *existingRecord = *it;
           std::cout << "Record overwritten.\n";
-        }
-        else if (choice == 2)
-        {
+        } else if (choice == 2) {
           Record newRecord = *it;
           newRecord.key = it->key + "_2";
           newBook->records.push_back(newRecord);
           std::cout << "Record added with new key '" << newRecord.key << "'.\n";
-        }
-        else
-        {
+        } else {
           std::cout << "Invalid choice. Record skipped.\n";
         }
-      }
-      else
-      {
+      } else {
         Record newRecord = *it;
         newBook->records.push_back(newRecord);
       }
@@ -407,24 +374,19 @@ namespace guseynov
   {
     Book* srcBook = findBook(sourceBook);
     Book* tgtBook = findBook(targetBook);
-    if (!srcBook || !tgtBook)
-    {
+    if (!srcBook || !tgtBook) {
       std::cout << "One or both books not found.\n";
       return;
     }
     List< std::string > keysToMove;
-    for (auto it = srcBook->records.begin(); it != srcBook->records.end(); ++it)
-    {
-      if (recordHasAnyTag(&(*it), colors))
-      {
+    for (auto it = srcBook->records.begin(); it != srcBook->records.end(); ++it) {
+      if (recordHasAnyTag(&(*it), colors)) {
         keysToMove.push_back(it->key);
       }
     }
-    for (auto keyIt = keysToMove.begin(); keyIt != keysToMove.end(); ++keyIt)
-    {
+    for (auto keyIt = keysToMove.begin(); keyIt != keysToMove.end(); ++keyIt) {
       Record* record = findRecord(srcBook, *keyIt);
-      if (record)
-      {
+      if (record) {
         tgtBook->records.push_back(*record);
         deleteRecord(sourceBook, *keyIt);
       }
@@ -435,67 +397,57 @@ namespace guseynov
   void BookSystem::edittags(const std::string& bookName, const std::string& key, const std::string& mode, const List< std::string >& colors)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
     Record* record = findRecord(book, key);
-    if (!record)
-    {
+    if (!record) {
       std::cout << "Record '" << key << "' not found in book '" << bookName << "'.\n";
       return;
     }
-    if (mode == "SET")
-    {
-      record->tags.clear();
-      for (auto it = colors.begin(); it != colors.end(); ++it)
-      {
-        record->tags.push_back(*it);
+    if (mode == "SET" || mode == "ADD") {
+      for (auto it = colors.begin(); it != colors.end(); ++it) {
+        if (!isValidColor(*it)) {
+          std::cout << "Error: Invalid color '" << *it << "'. Valid colors are: red, blue, green.\n";
+          return;
+        }
       }
     }
-    else if (mode == "ADD")
-    {
-      for (auto it = colors.begin(); it != colors.end(); ++it)
-      {
+    if (mode == "SET") {
+      record->tags.clear();
+      for (auto it = colors.begin(); it != colors.end(); ++it) {
+        record->tags.push_back(*it);
+      }
+    } else if (mode == "ADD") {
+      for (auto it = colors.begin(); it != colors.end(); ++it) {
         bool exists = false;
-        for (auto tagIt = record->tags.begin(); tagIt != record->tags.end(); ++tagIt)
-        {
-          if (*tagIt == *it)
-          {
+        for (auto tagIt = record->tags.begin(); tagIt != record->tags.end(); ++tagIt) {
+          if (*tagIt == *it) {
             exists = true;
             break;
           }
         }
-        if (!exists)
-        {
+        if (!exists) {
           record->tags.push_back(*it);
         }
       }
-    }
-    else if (mode == "DEL")
-    {
+    } else if (mode == "DEL") {
       List< std::string > newTags;
-      for (auto tagIt = record->tags.begin(); tagIt != record->tags.end(); ++tagIt)
-      {
+      for (auto tagIt = record->tags.begin(); tagIt != record->tags.end(); ++tagIt) {
         bool shouldKeep = true;
-        for (auto colorIt = colors.begin(); colorIt != colors.end(); ++colorIt)
-        {
-          if (*tagIt == *colorIt)
-          {
+        for (auto colorIt = colors.begin(); colorIt != colors.end(); ++colorIt) {
+          if (*tagIt == *colorIt) {
             shouldKeep = false;
             break;
           }
         }
-        if (shouldKeep)
-        {
+        if (shouldKeep) {
           newTags.push_back(*tagIt);
         }
       }
       record->tags = newTags;
-    }
-    else
-    {
+    } else {
       std::cout << "Invalid mode. Use SET, ADD, or DEL.\n";
       return;
     }
@@ -505,35 +457,26 @@ namespace guseynov
   void BookSystem::deletebytags(const std::string& bookName, const std::string& logic, const List< std::string >& colors)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
     List< std::string > keysToDelete;
-    for (auto it = book->records.begin(); it != book->records.end(); ++it)
-    {
+    for (auto it = book->records.begin(); it != book->records.end(); ++it) {
       bool match = false;
-      if (logic == "AND")
-      {
+      if (logic == "AND") {
         match = recordHasAllTags(&(*it), colors);
-      }
-      else if (logic == "OR")
-      {
+      } else if (logic == "OR") {
         match = recordHasAnyTag(&(*it), colors);
-      }
-      else
-      {
+      } else {
         std::cout << "Invalid logic operator. Use AND or OR.\n";
         return;
       }
-      if (match)
-      {
+      if (match) {
         keysToDelete.push_back(it->key);
       }
     }
-    for (auto keyIt = keysToDelete.begin(); keyIt != keysToDelete.end(); ++keyIt)
-    {
+    for (auto keyIt = keysToDelete.begin(); keyIt != keysToDelete.end(); ++keyIt) {
       deleteRecord(bookName, *keyIt);
     }
     std::cout << "Deleted " << keysToDelete.size() << " records from book '" << bookName << "'.\n";
@@ -542,18 +485,14 @@ namespace guseynov
   void BookSystem::replacetags(const std::string& bookName, const std::string& oldColor, const std::string& newColor)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
     int replacedCount = 0;
-    for (auto it = book->records.begin(); it != book->records.end(); ++it)
-    {
-      for (auto tagIt = it->tags.begin(); tagIt != it->tags.end(); ++tagIt)
-      {
-        if (*tagIt == oldColor)
-        {
+    for (auto it = book->records.begin(); it != book->records.end(); ++it) {
+      for (auto tagIt = it->tags.begin(); tagIt != it->tags.end(); ++tagIt) {
+        if (*tagIt == oldColor) {
           *tagIt = newColor;
           replacedCount++;
         }
@@ -565,16 +504,11 @@ namespace guseynov
   void BookSystem::listallwith(const std::string& key)
   {
     bool found = false;
-    for (auto bookIt = books.begin(); bookIt != books.end(); ++bookIt)
-    {
-      for (auto recordIt = bookIt->records.begin(); recordIt != bookIt->records.end(); ++recordIt)
-      {
-        for (auto tagIt = recordIt->tags.begin(); tagIt != recordIt->tags.end(); ++tagIt)
-        {
-          if (*tagIt == key)
-          {
-            if (!found)
-            {
+    for (auto bookIt = books_.begin(); bookIt != books_.end(); ++bookIt) {
+      for (auto recordIt = bookIt->records.begin(); recordIt != bookIt->records.end(); ++recordIt) {
+        for (auto tagIt = recordIt->tags.begin(); tagIt != recordIt->tags.end(); ++tagIt) {
+          if (*tagIt == key) {
+            if (!found) {
               std::cout << "Books and records with tag '" << key << "':\n";
               found = true;
             }
@@ -584,19 +518,16 @@ namespace guseynov
         }
       }
     }
-    if (!found)
-    {
+    if (!found) {
       std::cout << "No books or records found with tag '" << key << "'.\n";
     }
   }
 
   void BookSystem::deletebook(const std::string& bookName)
   {
-    for (auto it = books.begin(); it != books.end(); ++it)
-    {
-      if (it->name == bookName)
-      {
-        books.remove(*it);
+    for (auto it = books_.begin(); it != books_.end(); ++it) {
+      if (it->name == bookName) {
+        books_.remove(*it);
         std::cout << "Book '" << bookName << "' deleted successfully.\n";
         return;
       }
@@ -607,15 +538,12 @@ namespace guseynov
   void BookSystem::deleteRecord(const std::string& bookName, const std::string& key)
   {
     Book* book = findBook(bookName);
-    if (!book)
-    {
+    if (!book) {
       std::cout << "Book '" << bookName << "' not found.\n";
       return;
     }
-    for (auto it = book->records.begin(); it != book->records.end(); ++it)
-    {
-      if (it->key == key)
-      {
+    for (auto it = book->records.begin(); it != book->records.end(); ++it) {
+      if (it->key == key) {
         book->records.remove(*it);
         std::cout << "Record '" << key << "' deleted from book '" << bookName << "'.\n";
         return;
@@ -627,22 +555,16 @@ namespace guseynov
   void BookSystem::listallwithcolor(const std::string& color)
   {
     bool found = false;
-    for (auto bookIt = books.begin(); bookIt != books.end(); ++bookIt)
-    {
-      for (auto recordIt = bookIt->records.begin(); recordIt != bookIt->records.end(); ++recordIt)
-      {
-        for (auto tagIt = recordIt->tags.begin(); tagIt != recordIt->tags.end(); ++tagIt)
-        {
-          if (*tagIt == color)
-          {
-            if (!found)
-            {
+    for (auto bookIt = books_.begin(); bookIt != books_.end(); ++bookIt) {
+      for (auto recordIt = bookIt->records.begin(); recordIt != bookIt->records.end(); ++recordIt) {
+        for (auto tagIt = recordIt->tags.begin(); tagIt != recordIt->tags.end(); ++tagIt) {
+          if (*tagIt == color) {
+            if (!found) {
               std::cout << "Books and records with color '" << color << "':\n";
               found = true;
             }
             std::cout << "Book: " << bookIt->name << " | Record: " << recordIt->key << " | Tags: ";
-            for (auto tIt = recordIt->tags.begin(); tIt != recordIt->tags.end(); ++tIt)
-            {
+            for (auto tIt = recordIt->tags.begin(); tIt != recordIt->tags.end(); ++tIt) {
               std::cout << *tIt << " ";
             }
             std::cout << "\n";
@@ -651,9 +573,44 @@ namespace guseynov
         }
       }
     }
-    if (!found)
-    {
+    if (!found) {
       std::cout << "No books or records found with color '" << color << "'.\n";
+    }
+  }
+
+  void BookSystem::statistics()
+  {
+    std::cout << "=== System Statistics ===\n";
+    std::cout << "Total books: " << books_.size() << "\n";
+    int totalRecords = 0;
+    int totalTags = 0;
+    int redCount = 0;
+    int blueCount = 0;
+    int greenCount = 0;
+    for (auto bookIt = books_.begin(); bookIt != books_.end(); ++bookIt) {
+      totalRecords += bookIt->records.size();
+      std::cout << "  Book '" << bookIt->name << "': " << bookIt->records.size() << " records\n";
+      for (auto recordIt = bookIt->records.begin(); recordIt != bookIt->records.end(); ++recordIt) {
+        totalTags += recordIt->tags.size();
+        for (auto tagIt = recordIt->tags.begin(); tagIt != recordIt->tags.end(); ++tagIt) {
+          if (*tagIt == "red") {
+            redCount++;
+          } else if (*tagIt == "blue") {
+            blueCount++;
+          } else if (*tagIt == "green") {
+            greenCount++;
+          }
+        }
+      }
+    }
+    std::cout << "Total records: " << totalRecords << "\n";
+    std::cout << "Total tags: " << totalTags << "\n";
+    std::cout << "Tag distribution:\n";
+    std::cout << "  red: " << redCount << "\n";
+    std::cout << "  blue: " << blueCount << "\n";
+    std::cout << "  green: " << greenCount << "\n";
+    if (totalRecords > 0) {
+      std::cout << "Average tags per record: " << static_cast< double >(totalTags) / totalRecords << "\n";
     }
   }
 }
