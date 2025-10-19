@@ -2,6 +2,7 @@
 #define BOOK_SYSTEM_HPP
 
 #include <iostream>
+#include <limits>
 #include <string>
 #include <list.h>
 
