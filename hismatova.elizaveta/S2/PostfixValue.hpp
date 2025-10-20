@@ -11,6 +11,7 @@ namespace hismatova
     bool isNumber;
   public:
     PostfixValue();
+    explicit PostfixValue(int val);
     explicit PostfixValue(long long val);
     explicit PostfixValue(char oper);
     bool isNumeric() const;

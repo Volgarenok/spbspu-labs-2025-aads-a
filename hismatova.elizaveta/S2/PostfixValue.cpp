@@ -9,6 +9,11 @@ namespace hismatova
     op(0),
     isNumber(true)
   {}
+  PostfixValue::PostfixValue(int val):
+    value(static_cast<long long>(val)),
+    op(0),
+    isNumber(true)
+  {}
   PostfixValue::PostfixValue(long long val):
     value(val),
     op(0),
@@ -45,17 +50,34 @@ namespace hismatova
 
   PostfixValue PostfixValue::operator+(const PostfixValue& rhs) const
   {
-    return PostfixValue(value + rhs.getValue());
+    long long result = value + rhs.getValue();
+    if ((value > 0 && rhs.getValue() > 0 && result < 0) ||
+      (value < 0 && rhs.getValue() < 0 && result > 0))
+    {
+      throw std::runtime_error("Int overflow");
+    }
+    return PostfixValue(result);
   }
 
   PostfixValue PostfixValue::operator-(const PostfixValue& rhs) const
   {
-    return PostfixValue(value - rhs.getValue());
+    long long result = value - rhs.getValue();
+    if ((value > 0 && rhs.getValue() < 0 && result < 0) ||
+      (value < 0 && rhs.getValue() > 0 && result > 0))
+    {
+      throw std::runtime_error("Int overflow");
+    }
+    return PostfixValue(result);
   }
 
   PostfixValue PostfixValue::operator*(const PostfixValue& rhs) const
   {
-    return PostfixValue(value * rhs.getValue());
+    long long result = value * rhs.getValue();
+    if (value != 0 && result / value != rhs.getValue())
+    {
+      throw std::runtime_error("Int overflow");
+    }
+    return PostfixValue(result);
   }
 
   PostfixValue PostfixValue::operator/(const PostfixValue& rhs) const
@@ -63,6 +85,10 @@ namespace hismatova
     if (rhs.getValue() == 0)
     {
       throw std::runtime_error("Division by zero");
+    }
+    if (value == LLONG_MIN && rhs.getValue() == -1)
+    {
+      throw std::runtime_error("Int overflow");
     }
     return PostfixValue(value / rhs.getValue());
   }

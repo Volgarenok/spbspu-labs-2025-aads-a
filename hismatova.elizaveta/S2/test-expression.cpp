@@ -16,8 +16,8 @@ BOOST_AUTO_TEST_CASE(constructor_with_number)
 BOOST_AUTO_TEST_CASE(constructor_with_operator)
 {
   PostfixValue pv('+');
-  BOOST_CHECK_EXCEPTION(pv.getValue(), std::exception,
-    [](const std::exception&) { return true });
+  BOOST_CHECK_EXCEPTION(pv.getValue(), std::runtime_error,
+    [](const std::runtime_error&) { return true; });
 }
 BOOST_AUTO_TEST_CASE(addition_operator)
 {
@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE(division_by_zero_throws)
 {
   PostfixValue pv1(10);
   PostfixValue pv2(0);
-  BOOST_CHECK_EXCEPTION(pv1 / pv2, std::exception,
-    [](const std::exception&) { return true; });
+  BOOST_CHECK_EXCEPTION(pv1 / pv2, std::runtime_error,
+    [](const std::runtime_error&) { return true; });
 }
 BOOST_AUTO_TEST_CASE(modulo_operator)
 {
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(modulo_by_zero_throws)
 {
   PostfixValue pv1(10);
   PostfixValue pv2(0);
-  BOOST_CHECK_EXCEPTION(pv1 % pv2, std::exception,
-    [](const std::exception&) { return true; });
+  BOOST_CHECK_EXCEPTION(pv1 % pv2, std::runtime_error,
+    [](const std::runtime_error&) { return true; });
 }
 BOOST_AUTO_TEST_SUITE_END()
