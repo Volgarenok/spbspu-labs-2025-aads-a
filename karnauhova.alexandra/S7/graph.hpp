@@ -2,12 +2,10 @@
 #define GRAPH_HPP
 
 #include <boost/container_hash/hash.hpp>
-#include <cstddef>
 #include <set>
 #include <list>
 #include <map>
 #include <string>
-#include <functional>
 #include "hashTable.hpp"
 namespace detail
 {

@@ -34,7 +34,7 @@ namespace karnauhova
   private:
     Table* table_;
     size_t index_;
-    HashIterator(Table table, size_t index) noexcept;\
+    HashIterator(Table* table, size_t index) noexcept;
 
     friend class HashCIterator< Key, Value, Hash, Equal >;
     friend class HashTable< Key, Value, Hash, Equal >;
@@ -47,7 +47,7 @@ namespace karnauhova
   {}
 
   template< typename Key, typename Value, typename Hash, typename Equal >
-  HashIterator< Key, Value, Hash, Equal >::HashIterator(Table table, size_t index) noexcept:
+  HashIterator< Key, Value, Hash, Equal >::HashIterator(Table* table, size_t index) noexcept:
     table_(table),
     index_(index)
   {}

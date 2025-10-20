@@ -68,6 +68,9 @@ namespace karnauhova
     std::vector< Box > slots_;
     size_t count_;
     float maxLoadFactor_ = 0.6;
+
+    friend class HashCIterator< Key, Value, Hash, Equal >;
+    friend class HashIterator< Key, Value, Hash, Equal >;
   };
 
   template < typename Key, typename Value, typename Hash, typename Equal >
@@ -291,6 +294,7 @@ namespace karnauhova
     }
     
     size_t hash = Hash{}(key);
+    Equal equal;
     
     for (size_t i = 0; i < slots_.size(); ++i)
     {
