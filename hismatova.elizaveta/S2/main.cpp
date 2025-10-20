@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     try
     {
       Queue< PostfixValue > postfix = infixToPostfix(line);
-      results.push(evaluatePostfix(postfix));
+      results.push_back(evaluatePostfix(postfix));
     }
     catch (const std::exception& e)
     {
