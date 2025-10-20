@@ -42,7 +42,6 @@ namespace karnauhova
     ConstIterator find(const Key& key) const;
 
     std::pair< Iterator, bool > insert(const value& val);
-    std::pair< Iterator, bool > insert(value&& val);
     template< class InputIt >
     void insert(InputIt first, InputIt last);
 
@@ -68,6 +67,7 @@ namespace karnauhova
     std::vector< Box > slots_;
     size_t count_;
     float maxLoadFactor_ = 0.6;
+    Equal equal;
 
     friend class HashCIterator< Key, Value, Hash, Equal >;
     friend class HashIterator< Key, Value, Hash, Equal >;
@@ -150,7 +150,7 @@ namespace karnauhova
   {
     if (loadFactor() >= maxLoadFactor_)
     {
-        rehash(slots_.size() * 2);
+      rehash(slots_.size() * 2);
     }
     
     size_t posIn = slots_.size();
@@ -190,12 +190,6 @@ namespace karnauhova
     slots_[posIn].status = Status::OCCUPIED;
     count_++;
     return { Iterator(this, posIn), true };
-  }
-
-  template < typename Key, typename Value, typename Hash, typename Equal >
-  std::pair< typename HashTable< Key, Value, Hash, Equal >::Iterator, bool > HashTable< Key, Value, Hash, Equal >::insert(value&& val)
-  {
-    return insert(std::move(val));
   }
 
   template < typename Key, typename Value, typename Hash, typename Equal >
@@ -294,7 +288,6 @@ namespace karnauhova
     }
     
     size_t hash = Hash{}(key);
-    Equal equal;
     
     for (size_t i = 0; i < slots_.size(); ++i)
     {
@@ -316,7 +309,28 @@ namespace karnauhova
   template < typename Key, typename Value, typename Hash, typename Equal >
   typename HashTable< Key, Value, Hash, Equal >::ConstIterator HashTable< Key, Value, Hash, Equal >::find(const Key& key) const
   {
-    return ConstIterator(find(key));
+    if (slots_.empty())
+    {
+      return cend();
+    }
+    
+    size_t hash = Hash{}(key);
+    
+    for (size_t i = 0; i < slots_.size(); ++i)
+    {
+      size_t pos = (hash + i) % slots_.size();  
+      if (slots_[pos].status == Status::EMPTY)
+      {
+        return cend();
+      }
+        
+      if (slots_[pos].status == Status::OCCUPIED && equal(slots_[pos].pair.first, key))
+      {
+        return ConstIterator(this, pos);
+      }
+    }
+
+    return cend();
   }
 
   template < typename Key, typename Value, typename Hash, typename Equal >

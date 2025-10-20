@@ -67,7 +67,7 @@ namespace karnauhova
 
   template< typename Key, typename Value, typename Hash, typename Equal >
   HashCIterator< Key, Value, Hash, Equal >::HashCIterator(const HashIterator< Key, Value, Hash, Equal >& oth):
-    table_(oth.table_),
+    table_(const_cast< const HashTable< Key, Value, Hash, Equal >* >(oth.table_)),
     index_(oth.index_)
   {}
 
