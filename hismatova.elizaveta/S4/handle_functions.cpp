@@ -5,6 +5,11 @@ namespace hismatova
   void handle_print(const std::unordered_map< std::string, BinarySearchTree< int, std::string > >& datasets, const std::string& datasetName)
   {
     auto it = datasets.find(datasetName);
+    if (it == datasets.end())
+    {
+      std::cout << "<INVALID COMMAND>\n";
+      return;
+    }
     const auto& tree = it->second;
     if (tree.empty())
     {

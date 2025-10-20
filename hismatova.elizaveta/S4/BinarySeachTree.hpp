@@ -174,7 +174,8 @@ namespace hismatova
 
       reference operator*() const
       {
-        return *current;
+        return *reinterpret_cast< value_type* >(const_cast< std::pair< Key, Value >* >(
+          reinterpret_cast< const std::pair< Key, Value >* >(&current_node->key)));
       }
 
       pointer operator->() const
@@ -254,7 +255,8 @@ namespace hismatova
 
       reference operator*() const
       {
-        return *current;
+        return *reinterpret_cast< const value_type* >(
+          reinterpret_cast< const std::pair< Key, Value >* >(&current_node->key));
       }
 
       pointer operator->() const

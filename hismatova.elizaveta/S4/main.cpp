@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     {
       tree.insert({key, value});
     }
-    datasets[datasetName] = std::move(tree);
+    datasets[datasetName] = tree;
   }
   input.close();
   std::string commandLine;
@@ -49,7 +49,14 @@ int main(int argc, char* argv[])
       std::string dataset;
       if (iss >> dataset)
       {
-        handle_print(datasets, dataset);
+        if (datasets.find(dataset) == datasets.end())
+        {
+          std::cout << "<INVALID COMMAND>\n";
+        }
+        else
+        {
+          handle_print(datasets, dataset);
+        }
       }
     }
     else if (command == "complement")
@@ -57,7 +64,14 @@ int main(int argc, char* argv[])
       std::string result, a, b;
       if (iss >> result >> a >> b)
       {
-        handle_complement(datasets, result, a, b);
+        if (datasets.find(a) == datasets.end() || datasets.find(b) == datasets.end())
+        {
+          std::cout << "<INVALID COMMAND>\n";
+        }
+        else
+        {
+          handle_complement(datasets, result, a, b);
+        }
       }
     }
     else if (command == "intersect")
@@ -65,7 +79,14 @@ int main(int argc, char* argv[])
       std::string result, a, b;
       if (iss >> result >> a >> b)
       {
-        handle_intersect(datasets, result, a, b);
+        if (datasets.find(a) == datasets.end() || datasets.find(b) == datasets.end())
+        {
+          std::cout << "<INVALID COMMAND>\n";
+        }
+        else
+        {
+          handle_intersect(datasets, result, a, b);
+        }
       }
     }
     else if (command == "union")
@@ -73,7 +94,14 @@ int main(int argc, char* argv[])
       std::string result, a, b;
       if (iss >> result >> a >> b)
       {
-        handle_union(datasets, result, a, b);
+        if (datasets.find(a) == datasets.end() || datasets.find(b) == datasets.end())
+        {
+          std::cout << "<INVALID COMMAND>\n";
+        }
+        else
+        {
+          handle_union(datasets, result, a, b);
+        }
       }
     }
     else if (!command.empty())
