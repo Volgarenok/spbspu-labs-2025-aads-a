@@ -6,6 +6,6 @@
 namespace hismatova
 {
   Queue< PostfixValue > infixToPostfix(const std::string& expr);
-  int evaluatePostfix(Queue< PostfixValue >& postfix);
+  long long evaluatePostfix(Queue< PostfixValue >& postfix);
 }
 #endif

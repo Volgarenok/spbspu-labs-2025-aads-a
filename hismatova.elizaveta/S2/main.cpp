@@ -6,7 +6,7 @@
 int main(int argc, char* argv[])
 {
   using namespace hismatova;
-  std::vector< int > results;
+  std::vector< long long > results;
   std::istream* input = &std::cin;
   std::ifstream f;
   if (argc > 1)
@@ -37,10 +37,10 @@ int main(int argc, char* argv[])
       return 1;
     }
   }
-  for (size_t i = 0; i < results.size(); ++i)
+  for (int i = results.size() - 1; i >= 0; --i)
   {
     std::cout << results[i];
-    if (i != results.size() - 1)
+    if (i != 0)
     {
       std::cout << " ";
     }

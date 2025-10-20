@@ -29,11 +29,7 @@ namespace hismatova
       if (isdigit(token[0]))
       {
         long long value = std::stoll(token);
-        if (value > std::numeric_limits< int >::max() || value < std::numeric_limits< int >::min())
-        {
-          throw std::runtime_error("Number out of range");
-        }
-        outputQueue.push(PostfixValue(static_cast< int >(value)));
+        outputQueue.push(PostfixValue(value));
       }
       else if (token == "+" || token == "-" || token == "*" || token == "/" || token == "%")
       {
@@ -70,7 +66,7 @@ namespace hismatova
     }
     return outputQueue;
   }
-  int evaluatePostfix(Queue< PostfixValue >& postfix)
+  long long evaluatePostfix(Queue< PostfixValue >& postfix)
   {
     Stack< PostfixValue > evalStack;
     while (!postfix.empty())

@@ -9,7 +9,7 @@ namespace hismatova
     op(0),
     isNumber(true)
   {}
-  PostfixValue::PostfixValue(int val):
+  PostfixValue::PostfixValue(long long val):
     value(val),
     op(0),
     isNumber(true)
@@ -25,7 +25,7 @@ namespace hismatova
     return isNumber;
   }
 
-  int PostfixValue::getValue() const
+  long long PostfixValue::getValue() const
   {
     if (!isNumber)
     {
