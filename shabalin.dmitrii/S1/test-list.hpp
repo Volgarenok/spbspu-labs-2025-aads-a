@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(iterator_traversal_test)
   ++it;
   BOOST_TEST(*it == 3);
   ++it;
-  BOOST_TEST(it == list.end());
+  BOOST_CHECK(it == list.end());
 }
 
 BOOST_AUTO_TEST_CASE(initializer_list_test)
