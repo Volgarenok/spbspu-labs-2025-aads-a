@@ -1,7 +1,7 @@
 #include "graph.hpp"
 
 namespace karnauhova
-{  
+{
   void Graph::addEdge(const std::string& v1, const std::string& v2, unsigned int weight)
   {
     edges[{ v1, v2 }].push_back(weight);

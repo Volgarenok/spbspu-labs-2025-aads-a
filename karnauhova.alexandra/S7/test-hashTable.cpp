@@ -21,12 +21,12 @@ BOOST_AUTO_TEST_CASE(test_insertand_find)
 {
   karnauhova::HashTable< int, std::string > table;
   BOOST_TEST(table.empty());
-  
+
   // Простая проверка вставки
   auto result = table.insert({ 1, "one" });
   BOOST_TEST(table.size() == 1);
   BOOST_TEST(result.second == true);
-  
+
   // Вместо table.at(1) используйте прямое сравнение
   auto found = table.find(1);
   if (found != table.end()) {
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(test_insertand_find)
   } else {
       BOOST_ERROR("Element not found!");
   }
-  
+
   table[2] = "two";
   BOOST_TEST(table.size() == 2);
 }

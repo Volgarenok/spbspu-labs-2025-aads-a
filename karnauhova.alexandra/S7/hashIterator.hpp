@@ -74,7 +74,7 @@ namespace karnauhova
     }
     return *this;
   }
-  
+
   template< typename Key, typename Value, typename Hash, typename Equal >
   HashIterator< Key, Value, Hash, Equal > HashIterator< Key, Value, Hash, Equal >::operator++(int) noexcept
   {
@@ -93,7 +93,7 @@ namespace karnauhova
     }
     return *this;
   }
-  
+
   template< typename Key, typename Value, typename Hash, typename Equal >
   HashIterator< Key, Value, Hash, Equal > HashIterator< Key, Value, Hash, Equal >::operator--(int) noexcept
   {

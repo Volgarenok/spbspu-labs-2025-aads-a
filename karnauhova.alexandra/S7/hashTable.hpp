@@ -102,7 +102,7 @@ namespace karnauhova
     count_(std::exchange(table.count_, 0)),
     maxLoadFactor_(std::exchange(table.maxLoadFactor_, 0))
   {}
-  
+
   template < typename Key, typename Value, typename Hash, typename Equal >
   HashTable< Key, Value, Hash, Equal >& HashTable< Key, Value, Hash, Equal >::operator=(const HashTable& table)
   {
@@ -152,10 +152,10 @@ namespace karnauhova
     {
       rehash(slots_.size() * 2);
     }
-    
+
     size_t posIn = slots_.size();
     size_t hash = Hash{}(val.first);
-    
+
     for (size_t i = 0; i < slots_.size(); ++i)
     {
       size_t pos = (hash + i) % slots_.size();
@@ -185,7 +185,7 @@ namespace karnauhova
       rehash(slots_.size() * 2);
       return insert(val);
     }
-    
+
     slots_[posIn].pair = val;
     slots_[posIn].status = Status::OCCUPIED;
     count_++;
@@ -203,7 +203,7 @@ namespace karnauhova
     }
     swap(temp);
   }
-    
+
   template < typename Key, typename Value, typename Hash, typename Equal >
   typename HashTable< Key, Value, Hash, Equal >::Iterator HashTable< Key, Value, Hash, Equal >::erase(ConstIterator pos)
   {
@@ -286,17 +286,17 @@ namespace karnauhova
     {
       return end();
     }
-    
+
     size_t hash = Hash{}(key);
-    
+
     for (size_t i = 0; i < slots_.size(); ++i)
     {
-      size_t pos = (hash + i) % slots_.size();  
+      size_t pos = (hash + i) % slots_.size();
       if (slots_[pos].status == Status::EMPTY)
       {
         return end();
       }
-        
+
       if (slots_[pos].status == Status::OCCUPIED && equal(slots_[pos].pair.first, key))
       {
         return Iterator(this, pos);
@@ -313,17 +313,17 @@ namespace karnauhova
     {
       return cend();
     }
-    
+
     size_t hash = Hash{}(key);
-    
+
     for (size_t i = 0; i < slots_.size(); ++i)
     {
-      size_t pos = (hash + i) % slots_.size();  
+      size_t pos = (hash + i) % slots_.size();
       if (slots_[pos].status == Status::EMPTY)
       {
         return cend();
       }
-        
+
       if (slots_[pos].status == Status::OCCUPIED && equal(slots_[pos].pair.first, key))
       {
         return ConstIterator(this, pos);
