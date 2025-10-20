@@ -1,4 +1,5 @@
 #include <string>
+#include <unordered_map>
 #include "BinarySeachTree.hpp"
 namespace hismatova
 {

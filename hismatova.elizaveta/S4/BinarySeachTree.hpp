@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <stack>
 #include <functional>
+#include <string>
+#include <cstddef>
 
 namespace hismatova
 {

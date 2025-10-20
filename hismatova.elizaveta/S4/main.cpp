@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
 #include "BinarySeachTree.hpp"
 #include "handle_functions.hpp"
 int main(int argc, char* argv[])
