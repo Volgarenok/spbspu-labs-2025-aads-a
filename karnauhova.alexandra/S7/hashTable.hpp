@@ -4,6 +4,8 @@
 #include <functional>
 #include <vector>
 #include <cmath>
+#include <utility>
+#include <stdexcept>
 #include "hashCIterator.hpp"
 #include "hashIterator.hpp"
 
