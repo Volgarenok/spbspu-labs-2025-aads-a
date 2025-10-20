@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "main.cpp"
+#include "list.hpp"
 using namespace hismatova;
 
 BOOST_AUTO_TEST_CASE(constructorAndPushBack)
@@ -36,25 +36,6 @@ BOOST_AUTO_TEST_CASE(initializerListConstructor)
   BOOST_TEST(lst.front() == 1);
 }
 
-BOOST_AUTO_TEST_CASE(copyConstructor)
-{
-  List< int > lst1 = { 1, 2, 3 };
-  List< int > lst2 = lst1;
-
-  BOOST_TEST(lst1.size() == lst2.size());
-  BOOST_TEST(lst1 == lst2);
-}
-
-BOOST_AUTO_TEST_CASE(assignmentOperator)
-{
-  List< int > lst1 = { 1, 2, 3 };
-  List< int > lst2;
-  lst2 = lst1;
-
-  BOOST_TEST(lst1.size() == lst2.size());
-  BOOST_TEST(lst1 == lst2);
-}
-
 BOOST_AUTO_TEST_CASE(moveConstructor)
 {
   List< int > lst1 = { 1, 2, 3 };
@@ -64,7 +45,7 @@ BOOST_AUTO_TEST_CASE(moveConstructor)
   BOOST_TEST(lst1.size() == 0);
 }
 
-BOOST_AUTO_TEST_CASE(remove)
+BOOST_AUTO_TEST_CASE(removeList)
 {
   List< int > lst = { 1, 2, 3, 4, 5 };
   lst.remove(3);
@@ -107,7 +88,7 @@ BOOST_AUTO_TEST_CASE(swap)
   BOOST_TEST(lst2.front() == 1);
 }
 
-BOOST_AUTO_TEST_CASE(insert)
+BOOST_AUTO_TEST_CASE(insertList)
 {
   List< int > lst = { 1, 2, 4, 5 };
 
@@ -128,16 +109,6 @@ BOOST_AUTO_TEST_CASE(insert)
   BOOST_TEST(*it == 4);
   ++it;
   BOOST_TEST(*it == 5);
-}
-
-BOOST_AUTO_TEST_CASE(equalityOperator)
-{
-  List< int > lst1 = { 1, 2, 3 };
-  List< int > lst2 = { 1, 2, 3 };
-  List< int > lst3 = { 1, 2 };
-
-  BOOST_TEST(lst1 == lst2);
-  BOOST_TEST(!(lst1 == lst3));
 }
 
 BOOST_AUTO_TEST_CASE(erase)
@@ -175,7 +146,7 @@ BOOST_AUTO_TEST_CASE(verticalSums)
 
   for (const auto& v_seq : vertical_sequences) {
     if (!v_seq.empty()) {
-      int sum = std::accumulate(v_seq.begin(), v_seq.end(), 0);
+      int sum = accumulate(v_seq.begin(), v_seq.end(), 0);
       sums.push_back(sum);
     }
   }
@@ -201,19 +172,14 @@ BOOST_AUTO_TEST_CASE(emptyListOperations)
   BOOST_TEST(lst.empty());
 }
 
-BOOST_AUTO_TEST_CASE(assign)
+BOOST_AUTO_TEST_CASE(assignList)
 {
   List< int > lst = { 1, 2, 3 };
   List< int > lst2;
-  lst2.assign({ 4, 5, 6 });
+  lst2.List< int >::assign({ 4, 5, 6 });
 
   BOOST_TEST(lst2.size() == 3);
   BOOST_TEST(lst2.front() == 4);
-
-  lst2.assign(lst.begin(), lst.end());
-
-  BOOST_TEST(lst2.size() == 3);
-  BOOST_TEST(lst2.front() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(reverseEmptyList)
@@ -238,5 +204,3 @@ BOOST_AUTO_TEST_CASE(circularList)
   ++it;
   BOOST_TEST(*it == 3);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

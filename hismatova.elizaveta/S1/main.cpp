@@ -1,51 +1,39 @@
 #include <iostream>
-#include <vector>
 #include <string>
 #include <numeric>
-#include <sstream>
-#include <stdexcept>
 #include <limits>
-#include <initializer_list>
 #include "list.hpp"
 
 int main()
 {
   using namespace hismatova;
-  std::vector< std::pair< std::string, List< int > > > sequences;
+  List< std::pair< std::string, List< unsigned long long > > > sequences;
   std::string name;
-  unsigned long long num = 0;
-  bool overflow = false;
   while (std::cin >> name)
   {
-    List< int > numbers;
-    while (std::cin.peek() != '\n' && std::cin >> num)
+    List< unsigned long long > numbers;
+    unsigned long long num;
+    while (std::cin >> num)
     {
-      if (num > std::numeric_limits< int >::max())
-      {
-        overflow = true;
-        continue;
-      }
       numbers.push_back(num);
     }
-    sequences.emplace_back(name, numbers);
-  }
-  if (overflow)
-  {
-    std::cerr << "ERROR: overflow\n";
-    return 1;
+    if (std::cin.fail() && !std::cin.eof())
+    {
+      std::cin.clear();
+    }
+    sequences.push_back({name, numbers});
   }
   if (sequences.empty())
   {
     std::cout << "0\n";
     return 0;
   }
-  for (size_t i = 0; i < sequences.size(); ++i)
+  const char* sep = "";
+  for (const auto& pair: sequences)
   {
-    std::cout << sequences[i].first;
-    if (i < sequences.size() - 1)
-    {
-      std::cout << " ";
-    }
+    const auto& first = pair.first;
+    std::cout << sep << first;
+    sep = " ";
   }
   std::cout << "\n";
   size_t max_length = 0;
@@ -53,9 +41,10 @@ int main()
   {
     max_length = std::max(max_length, seq.second.size());
   }
-  std::vector< std::vector< int > > vertical_sequences(max_length);
+  List< List< unsigned long long > > vertical_sequences;
   for (size_t i = 0; i < max_length; ++i)
   {
+    List< unsigned long long > inner_list;
     for (const auto& seq: sequences)
     {
       if (i < seq.second.size())
@@ -65,34 +54,41 @@ int main()
         {
           ++it;
         }
-        vertical_sequences[i].push_back(*it);
+        inner_list.push_back(*it);
       }
     }
+    vertical_sequences.push_back(inner_list);
   }
   for (const auto& v_seq: vertical_sequences)
   {
-    for (size_t j = 0; j < v_seq.size(); ++j)
+    const char* sep = "";
+    for (const auto& item: v_seq)
     {
-      std::cout << v_seq[j];
-      if (j < v_seq.size() - 1)
-      {
-        std::cout << " ";
-      }
+      std::cout << sep << item;
+      sep = " ";
     }
     std::cout << "\n";
   }
-  std::vector< int > sums;
+  List< unsigned long long > sums;
+  bool overflow_occurred = false;
   for (const auto& v_seq: vertical_sequences)
   {
-    if (!v_seq.empty())
+    unsigned long long sum = 0;
+    for (const auto& item: v_seq)
     {
-      int sum = std::accumulate(v_seq.begin(), v_seq.end(), 0);
-      sums.push_back(sum);
+      unsigned long long prev_sum = sum;
+      sum += item;
+      if (sum < prev_sum)
+      {
+        overflow_occurred = true;
+        break;
+      }
     }
+    sums.push_back(sum);
   }
-  if (sums.size() != vertical_sequences.size())
+  if (overflow_occurred)
   {
-    std::cerr << "ERROR: empty sequence\n";
+    std::cerr << "ERROR: overflow\n";
     return 1;
   }
   if (sums.empty())
@@ -100,13 +96,11 @@ int main()
     std::cout << "0\n";
     return 0;
   }
-  for (size_t i = 0; i < sums.size(); ++i)
+  sep = "";
+  for (const auto& item: sums)
   {
-    std::cout << sums[i];
-    if (i < sums.size() - 1)
-    {
-      std::cout << " ";
-    }
+    std::cout << sep << item;
+    sep = " ";
   }
   std::cout << "\n";
   return 0;
