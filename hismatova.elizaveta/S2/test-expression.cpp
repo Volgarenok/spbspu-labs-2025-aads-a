@@ -1,6 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "PostfixValue.hpp"
 using namespace hismatova;
+BOOST_AUTO_TEST_SUITE(PostfixValueTests)
+
 BOOST_AUTO_TEST_CASE(default_constructor)
 {
   PostfixValue pv;
@@ -14,7 +16,8 @@ BOOST_AUTO_TEST_CASE(constructor_with_number)
 BOOST_AUTO_TEST_CASE(constructor_with_operator)
 {
   PostfixValue pv('+');
-  BOOST_TEST_EXCEPTION(pv.getValue(), std::exception);
+  BOOST_TEST_EXCEPTION(pv.getValue(), std::exception,
+    [](const std::exception&) { return true });
 }
 BOOST_AUTO_TEST_CASE(addition_operator)
 {
@@ -48,7 +51,8 @@ BOOST_AUTO_TEST_CASE(division_by_zero_throws)
 {
   PostfixValue pv1(10);
   PostfixValue pv2(0);
-  BOOST_TEST_EXCEPTION(pv1 / pv2, std::exception);
+  BOOST_TEST_EXCEPTION(pv1 / pv2, std::exception,
+    [](const std::exception&) { return true; });
 }
 BOOST_AUTO_TEST_CASE(modulo_operator)
 {
@@ -61,6 +65,7 @@ BOOST_AUTO_TEST_CASE(modulo_by_zero_throws)
 {
   PostfixValue pv1(10);
   PostfixValue pv2(0);
-  BOOST_TEST_EXCEPTION(pv1 % pv2, std::exception);
+  BOOST_TEST_EXCEPTION(pv1 % pv2, std::exception,
+    [](const std::exception&) { return true; });
 }
 BOOST_AUTO_TEST_SUITE_END()

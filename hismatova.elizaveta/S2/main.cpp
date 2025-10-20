@@ -1,11 +1,12 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "expression.hpp"
 #include "stack.hpp"
 int main(int argc, char* argv[])
 {
   using namespace hismatova;
-  Stack< int > results;
+  std::vector< int > results;
   std::istream* input = &std::cin;
   std::ifstream f;
   if (argc > 1)
@@ -36,9 +37,13 @@ int main(int argc, char* argv[])
       return 1;
     }
   }
-  while (!results.empty())
+  for (size_t i = 0; i < results.size(); ++i)
   {
-    std::cout << results.pop() << " ";
+    std::cout << results[i];
+    if (i != results.size() - 1)
+    {
+      std::cout << " ";
+    }
   }
   std::cout << '\n';
   return 0;

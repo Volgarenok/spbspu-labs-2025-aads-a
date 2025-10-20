@@ -1,3 +1,5 @@
+#include <limits>
+#include <cmath>
 #include "PostfixValue.hpp"
 
 namespace hismatova
@@ -71,6 +73,11 @@ namespace hismatova
     {
       throw std::runtime_error("Modulo by zero");
     }
-    return PostfixValue(value % rhs.getValue());
+    int result = value % rhs.getValue();
+    if (result < 0)
+    {
+      result += std::abs(rhs.getValue());
+    }
+    return PostfixValue(result);
   }
 }

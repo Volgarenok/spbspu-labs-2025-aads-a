@@ -1,6 +1,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cctype>
+#include <limits>
 #include "expression.hpp"
 #include "stack.hpp"
 namespace hismatova
@@ -27,7 +28,12 @@ namespace hismatova
     {
       if (isdigit(token[0]))
       {
-        outputQueue.push(PostfixValue(std::stoi(token)));
+        long long value = std::stoll(token);
+        if (value > std::numeric_limits< int >::max() || value < std::numeric_limits< int >::min())
+        {
+          throw std::runtime_error("Number out of range");
+        }
+        outputQueue.push(PostfixValue(static_cast< int >(value)));
       }
       else if (token == "+" || token == "-" || token == "*" || token == "/" || token == "%")
       {
