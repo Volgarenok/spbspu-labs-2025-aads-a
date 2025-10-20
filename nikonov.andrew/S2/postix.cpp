@@ -5,16 +5,11 @@ namespace
   bool isOperand(const std::string & el);
   bool isOperator(const std::string & el);
   int getPrecedence(char el);
-  bool isLoverPrecedence(const std::string & a, const std::string & b);
   bool isGreaterOrEqualPrecedence(const std::string & a, const std::string & b);
 }
 
-nikonov::Postfix::Postfix(const std::string & expr, bool mode)
+nikonov::Postfix::Postfix(const std::string& expr, bool mode)
 {
-  if (!std::isdigit(expr.back()))
-  {
-    throw std::logic_error("non-correct infix expression");
-  }
   if (mode)
   {
     expression = expr;
@@ -23,73 +18,76 @@ nikonov::Postfix::Postfix(const std::string & expr, bool mode)
   std::string postfix;
   Stack< std::string > stack;
   size_t cntOfOpenBrackets = 0;
-  int cntOfOperands = 0;
-  int cntOfOperators = 0;
+  bool lastWasOperand = false;
   for (size_t i = 0; i < expr.size(); ++i)
   {
     std::string tempstr;
-    while (expr[i] != ' ' && i < expr.size())
+    while (i < expr.size() && expr[i] != ' ')
     {
       tempstr += expr[i++];
     }
     if (isOperand(tempstr))
     {
-      cntOfOperands++;
+      if (lastWasOperand)
+      {
+        throw std::logic_error("non-correct infix expression: two operands in a row");
+      }
       if (!postfix.empty())
       {
         postfix += ' ';
       }
       postfix += tempstr;
+      lastWasOperand = true;
     }
-    else if ((tempstr.size() == 1) && isOperator(tempstr))
+    else if (tempstr == "(")
     {
-      cntOfOperators++;
-      if (stack.empty() || (tempstr.back() == '('))
+      cntOfOpenBrackets++;
+      stack.push(tempstr);
+    }
+    else if (tempstr == ")")
+    {
+      if (!cntOfOpenBrackets)
       {
-        if (tempstr.back() == '(')
-        {
-          ++cntOfOpenBrackets;
-        }
-        stack.push(tempstr);
+        throw std::logic_error("non-correct infix expression: mismatched brackets");
       }
-      else if (tempstr.back() == ')')
+      while (!stack.empty() && stack.top() != "(")
       {
-        if (!cntOfOpenBrackets)
-        {
-          throw std::logic_error("non-correct infix expression, (!cntOfOpenBrackets)");
-        }
-        while (stack.top().back() != '(')
+        postfix += ' ';
+        postfix += stack.top();
+        stack.pop();
+      }
+      stack.pop();
+      cntOfOpenBrackets--;
+    }
+    else if (isOperator(tempstr) && lastWasOperand)
+    {
+      while (!stack.empty() && stack.top() != "(")
+      {
+        if (isGreaterOrEqualPrecedence(stack.top(), tempstr))
         {
           postfix += ' ';
           postfix += stack.top();
           stack.pop();
         }
-        stack.pop();
-        --cntOfOpenBrackets;
+        else
+        {
+          break;
+        }
       }
-      else if (isLoverPrecedence(stack.top(), tempstr))
-      {
-        stack.push(tempstr);
-      }
-      else if (isGreaterOrEqualPrecedence(stack.top(), tempstr))
-      {
-        postfix += ' ';
-        postfix += stack.top();
-        stack.pop();
-        stack.push(tempstr);
-      }
+      stack.push(tempstr);
+      lastWasOperand = false;
     }
     else
-    {
-      throw std::logic_error("non-correct infix expression");
-    }
-    if (std::abs((cntOfOperands - cntOfOperators)) > 1)
     {
       throw std::logic_error("non-correct infix expression");
     }
   }
   while (!stack.empty())
   {
+    if (stack.top() == "(")
+    {
+      throw std::logic_error("non-correct infix expression: mismatched brackets");
+    }
     postfix += ' ';
     postfix += stack.top();
     stack.pop();
@@ -149,17 +147,9 @@ nikonov::Postfix & nikonov::Postfix::operator%=(const Postfix & rhs)
 
 namespace
 {
-  bool isLoverPrecedence(const std::string & a, const std::string & b)
-  {
-   return !isGreaterOrEqualPrecedence(a, b);
-  }
   bool isGreaterOrEqualPrecedence(const std::string & a, const std::string & b)
   {
-    if (getPrecedence(a.back()) >= getPrecedence(b.back()))
-    {
-      return true;
-    }
-    return false;
+    return getPrecedence(a.back()) >= getPrecedence(b.back());
   }
   bool isOperand(const std::string & el)
   {
