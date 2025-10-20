@@ -17,53 +17,18 @@ BOOST_AUTO_TEST_CASE(test_insert_and_find)
   BOOST_TEST(table.size() == 2);
 }
 
-BOOST_AUTO_TEST_CASE(test_insertand_find)
-{
-  karnauhova::HashTable< int, std::string > table;
-  BOOST_TEST(table.empty());
-
-  // Простая проверка вставки
-  auto result = table.insert({ 1, "one" });
-  BOOST_TEST(table.size() == 1);
-  BOOST_TEST(result.second == true);
-
-  // Вместо table.at(1) используйте прямое сравнение
-  auto found = table.find(1);
-  if (found != table.end()) {
-      BOOST_TEST(found->second == "one");
-  } else {
-      BOOST_ERROR("Element not found!");
-  }
-
-  table[2] = "two";
-  BOOST_TEST(table.size() == 2);
-}
-/* BOOST_AUTO_TEST_CASE(test_erase)
+BOOST_AUTO_TEST_CASE(test_erase)
 {
   karnauhova::HashTable< int, std::string > table;
   table.insert({1, "one"});
   table.insert({2, "two"});
-  size_t erasedCount1 = table.erase(table.begin());
-  BOOST_TEST(erasedCount1 == 1);
+  table.erase(table.begin());
+  BOOST_TEST(table.size() == 1);
   auto it = table.find(1);
   bool not_found1 = (it == table.end());
   BOOST_TEST(not_found1);
-  size_t erasedCount2 = table.erase(1);
-  BOOST_TEST(erasedCount2 == 0);
-  size_t erasedCount3 = table.erase(3);
-  BOOST_TEST(erasedCount3 == 0);
-} */
-
-/* BOOST_AUTO_TEST_CASE(test_load_factor)
-{
-  karnauhova::HashTable< int, std::string > table;
-  for (int i = 0; i < 100; ++i)
-  {
-    table.insert({i, "value"});
-  }
-  float loadFactor = table.loadFactor();
-  bool valid_load = loadFactor <= 0.75f;
-  BOOST_TEST(valid_load);
+  table.erase(2);
+  BOOST_TEST(table.size() == 0);
 }
 
 BOOST_AUTO_TEST_CASE(test_iterators)
@@ -94,48 +59,32 @@ BOOST_AUTO_TEST_CASE(test_empty)
   auto it = table.begin();
   bool is_end = (it == table.end());
   BOOST_TEST(is_end);
-} */
+}
 
-/* BOOST_AUTO_TEST_CASE(test_rehash)
+BOOST_AUTO_TEST_CASE(hashTable)
 {
-  karnauhova::HashTable< int, std::string > table;
-  int N = 200;
-  for (int i = 0; i < N; ++i)
-  {
-    table.insert({i, "val"});
-  }
-  BOOST_TEST(table.size() == static_cast< size_t >(N));
-  for (int i = 0; i < N; ++i)
-  {
-    auto it = table.find(i);
-    bool found = !(it == table.end());
-    BOOST_TEST(found);
-    if (found)
-    {
-      BOOST_TEST(it->second == "val");
-    }
-  }
-  for (int i = 0; i < N; i += 2)
-  {
-    size_t erased = table.erase(i);
-    BOOST_TEST(erased == 1);
-  }
-  for (int i = 0; i < N; ++i)
-  {
-    auto it = table.find(i);
-    if (i % 2 == 0)
-    {
-      bool not_found = (it == table.end());
-      BOOST_TEST(not_found);
-    }
-    else
-    {
-      bool found = !(it == table.end());
-      BOOST_TEST(found);
-      if (found)
-      {
-        BOOST_TEST(it->second == "val");
-      }
-    }
-  } */
-//}
+  using Table = karnauhova::HashTable< int, std::string >;
+  Table table;
+  BOOST_TEST(table.empty());
+  table.insert({ 1, "one" });
+  BOOST_TEST(table.size() == 1);
+  BOOST_TEST(table.at(1) == "one");
+  table[2] = "two";
+  BOOST_TEST(table.size() == 2);
+  Table table2;
+  table2.insert({1, "one"});
+  table2.insert({3, "three"}); 
+  table2.insert({5, "five"});
+  BOOST_TEST(table2.size() == 3);
+  table = std::move(table2);
+  BOOST_TEST(table[5] == "five");
+  Table table3(table);
+  BOOST_TEST(table3.size() == 3);
+  table.erase(table.begin());
+  BOOST_TEST(table.begin()->second == "three");
+  Table::Iterator it = table.find(7);
+  BOOST_CHECK(it == table.end());
+  it = table.find(5);
+  BOOST_TEST(it->second == "five");
+  BOOST_TEST(table.loadFactor() > 0.0);
+}

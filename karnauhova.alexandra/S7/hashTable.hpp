@@ -39,6 +39,7 @@ namespace karnauhova
 
     Iterator erase(Iterator pos);
     Iterator erase(ConstIterator pos);
+    size_t erase(const Key& key);
 
     Iterator find(const Key& key);
     ConstIterator find(const Key& key) const;
@@ -228,6 +229,18 @@ namespace karnauhova
   {
     ConstIterator it(pos);
     return erase(it);
+  }
+
+  template < typename Key, typename Value, typename Hash, typename Equal >
+  size_t HashTable< Key, Value, Hash, Equal >::erase(const Key& key)
+  {
+    Iterator it = find(key);
+    if (it != end())
+    {
+      erase(it);
+      return 1;
+    }
+    return 0;
   }
 
   template < typename Key, typename Value, typename Hash, typename Equal >
