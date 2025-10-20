@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(hashTable)
   BOOST_TEST(table.size() == 2);
   Table table2;
   table2.insert({1, "one"});
-  table2.insert({3, "three"}); 
+  table2.insert({3, "three"});
   table2.insert({5, "five"});
   BOOST_TEST(table2.size() == 3);
   table = std::move(table2);
