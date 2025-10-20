@@ -21,7 +21,11 @@ namespace hismatova
     bool empty() const;
   };
   template< typename T >
-  Queue< T >::Queue() : front(0), rear(0), size(0) {}
+  Queue< T >::Queue():
+    front(0),
+    rear(0),
+    size(0)
+  {}
   template< typename T >
   Queue< T >::Queue(const Queue& other)
   {
@@ -49,7 +53,10 @@ namespace hismatova
     return *this;
   }
   template< typename T >
-  Queue< T >::Queue(Queue&& other) noexcept : front(other.front), rear(other.rear), size(other.size)
+  Queue< T >::Queue(Queue&& other) noexcept:
+    front(other.front),
+    rear(other.rear),
+    size(other.size)
   {
     for (size_t i = 0; i < size; ++i)
     {

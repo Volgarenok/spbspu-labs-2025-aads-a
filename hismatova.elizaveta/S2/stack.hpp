@@ -22,7 +22,9 @@ namespace hismatova
     bool empty() const;
   };
   template< typename T >
-  Stack< T >::Stack() : topIndex(0) {}
+  Stack< T >::Stack():
+    topIndex(0)
+  {}
   template< typename T >
   Stack< T >::Stack(const Stack& other)
   {
@@ -46,7 +48,8 @@ namespace hismatova
     return *this;
   }
   template< typename T >
-  Stack< T >::Stack(Stack&& other) noexcept : topIndex(other.topIndex)
+  Stack< T >::Stack(Stack&& other) noexcept:
+    topIndex(other.topIndex)
   {
     for (size_t i = 0; i < topIndex; ++i)
     {
