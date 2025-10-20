@@ -1,6 +1,5 @@
 #ifndef FORWARD_LIST_HPP
 #define FORWARD_LIST_HPP
-
 #include <cstddef>
 #include "node.hpp"
 #include "forward_iterators.hpp"
@@ -426,4 +425,3 @@ namespace shabalin
 }
 
 #endif
-
