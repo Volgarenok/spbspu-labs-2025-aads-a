@@ -23,7 +23,10 @@ int main(int argc, char* argv[])
   {
     std::istringstream iss(line);
     std::string datasetName;
-    if (!(iss >> datasetName)) continue;
+    if (!(iss >> datasetName))
+    {
+      continue;
+    }
     BinarySearchTree< int, std::string > tree;
     int key;
     std::string value;
