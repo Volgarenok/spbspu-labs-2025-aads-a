@@ -78,6 +78,6 @@ namespace hismatova
     {
       result += std::abs(rhs.getValue());
     }
-    return PostfixValue(result);
+    return PostfixValue(static_cast< long long >(result));
   }
 }
