@@ -1,5 +1,6 @@
 #include <limits>
 #include <cmath>
+#include <climits>
 #include "PostfixValue.hpp"
 
 namespace hismatova
