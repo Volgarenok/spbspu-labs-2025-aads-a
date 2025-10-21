@@ -1,13 +1,21 @@
 #include "postfix.hpp"
 #include <iostream>
 #include <sstream>
+#include <limits>
 namespace
 {
+  constexpr long long max_ll = std::numeric_limits< long long >::max();
+  constexpr long long min_ll = std::numeric_limits< long long >::min();
+
   bool isOperand(const std::string & el);
   bool isOperator(const std::string & el);
   int getPrecedence(char el);
   bool isGreaterOrEqualPrecedence(const std::string & a, const std::string & b);
+
   long long doMath(long long a, long long b, const std::string & op);
+  bool isOverflowAddition(long long int a, long long int b);
+  bool isOverflowSubstraction(long long int a, long long int b);
+  bool isOverflowMulti(long long int a, long long int b);
 }
 
 nikonov::Postfix::Postfix(const std::string& expr):
@@ -233,30 +241,85 @@ namespace
   }
   long long doMath(long long a, long long b, const std::string & op)
   {
-    if (op == "+")
+    switch (op.front())
     {
-      return a + b;
-    }
-    if (op == "-")
-    {
-      return a - b;
-    }
-    if (op == "*")
-    {
-      return a * b;
-    }
-    if (op == "/")
-    {
-      if (b == 0)
+      case ('+'):
       {
-        throw std::logic_error("divided by zero");
+        if (isOverflowAddition(a, b))
+        {
+          throw std::overflow_error("Addition overflow");
+        }
+        return a + b;
       }
-      return a / b;
+      case ('-'):
+      {
+        if (isOverflowSubstraction(a, b))
+        {
+          throw std::overflow_error("Substraction overflow");
+        }
+        return a - b;
+      }
+      case ('*'):
+      {
+        if (isOverflowMulti(a, b))
+        {
+          throw std::overflow_error("Multiplication overflow");
+        }
+        return a * b;
+      }
+      case ('/'):
+      {
+        if (b == 0)
+        {
+          throw std::logic_error("divided by zero");
+        }
+        return a / b;
+      }
+      case ('%'):
+      {
+        if (b == 0)
+        {
+          throw std::logic_error("modulo by zero");
+        }
+        return (a % b + b) % b;
+      }
     }
-    if (b == 0)
+    throw std::logic_error("unknown operator");
+  }
+  bool isOverflowAddition(long long int lhs, long long int rhs)
+  {
+    if (lhs > 0 && rhs > 0)
     {
-      throw std::logic_error("modulo by zero");
+      return ((max_ll - rhs) < lhs);
     }
-    return (a % b + b) % b;
+    if (lhs < 0 && rhs < 0)
+    {
+      return ((min_ll - rhs) > lhs);
+    }
+    return false;
+  }
+  bool isOverflowSubstraction(long long int lhs, long long int rhs)
+  {
+    if (lhs > 0 && rhs < 0)
+    {
+      return ((max_ll + rhs) < lhs);
+    }
+    if (lhs < 0 && rhs > 0)
+    {
+      return ((min_ll + rhs) > lhs);
+    }
+    return false;
+  }
+  bool isOverflowMulti(long long int lhs, long long int rhs)
+  {
+    if ((lhs > 0 && rhs > 0) || (lhs < 0 && rhs < 0))
+    {
+      return (std::abs(max_ll / lhs) < std::abs(rhs));
+    }
+    else
+    {
+      return (std::abs(min_ll / lhs) < std::abs(rhs));
+    }
+    return false;
   }
 }
