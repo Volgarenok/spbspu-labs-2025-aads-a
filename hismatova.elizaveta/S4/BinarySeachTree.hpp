@@ -167,12 +167,12 @@ namespace hismatova
 
       iterator() = default;
 
-      iterator(Node* root)
+      iterator(Node* node)
       {
-        push_left(root);
-        if (!stack.empty())
+        if (node)
         {
-          current = std::make_unique< value_type >(stack.top()->key, stack.top()->value);
+          build_path_to_node(node);
+          current = std::make_unique< value_type >(node->key, node->value);
         }
       }
 
@@ -201,7 +201,15 @@ namespace hismatova
 
       bool operator==(const iterator& other) const
       {
-        return stack.empty() && other.stack.empty();
+        if (stack.empty() && other.stack.empty())
+        {
+          return true;
+        }
+        if (stack.empty() || other.stack.empty())
+        {
+          return false;
+        }
+        return stack.top() == other.stack.top();
       }
 
       bool operator!=(const iterator& other) const
@@ -212,7 +220,26 @@ namespace hismatova
     private:
       std::stack< Node* > stack;
       std::unique_ptr< value_type > current;
-
+      void build_path_to_node(Node* target)
+      {
+        Node* current_node = root;
+        while (current_node && current_node != target)
+        {
+          stack.push(current_node);
+          if (comp(target->key, current_node->key))
+          {
+            current_node = current_node->left;
+          }
+          else
+          {
+            current_node = current_node->right;
+          }
+        }
+        if (current_node == target)
+        {
+          stack.push(target);
+        }
+      }
       void push_left(Node* node)
       {
         while (node)
@@ -240,6 +267,7 @@ namespace hismatova
           current = std::make_unique< value_type >(stack.top()->key, stack.top()->value);
         }
       }
+      friend class BinarySearchTree< Key, Value, Compare >;
     };
 
     class const_iterator
@@ -363,17 +391,12 @@ namespace hismatova
         }
         else
         {
-          iterator it;
-          it.push_left(node);
-          if (!it.stack.empty())
-          {
-            it.current = std::make_unique< std::pair< const Key, Value > >(it.stack.top()->key, it.stack.top()->value);
-          }
-          return it;
+          return iterator(node);
         }
       }
       return end();
     }
+
 
   private:
     int height(Node* node) const
@@ -534,14 +557,7 @@ namespace hismatova
       {
         return end();
       }
-      iterator it;
-      it.push_left(candidate);
-      if (!it.stack.empty())
-      {
-        it.current = std::make_unique< std::pair< const Key, Value > >(it.stack.top()->key, it.stack.top()->value);
-      }
-      return it;
-    }
+      return iterator(candidate);
   };
 
 }
