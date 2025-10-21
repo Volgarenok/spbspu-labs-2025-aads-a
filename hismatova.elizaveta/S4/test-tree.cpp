@@ -3,14 +3,16 @@
 #include "BinarySeachTree.hpp"
 #include "handle_functions.hpp"
 
+using namespace hismatova;
+BOOST_AUTO_TEST_SUITE(BinarySeachTreeTests)
 BOOST_AUTO_TEST_CASE(BinarySeachTreeTest_Print)
 {
-  std::unordered_map< std::string, BinarySearchTree< int, std::string > > datasets;
-  BinarySearchTree< int, std::string > tree1;
+  std::unordered_map< std::string, hismatova::BinarySearchTree< int, std::string > > datasets;
+  hismatova::BinarySearchTree< int, std::string > tree1;
   tree1.insert({1, "one"});
   tree1.insert({2, "two"});
   tree1.insert({3, "three"});
-  datasets["dataset1"] = std::move(tree1);
+  datasets["dataset1"] = tree1;
   std::stringstream output;
   std::streambuf* old = std::cout.rdbuf(output.rdbuf());
   handle_print(datasets, "dataset1");
@@ -24,8 +26,8 @@ BOOST_AUTO_TEST_CASE(BinarySeachTreeTest_Print)
 
 BOOST_AUTO_TEST_CASE(BinarySeachTreeTest_Complement)
 {
-  std::unordered_map< std::string, BinarySearchTree< int, std::string > > datasets;
-  BinarySearchTree< int, std::string > tree1;
+  std::unordered_map< std::string, hismatova::BinarySearchTree< int, std::string > > datasets;
+  hismatova::BinarySearchTree< int, std::string > tree1;
   tree1.insert({1, "one"});
   tree1.insert({2, "two"});
   tree1.insert({3, "three"});
@@ -49,8 +51,8 @@ BOOST_AUTO_TEST_CASE(BinarySeachTreeTest_Complement)
 
 BOOST_AUTO_TEST_CASE(BinarySeachTreeTest_Intersect)
 {
-  std::unordered_map< std::string, BinarySearchTree< int, std::string > > datasets;
-  BinarySearchTree< int, std::string > tree1;
+  std::unordered_map< std::string, hismatova::BinarySearchTree< int, std::string > > datasets;
+  hismatova::BinarySearchTree< int, std::string > tree1;
   tree1.insert({1, "one"});
   tree1.insert({2, "two"});
   tree1.insert({3, "three"});
@@ -74,8 +76,8 @@ BOOST_AUTO_TEST_CASE(BinarySeachTreeTest_Intersect)
 
 BOOST_AUTO_TEST_CASE(BinarySeachTreeTest_Union)
 {
-  std::unordered_map< std::string, BinarySearchTree< int, std::string > > datasets;
-  BinarySearchTree< int, std::string > tree1;
+  std::unordered_map< std::string, hismatova::BinarySearchTree< int, std::string > > datasets;
+  hismatova::BinarySearchTree< int, std::string > tree1;
   tree1.insert({1, "one"});
   tree1.insert({2, "two"});
   datasets["dataset1"] = std::move(tree1);
@@ -83,6 +85,7 @@ BOOST_AUTO_TEST_CASE(BinarySeachTreeTest_Union)
   tree2.insert({2, "two"});
   tree2.insert({3,"three"});
   datasets["dataset2"] = std::move(tree2);
+  handle_union(datasets, "unionResult", "dataset1", "dataset2");
   const auto& resultTree = datasets["unionResult"];
   std::stringstream output;
   for (const auto& pair: resultTree)
@@ -93,3 +96,4 @@ BOOST_AUTO_TEST_CASE(BinarySeachTreeTest_Union)
   }
   BOOST_CHECK(output.str() == "1 one\n2 two\n3 three\n");
 }
+BOOST_AUTO_TEST_SUITE_END()
