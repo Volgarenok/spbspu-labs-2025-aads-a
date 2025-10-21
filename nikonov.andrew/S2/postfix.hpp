@@ -23,7 +23,7 @@ namespace nikonov
     long long operator()() const;
   private:
     Queue< std::string > tokens_;
-    
+
     Postfix& doMathOperator(const Postfix& another, const std::string& operation);
   };
 }
