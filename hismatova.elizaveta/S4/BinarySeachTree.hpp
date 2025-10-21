@@ -170,9 +170,9 @@ namespace hismatova
       iterator(Node* root)
       {
         push_left(root);
-        if (!stack.empty)
+        if (!stack.empty())
         {
-          current = std::make_unique< value_type >(stack.pop()->key, stack.pop()->value);
+          current = std::make_unique< value_type >(stack.top()->key, stack.top()->value);
         }
       }
 
@@ -367,7 +367,7 @@ namespace hismatova
           it.push_left(node);
           if (!it.stack.empty())
           {
-            it.current = std::make_unique< value_type >(it.stack,top()->key, it.stack.top()->value);
+            it.current = std::make_unique< std::pair< const Key, Value > >(it.stack.top()->key, it.stack.top()->value);
           }
           return it;
         }
@@ -538,7 +538,7 @@ namespace hismatova
       it.push_left(candidate);
       if (!it.stack.empty())
       {
-        it.current = std::make_inique< value_type >(it.stack.top()->key, it.stack.top()->value);
+        it.current = std::make_unique< std::pair< const Key, Value > >(it.stack.top()->key, it.stack.top()->value);
       }
       return it;
     }
