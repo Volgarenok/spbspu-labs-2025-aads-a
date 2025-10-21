@@ -1,5 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <cstring>
+#include <limits>
 #include "BinaryTree.hpp"
 
 int main(int argc, char* argv[])
@@ -15,7 +17,28 @@ int main(int argc, char* argv[])
   const char* filename = argv[2];
 
   BinaryTree< int, std::string > tree;
-  tree.loadFromFile(filename);
+
+  std::ifstream file(filename);
+  if (!file.is_open())
+  {
+    std::cerr << "Error: failed to open file\n";
+    return 1;
+  }
+
+  int key;
+  std::string value;
+  bool loadError = false;
+
+  while (file >> key >> value)
+  {
+    tree.insert(key, value);
+  }
+
+  if (file.fail() && !file.eof())
+  {
+    std::cerr << "Error: integer overflow while summing keys\n";
+    return 2;
+  }
 
   if (tree.empty())
   {
@@ -24,24 +47,23 @@ int main(int argc, char* argv[])
   }
 
   long long sum = 0;
+  std::string output;
   bool overflow = false;
-  bool first = true;
 
-  auto process = [&](int key, const std::string& value)
+  auto process = [&](int k, const std::string& val)
   {
-    long long newSum = sum + key;
-    if ((key > 0 && newSum < sum) || (key < 0 && newSum > sum))
+    sum += k;
+    if (sum > std::numeric_limits< int >::max() ||
+        sum < std::numeric_limits< int >::min())
     {
       overflow = true;
     }
-    sum = newSum;
 
-    if (!first)
+    if (!output.empty())
     {
-      std::cout << " ";
+      output += " ";
     }
-    std::cout << value;
-    first = false;
+    output += val;
   };
 
   if (strcmp(mode, "ascending") == 0)
@@ -64,10 +86,9 @@ int main(int argc, char* argv[])
 
   if (overflow)
   {
-    std::cerr << "\nError: integer overflow while summing keys\n";
+    std::cerr << "Error: integer overflow while summing keys\n";
     return 2;
   }
-
-  std::cout << "\n" << sum << "\n";
+  std::cout << sum << " " << output << "\n";
   return 0;
 }
