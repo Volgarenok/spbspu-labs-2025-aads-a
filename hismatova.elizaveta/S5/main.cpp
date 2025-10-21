@@ -27,7 +27,6 @@ int main(int argc, char* argv[])
 
   int key;
   std::string value;
-  bool loadError = false;
 
   while (file >> key >> value)
   {
