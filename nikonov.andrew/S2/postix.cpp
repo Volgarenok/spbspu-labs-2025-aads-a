@@ -257,6 +257,6 @@ namespace
     {
       throw std::logic_error("modulo by zero");
     }
-    return a % b;
+    return (a % b + b) % b;
   }
 }
