@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-          handle_complement(datasets, result, a, b);
+          handle_complement(datasets, result, b, a);
         }
       }
     }

@@ -28,17 +28,19 @@ namespace hismatova
     const std::string& a,
     const std::string& b)
   {
-    if (datasets.find(a) == datasets.end() || datasets.find(b) == datasets.end())
+    const auto itA = datasets.find(a);
+    const auto itB = datasets.find(b);
+    if (itA == datasets.end() || itB == datasets.end())
     {
       std::cout << "<INVALID COMMAND>\n";
       return;
     }
-    auto A = datasets.at(a);
-    auto B = datasets.at(b);
     BinarySearchTree< int, std::string > res;
-    for (const auto& [key, value]: A)
+    for (const auto& pair: itA->second)
     {
-      if (B.find(key) == B.end())
+      const auto key = pair.first;
+      const auto value = pair.second;
+      if (itB->second.find(key) == itB->second.end())
       {
         res.insert({key, value});
       }
@@ -57,12 +59,12 @@ namespace hismatova
       std::cout << "<INVALID COMMAND>\n";
       return;
     }
-    auto A = datasets.at(a);
-    auto B = datasets.at(b);
     BinarySearchTree< int, std::string > res;
-    for (const auto& [key, value]: A)
+    for (const auto& pair: itA->second)
     {
-      if (B.find(key) != B.end())
+      const auto key = pair.first;
+      const auto value = pair.second;
+      if (itB->second.find(key) != itB->second.end())
       {
         res.insert({key, value});
       }
@@ -81,15 +83,17 @@ namespace hismatova
       std::cout << "<INVALID COMMAND>\n";
       return;
     }
-    auto A = datasets.at(a);
-    auto B = datasets.at(b);
     BinarySearchTree< int, std::string > res;
-    for (const auto& [key, value]: A)
+    for (const auto& pair: itA->second)
     {
+      const auto key = pair.first;
+      const auto value = pair.second;
       res.insert({key, value});
     }
-    for (const auto& [key, value]: B)
+    for (const auto& pair: itB->second)
     {
+      const auto key = pair.first;
+      const auto value = pair.second;
       res.insert({key, value});
     }
     datasets[result] = std::move(res);
