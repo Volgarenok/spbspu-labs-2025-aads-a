@@ -84,13 +84,13 @@ namespace hismatova
       return;
     }
     BinarySearchTree< int, std::string > res;
-    for (const auto& pair: itB->second)
+    for (const auto& pair: itA->second)
     {
       const auto key = pair.first;
       const auto value = pair.second;
       res.insert({key, value});
     }
-    for (const auto& pair: itA->second)
+    for (const auto& pair: itB->second)
     {
       const auto key = pair.first;
       const auto value = pair.second;
