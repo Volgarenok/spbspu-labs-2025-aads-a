@@ -9,6 +9,7 @@
 #include <functional>
 #include <string>
 #include <cstddef>
+#include <memory>
 
 namespace hismatova
 {
@@ -169,18 +170,20 @@ namespace hismatova
       iterator(Node* root)
       {
         push_left(root);
-        advance();
+        if (!stack.empty)
+        {
+          current = std::make_unique< value_type >(stack.pop()->key, stack.pop()->value);
+        }
       }
 
       reference operator*() const
       {
-        return *reinterpret_cast< value_type* >(const_cast< std::pair< Key, Value >* >(
-          reinterpret_cast< const std::pair< Key, Value >* >(&current_node->key)));
+        return *current;
       }
 
       pointer operator->() const
       {
-        return current;
+        return current.get();
       }
 
       iterator& operator++()
@@ -198,7 +201,7 @@ namespace hismatova
 
       bool operator==(const iterator& other) const
       {
-        return current == other.current;
+        return stack.empty() && other.stack.empty();
       }
 
       bool operator!=(const iterator& other) const
@@ -208,7 +211,7 @@ namespace hismatova
 
     private:
       std::stack< Node* > stack;
-      value_type* current = nullptr;
+      std::unique_ptr< value_type > current;
 
       void push_left(Node* node)
       {
@@ -223,16 +226,19 @@ namespace hismatova
       {
         if (stack.empty())
         {
-          current = nullptr;
+          current.reset();
           return;
         }
         Node* node = stack.top(); stack.pop();
         push_left(node->right);
-        if (current)
+        if (stack.empty())
         {
-          delete current;
+          current.reset();
         }
-        current = new value_type(node->key, node->value);
+        else
+        {
+          current = std::make_unique< value_type >(stack.top()->key, stack.top()->value);
+        }
       }
     };
 
@@ -250,18 +256,20 @@ namespace hismatova
       const_iterator(Node* root)
       {
         push_left(root);
-        advance();
+        if (!stack.empty())
+        {
+          current = std::make_unique< value_type >(stack.top()->key, stack.top()->value);
+        }
       }
 
       reference operator*() const
       {
-        return *reinterpret_cast< const value_type* >(
-          reinterpret_cast< const std::pair< Key, Value >* >(&current_node->key));
+        return *current;
       }
 
       pointer operator->() const
       {
-        return current;
+        return current.get();
       }
 
       const_iterator& operator++()
@@ -279,7 +287,7 @@ namespace hismatova
 
       bool operator==(const const_iterator& other) const
       {
-        return current == other.current;
+        return stack.empty() && other.stack.empty();
       }
 
       bool operator!=(const const_iterator& other) const
@@ -289,7 +297,7 @@ namespace hismatova
 
     private:
       std::stack< Node* > stack;
-      value_type* current = nullptr;
+      std::unique_ptr< value_type > current;
 
       void push_left(Node* node)
       {
@@ -304,14 +312,19 @@ namespace hismatova
       {
         if (stack.empty())
         {
-          delete current;
-          current = nullptr;
+          current.reset();
           return;
         }
         Node* node = stack.top(); stack.pop();
         push_left(node->right);
-        delete current;
-        current = new value_type(node->key, node->value);
+        if (stack.empty())
+        {
+          current.reset();
+        }
+        else
+        {
+          current = std::make_unique< value_type >(stack.top()->key, stack.top()->value);
+        }
       }
     };
 
@@ -350,7 +363,13 @@ namespace hismatova
         }
         else
         {
-          return iterator(node);
+          iterator it;
+          it.push_left(node);
+          if (!it.stack.empty())
+          {
+            it.current = std::make_unique< value_type >(it.stack,top()->key, it.stack.top()->value);
+          }
+          return it;
         }
       }
       return end();
@@ -511,7 +530,17 @@ namespace hismatova
           node = node->right;
         }
       }
-      return iterator(candidate);
+      if (!candidate)
+      {
+        return end();
+      }
+      iterator it;
+      it.push_left(candidate);
+      if (!it.stack.empty())
+      {
+        it.current = std::make_inique< value_type >(it.stack.top()->key, it.stack.top()->value);
+      }
+      return it;
     }
   };
 

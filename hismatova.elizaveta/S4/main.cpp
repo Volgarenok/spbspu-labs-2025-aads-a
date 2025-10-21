@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
   std::ifstream input(argv[1]);
   if (!input.is_open())
   {
-    std::cerr << "ERROR: can not open file" << argv[1] << "\n";
+    std::cerr << "ERROR: can not open file " << argv[1] << "\n";
     return 1;
   }
   std::unordered_map< std::string, BinarySearchTree< int, std::string > > datasets;
