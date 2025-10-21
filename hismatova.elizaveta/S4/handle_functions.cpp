@@ -36,11 +36,11 @@ namespace hismatova
       return;
     }
     BinarySearchTree< int, std::string > res;
-    for (const auto& pair: itA->second)
+    for (const auto& pair: itB->second)
     {
       const auto key = pair.first;
       const auto value = pair.second;
-      if (itB->second.find(key) == itB->second.end())
+      if (itA->second.find(key) == itA->second.end())
       {
         res.insert({key, value});
       }
