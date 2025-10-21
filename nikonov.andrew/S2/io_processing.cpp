@@ -18,11 +18,11 @@ void nikonov::printResults(Stack< Postfix > toOut, std::ostream & out)
   {
     return;
   }
-  out << toOut.top();
+  out << toOut.top()();
   toOut.pop();
   while (!toOut.empty())
   {
-    out << ' ' << toOut.top();
+    out << ' ' << toOut.top()();
     toOut.pop();
   }
   out << '\n';

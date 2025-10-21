@@ -1,21 +1,18 @@
 #include "postfix.hpp"
 #include <iostream>
+#include <sstream>
 namespace
 {
   bool isOperand(const std::string & el);
   bool isOperator(const std::string & el);
   int getPrecedence(char el);
   bool isGreaterOrEqualPrecedence(const std::string & a, const std::string & b);
+  long long doMath(long long a, long long b, const std::string & op);
 }
 
-nikonov::Postfix::Postfix(const std::string& expr, bool mode)
+nikonov::Postfix::Postfix(const std::string& expr):
+  tokens_()
 {
-  if (mode)
-  {
-    expression = expr;
-    return;
-  }
-  std::string postfix;
   Stack< std::string > stack;
   size_t cntOfOpenBrackets = 0;
   bool lastWasOperand = false;
@@ -32,11 +29,7 @@ nikonov::Postfix::Postfix(const std::string& expr, bool mode)
       {
         throw std::logic_error("non-correct infix expression: two operands in a row");
       }
-      if (!postfix.empty())
-      {
-        postfix += ' ';
-      }
-      postfix += tempstr;
+      tokens_.push(tempstr);
       lastWasOperand = true;
     }
     else if (tempstr == "(")
@@ -52,8 +45,7 @@ nikonov::Postfix::Postfix(const std::string& expr, bool mode)
       }
       while (!stack.empty() && stack.top() != "(")
       {
-        postfix += ' ';
-        postfix += stack.top();
+        tokens_.push(stack.top());
         stack.pop();
       }
       stack.pop();
@@ -65,8 +57,7 @@ nikonov::Postfix::Postfix(const std::string& expr, bool mode)
       {
         if (isGreaterOrEqualPrecedence(stack.top(), tempstr))
         {
-          postfix += ' ';
-          postfix += stack.top();
+          tokens_.push(stack.top());
           stack.pop();
         }
         else
@@ -88,60 +79,103 @@ nikonov::Postfix::Postfix(const std::string& expr, bool mode)
     {
       throw std::logic_error("non-correct infix expression: mismatched brackets");
     }
-    postfix += ' ';
-    postfix += stack.top();
+    tokens_.push(stack.top());
     stack.pop();
   }
-  expression = postfix;
 }
 nikonov::Postfix nikonov::Postfix::operator+(const Postfix & rhs)
 {
-  std::string newexpression = expression + ' ' + rhs.expression + " +";
-  return { newexpression, 1 };
+  Postfix copyRes(*this);
+  return copyRes.doMathOperator(rhs, "+");
 }
 nikonov::Postfix & nikonov::Postfix::operator+=(const Postfix & rhs)
 {
-  expression += ' ' + rhs.expression + " +";
+  doMathOperator(rhs, "+");
   return *this;
 }
 nikonov::Postfix nikonov::Postfix::operator-(const Postfix & rhs)
 {
-  std::string newexpression = expression + ' ' + rhs.expression + " -";
-  return { newexpression, 1 };
+  Postfix copyRes(*this);
+  return copyRes.doMathOperator(rhs, "-");
 }
 nikonov::Postfix & nikonov::Postfix::operator-=(const Postfix & rhs)
 {
-  expression += ' ' + rhs.expression + " -";
+  doMathOperator(rhs, "-");
   return *this;
 }
 nikonov::Postfix nikonov::Postfix::operator*(const Postfix & rhs)
 {
-  std::string newexpression = expression + ' ' + rhs.expression + " *";
-  return { newexpression, 1 };
+  Postfix copyRes(*this);
+  return copyRes.doMathOperator(rhs, "*");
 }
 nikonov::Postfix & nikonov::Postfix::operator*=(const Postfix & rhs)
 {
-  expression += ' ' + rhs.expression + " *";
+  doMathOperator(rhs, "*");
   return *this;
 }
 nikonov::Postfix nikonov::Postfix::operator/(const Postfix & rhs)
 {
-  std::string newexpression = expression + ' ' + rhs.expression + " /";
-  return { newexpression, 1 };
+  Postfix copyRes(*this);
+  return copyRes.doMathOperator(rhs, "/");
 }
 nikonov::Postfix & nikonov::Postfix::operator/=(const Postfix & rhs)
 {
-  expression += ' ' + rhs.expression + " /";
+  doMathOperator(rhs, "/");
   return *this;
 }
 nikonov::Postfix nikonov::Postfix::operator%(const Postfix & rhs)
 {
-  std::string newexpression = expression + ' ' + rhs.expression + " %";
-  return { newexpression, 1 };
+  Postfix copyRes(*this);
+  return copyRes.doMathOperator(rhs, "%");
 }
 nikonov::Postfix & nikonov::Postfix::operator%=(const Postfix & rhs)
 {
-  expression += ' ' + rhs.expression + " %";
+  doMathOperator(rhs, "%");
+  return *this;
+}
+long long nikonov::Postfix::operator()() const
+{
+  Stack< long long > postfixOperands;
+  Queue< std::string > tempPostfixTokens(tokens_);
+  long long operand1 = 0;
+  long long operand2 = 0;
+  long long result = 0;
+  while (!tempPostfixTokens.empty())
+  {
+    if (isOperand(tempPostfixTokens.front()))
+    {
+      postfixOperands.push(std::stoll(tempPostfixTokens.front()));
+      tempPostfixTokens.pop();
+    }
+    else if (isOperator(tempPostfixTokens.front()))
+    {
+      if (postfixOperands.size() < 2)
+      {
+        throw std::invalid_argument("Incorrect expression");
+      }
+      operand2 = postfixOperands.top();
+      postfixOperands.pop();
+      operand1 = postfixOperands.top();
+      postfixOperands.pop();
+      result = doMath(operand1, operand2, tempPostfixTokens.front());
+      postfixOperands.push(result);
+      tempPostfixTokens.pop();
+    }
+  }
+  if (postfixOperands.size() != 1)
+  {
+    throw std::invalid_argument("Incorrect expression");
+  }
+  return postfixOperands.top();
+}
+nikonov::Postfix& nikonov::Postfix::doMathOperator(const Postfix& other, const std::string& operation)
+{
+  Postfix copy(other);
+  while (!copy.tokens_.empty()) {
+    tokens_.push(copy.tokens_.front());
+    copy.tokens_.pop();
+  }
+  tokens_.push(operation);
   return *this;
 }
 
@@ -156,7 +190,7 @@ namespace
     try
     {
       size_t pos;
-      std::stold(el, &pos);
+      std::stoll(el, &pos);
       return (pos == el.size());
     }
     catch (const std::exception & e)
@@ -166,12 +200,12 @@ namespace
   }
   bool isOperator(const std::string & el)
   {
-    if (el.size() > 1 && el.empty())
+    if (el.size() > 1 || el.empty())
     {
       return false;
     }
     bool flag = false;
-    char ops[] = {'-', '+', '*', '/', '%', '(', ')'};
+    char ops[] = {'-', '+', '*', '/', '%'};
     for (auto op : ops)
     {
       if (el.back() == op)
@@ -196,5 +230,33 @@ namespace
       return 0;
     }
     throw std::logic_error("ERROR: this op doesn't supported");
+  }
+  long long doMath(long long a, long long b, const std::string & op)
+  {
+    if (op == "+")
+    {
+      return a + b;
+    }
+    if (op == "-")
+    {
+      return a - b;
+    }
+    if (op == "*")
+    {
+      return a * b;
+    }
+    if (op == "/")
+    {
+      if (b == 0)
+      {
+        throw std::logic_error("divided by zero");
+      }
+      return a / b;
+    }
+    if (b == 0)
+    {
+      throw std::logic_error("modulo by zero");
+    }
+    return a % b;
   }
 }
