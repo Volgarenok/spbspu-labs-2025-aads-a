@@ -167,12 +167,19 @@ namespace hismatova
 
       iterator() = default;
 
-      iterator(Node* node)
+      iterator(Node* root_node, Node* node = nullptr)
       {
-        if (node)
+        if (root_node)
         {
-          build_path_to_node(node);
-          current = std::make_unique< value_type >(node->key, node->value);
+          push_left(root_node);
+          if (node)
+          {
+            while (!stack.empty() && stack.top() != node)
+            {
+              advance_to_next();
+            }
+          }
+          update_current();
         }
       }
 
@@ -220,26 +227,6 @@ namespace hismatova
     private:
       std::stack< Node* > stack;
       std::unique_ptr< value_type > current;
-      void build_path_to_node(Node* target)
-      {
-        Node* current_node = root;
-        while (current_node && current_node != target)
-        {
-          stack.push(current_node);
-          if (comp(target->key, current_node->key))
-          {
-            current_node = current_node->left;
-          }
-          else
-          {
-            current_node = current_node->right;
-          }
-        }
-        if (current_node == target)
-        {
-          stack.push(target);
-        }
-      }
       void push_left(Node* node)
       {
         while (node)
@@ -248,26 +235,35 @@ namespace hismatova
           node = node->left;
         }
       }
-
-      void advance()
+      void advance_to_next()
       {
         if (stack.empty())
         {
           current.reset();
           return;
         }
-        Node* node = stack.top(); stack.pop();
+        Node* node = stack.top();
+        stack.pop();
         push_left(node->right);
+      }
+
+      void advance()
+      {
+        advance_to_next();
+        update_current();
+      }
+      void update_current()
+      {
         if (stack.empty())
         {
           current.reset();
         }
         else
         {
-          current = std::make_unique< value_type >(stack.top()->key, stack.top()->value);
+          Node* node = stack.top();
+          current = std::make_unique< value_type >(node->key, node->value);
         }
       }
-      friend class BinarySearchTree< Key, Value, Compare >;
     };
 
     class const_iterator
@@ -391,7 +387,7 @@ namespace hismatova
         }
         else
         {
-          return iterator(node);
+          return iterator(root, node);
         }
       }
       return end();
@@ -494,7 +490,7 @@ namespace hismatova
       return balance(node);
     }
 
-    Node* erase(Node* node, const Key& key)\
+    Node* erase(Node* node, const Key& key)
     {
       if (!node)
       {
@@ -558,6 +554,7 @@ namespace hismatova
         return end();
       }
       return iterator(candidate);
+    }
   };
 
 }

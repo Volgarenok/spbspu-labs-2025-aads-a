@@ -30,6 +30,11 @@ namespace hismatova
   {
     const auto itA = datasets.find(a);
     const auto itB = datasets.find(b);
+    if (itA == datasets.end() || itB == datasets.end())
+    {
+      std::cout << "<INVALID COMMAND>\n";
+      return;
+    }
     BinarySearchTree< int, std::string > res;
     for (const auto& pair: itA->second)
     {
@@ -49,6 +54,11 @@ namespace hismatova
   {
     const auto itA = datasets.find(a);
     const auto itB = datasets.find(b);
+    if (itA == datasets.end() || itB == datasets.end())
+    {
+      std::cout << "<INVALID COMMAND>\n";
+      return;
+    }
     BinarySearchTree< int, std::string > res;
     for (const auto& pair: itA->second)
     {
@@ -68,6 +78,11 @@ namespace hismatova
   {
     const auto itA = datasets.find(a);
     const auto itB = datasets.find(b);
+    if (itA == datasets.end() || itB == datasets.end())
+    {
+      std::cout << "<INVALID COMMAND>\n";
+      return;
+    }
     BinarySearchTree< int, std::string > res;
     for (const auto& pair: itB->second)
     {
