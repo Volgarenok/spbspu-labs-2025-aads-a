@@ -286,39 +286,39 @@ namespace
     }
     throw std::logic_error("unknown operator");
   }
-  bool isOverflowAddition(long long int lhs, long long int rhs)
+  bool isOverflowAddition(long long int a, long long int b)
   {
-    if (lhs > 0 && rhs > 0)
+    if (a > 0 && b > 0)
     {
-      return ((max_ll - rhs) < lhs);
+      return ((max_ll - b) < a);
     }
-    if (lhs < 0 && rhs < 0)
+    if (a < 0 && b < 0)
     {
-      return ((min_ll - rhs) > lhs);
+      return ((min_ll - b) > a);
     }
     return false;
   }
-  bool isOverflowSubstraction(long long int lhs, long long int rhs)
+  bool isOverflowSubstraction(long long int a, long long int b)
   {
-    if (lhs > 0 && rhs < 0)
+    if (a > 0 && b < 0)
     {
-      return ((max_ll + rhs) < lhs);
+      return ((max_ll + b) < a);
     }
-    if (lhs < 0 && rhs > 0)
+    if (a < 0 && b > 0)
     {
-      return ((min_ll + rhs) > lhs);
+      return ((min_ll + b) > a);
     }
     return false;
   }
-  bool isOverflowMulti(long long int lhs, long long int rhs)
+  bool isOverflowMulti(long long int a, long long int b)
   {
-    if ((lhs > 0 && rhs > 0) || (lhs < 0 && rhs < 0))
+    if ((a > 0 && b > 0) || (a < 0 && b < 0))
     {
-      return (std::abs(max_ll / lhs) < std::abs(rhs));
+      return (std::abs(max_ll / a) < std::abs(b));
     }
     else
     {
-      return (std::abs(min_ll / lhs) < std::abs(rhs));
+      return (std::abs(min_ll / a) < std::abs(b));
     }
     return false;
   }
