@@ -30,14 +30,14 @@ int main(int argc, char ** argv)
   {
     while (!infixQueue.empty())
     {
-      postfixStack.push(nikonov::Postfix(infixQueue.front(), 0));
+      postfixStack.push(nikonov::Postfix(infixQueue.front()));
       infixQueue.pop();
     }
+    nikonov::printResults(postfixStack, std::cout);
   }
   catch(const std::exception & e)
   {
     std::cerr << e.what() << '\n';
     return 1;
   }
-  nikonov::printResults(postfixStack, std::cout);
 }

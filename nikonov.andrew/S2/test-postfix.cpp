@@ -2,30 +2,105 @@
 #include "postfix.hpp"
 #include "sstream"
 #include <iostream>
-BOOST_AUTO_TEST_CASE(postfixConstructor_test)
+BOOST_AUTO_TEST_CASE(plusOperator_test)
 {
-  nikonov::Postfix postfix("2 + 3", 0);
-  std::stringstream str;
-  str << postfix;
-  BOOST_TEST(str.str() == "2 3 +");
+  nikonov::Postfix expr1("2 * 2");
+  nikonov::Postfix expr2("6 / 3");
+
+  BOOST_TEST(expr1() == 4);
+  BOOST_TEST(expr2() == 2);
+
+  nikonov::Postfix expr_sum(expr1 + expr2);
+
+  BOOST_TEST(expr1() + expr2() == 6);
+
+  BOOST_TEST(expr1() == 4);
+  BOOST_TEST(expr2() == 2);
+
+  BOOST_TEST(expr1() + expr2() == expr_sum());
+  BOOST_TEST(expr1() + expr2() == (expr1 + expr2)());
 }
-BOOST_AUTO_TEST_CASE(postfixMathOperators_test)
+
+BOOST_AUTO_TEST_CASE(substractionOperator_test)
 {
-  nikonov::Postfix postfix1("2 + 3", 0);
-  nikonov::Postfix postfix2("4 + 5", 0);
-  std::stringstream str1;
-  str1 << (postfix1 + postfix2);
-  BOOST_TEST(str1.str() == "2 3 + 4 5 + +");
-  std::stringstream str2;
-  str2 << (postfix1 - postfix2);
-  BOOST_TEST(str2.str() == "2 3 + 4 5 + -");
-  std::stringstream str3;
-  str3 << (postfix1 * postfix2);
-  BOOST_TEST(str3.str() == "2 3 + 4 5 + *");
-  std::stringstream str4;
-  str4 << (postfix1 / postfix2);
-  BOOST_TEST(str4.str() == "2 3 + 4 5 + /");
-  std::stringstream str5;
-  str5 << (postfix1 % postfix2);
-  BOOST_TEST(str5.str() == "2 3 + 4 5 + %");
+  nikonov::Postfix expr1("4 * 2");
+  nikonov::Postfix expr2("12 / 3");
+
+  BOOST_TEST(expr1() == 8);
+  BOOST_TEST(expr2() == 4);
+
+  nikonov::Postfix expr_min(expr1 - expr2);
+
+  BOOST_TEST(expr1() - expr2() == 4);
+
+  BOOST_TEST(expr1() == 8);
+  BOOST_TEST(expr2() == 4);
+
+  BOOST_TEST(expr1() - expr2() == expr_min());
+  BOOST_TEST(expr1() - expr2() == (expr1 - expr2)());
+}
+
+BOOST_AUTO_TEST_CASE(multOperator_test)
+{
+  using namespace nikonov;
+
+  Postfix expr1("4 + 2");
+  Postfix expr2("7 - 3");
+  Postfix expr3("10 / 5");
+
+  BOOST_TEST(expr1() == 6);
+  BOOST_TEST(expr2() == 4);
+  BOOST_TEST(expr3() == 2);
+
+  nikonov::Postfix expr_full(expr1 * expr2 + expr3);
+
+  BOOST_TEST(expr1() * expr2() == 24);
+  BOOST_TEST(expr_full() == 26);
+
+  BOOST_TEST(expr1() == 6);
+  BOOST_TEST(expr2() == 4);
+  BOOST_TEST(expr3() == 2);
+
+  Postfix expr4("11 * 2");
+
+  BOOST_TEST(expr1() * expr2() + expr3() == expr_full());
+  BOOST_TEST((expr3 * expr2 * expr1 - expr4)() == (expr1 * expr2 + expr3)());
+}
+
+BOOST_AUTO_TEST_CASE(divOperator_test)
+{
+  nikonov::Postfix expr1("4 * 2");
+  nikonov::Postfix expr2("12 / 3");
+
+  BOOST_TEST(expr1() == 8);
+  BOOST_TEST(expr2() == 4);
+
+  nikonov::Postfix expr_div(expr1 / expr2);
+
+  BOOST_TEST(expr1() / expr2() == 2);
+
+  BOOST_TEST(expr1() == 8);
+  BOOST_TEST(expr2() == 4);
+
+  BOOST_TEST(expr1() / expr2() == expr_div());
+  BOOST_TEST(expr1() / expr2() == (expr1 / expr2)());
+}
+
+BOOST_AUTO_TEST_CASE(removeOperator_test)
+{
+  nikonov::Postfix expr1("3 * 3");
+  nikonov::Postfix expr2("12 / 3");
+
+  BOOST_TEST(expr1() == 9);
+  BOOST_TEST(expr2() == 4);
+
+  nikonov::Postfix expr_div(expr1 % expr2);
+
+  BOOST_TEST(expr1() % expr2() == 1);
+
+  BOOST_TEST(expr1() == 9);
+  BOOST_TEST(expr2() == 4);
+
+  BOOST_TEST(expr1() % expr2() == expr_div());
+  BOOST_TEST(expr1() % expr2() == (expr1 % expr2)());
 }
