@@ -12,6 +12,7 @@ namespace zholobov {
 
   public:
     Array();
+    Array(size_t n);
     Array(const Array& other);
     Array(Array&& other) noexcept;
     Array& operator=(const Array& other);
@@ -20,6 +21,8 @@ namespace zholobov {
 
     void push_back(const T& value);
     void push_back(T&& value);
+    const T& operator[](size_t idx) const;
+    T& operator[](size_t idx);
     const T& front() const;
     T& front();
     const T& back() const;
@@ -27,6 +30,7 @@ namespace zholobov {
     void pop_front();
     void pop_back();
     bool empty() const noexcept;
+    size_t size() const noexcept;
     void clear() noexcept;
     void swap(Array& other) noexcept;
 
@@ -48,6 +52,22 @@ zholobov::Array< T >::Array():
   head_(0),
   size_(0)
 {}
+
+template < typename T >
+zholobov::Array< T >::Array(size_t n):
+  Array()
+{
+  try {
+    data_ = static_cast< T* >(operator new[](n * sizeof(T)));
+    capacity_ = n;
+    for (; size_ < n; ++size_) {
+      new (data_ + size_) T();
+    }
+  } catch (const std::exception& e) {
+    clear();
+    throw;
+  }
+}
 
 template < typename T >
 zholobov::Array< T >::Array(const Array& other):
@@ -124,6 +144,24 @@ void zholobov::Array< T >::push_back(T&& value)
 }
 
 template < typename T >
+const T& zholobov::Array< T >::operator[](size_t idx) const
+{
+  if (idx >= size_) {
+    throw std::out_of_range("Out of bounds");
+  }
+  return data_[(head_ + idx) % capacity_];
+}
+
+template < typename T >
+T& zholobov::Array< T >::operator[](size_t idx)
+{
+  if (idx >= size_) {
+    throw std::out_of_range("Out of bounds");
+  }
+  return data_[(head_ + idx) % capacity_];
+}
+
+template < typename T >
 const T& zholobov::Array< T >::front() const
 {
   if (empty()) {
@@ -187,9 +225,14 @@ bool zholobov::Array< T >::empty() const noexcept
 }
 
 template < typename T >
+size_t zholobov::Array< T >::size() const noexcept
+{
+  return size_;
+}
+
+template < typename T >
 void zholobov::Array< T >::clear() noexcept
 {
-  size_ = 0;
   if (data_ != nullptr) {
     for (size_t i = 0; i < size_; ++i) {
       size_t pos = (head_ + i) % capacity_;
@@ -197,8 +240,10 @@ void zholobov::Array< T >::clear() noexcept
     }
     operator delete[](data_);
     data_ = nullptr;
-    capacity_ = 0;
   }
+  capacity_ = 0;
+  size_ = 0;
+  head_ = 0;
 }
 
 template < typename T >

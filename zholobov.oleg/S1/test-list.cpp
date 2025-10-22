@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "CircularFwdList.hpp"
+#include "list/CircularFwdList.hpp"
 
 template < typename T >
 std::string to_string(const zholobov::CircularFwdList< T >& list)
