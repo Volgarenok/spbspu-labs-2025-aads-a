@@ -34,7 +34,6 @@ namespace hismatova
         state(OCCUPIED)
       {}
     };
-
     std::vector< Entry > table_;
     size_t size_;
     size_t occupied_count_;
@@ -305,7 +304,8 @@ namespace hismatova
       }
     }
   };
-
+  template< class Key, class Value, class Hash, class Equal >
+  const double HashTable< Key, Value, Hash, Equal >::MAX_LOAD_FACTOR = 0.75;
 }
 
 #endif
