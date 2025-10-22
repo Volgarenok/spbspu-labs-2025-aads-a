@@ -8,59 +8,28 @@ namespace nikonov
   {
     using value_type = std::pair< Key, Value >;
     detail::BiTreeNode< Key, Value >* root_;
-    Compare cmp_ = Compare();
+    size_t size_;
+    Compare cmp_;
   public:
     BinarySearchTree() noexcept;
     BinarySearchTree(const BinarySearchTree& rhs);
     BinarySearchTree(BinarySearchTree&& rhs) noexcept;
-    BinarySearchTree(std::initializer_list< value_type > il);
-    template< typename InputIterator >
-    BinarySearchTree(InputIterator begin, InputIterator end);
-    ~BinarySearchTree() noexcept;
+    ~BinarySearchTree();
 
-    BiTreeIterator< Key, Value > begin() noexcept;
-    ConstBiTreeIterator< Key, Value > begin() const noexcept;
     ConstBiTreeIterator< Key, Value > cbegin() const noexcept;
-    BiTreeIterator< Key, Value > end() noexcept;
-    ConstBiTreeIterator< Key, Value > end() const noexcept;
     ConstBiTreeIterator< Key, Value > cend() const noexcept;
 
     size_t size() const noexcept;
     bool empty() const noexcept;
 
     Value& operator[](const Key& k);
-    Value& operator[](Key&& k);
     Value& at(const Key& k);
     const Value& at(const Key& k) const;
-
-    std::pair< BiTreeIterator< Key, Value >, bool > insert(const value_type& val);
-    template < class P >
-    std::pair< BiTreeIterator< Key, Value >, bool > insert(P&& val);
-    BiTreeIterator< Key, Value > insert(ConstBiTreeIterator< Key, Value > position, const value_type& val);
-    template < class P >
-    BiTreeIterator< Key, Value > insert(ConstBiTreeIterator< Key, Value > position, P&& val);	
-    template < class InputIterator >
-    void insert(InputIterator first, InputIterator last);
-
-    BiTreeIterator< Key, Value > erase(ConstBiTreeIterator< Key, Value > position);
-    size_t erase(const Key& k);
-    BiTreeIterator< Key, Value > erase(ConstBiTreeIterator< Key, Value > first, ConstBiTreeIterator< Key, Value > last);
 
     void swap(BinarySearchTree& rhs) noexcept;
     void clear() noexcept;
 
-    BiTreeIterator< Key, Value > find(const Key& k);
     ConstBiTreeIterator< Key, Value > find(const Key& k) const;
-
-    size_t count(const Key& k) const;
- 
-    std::pair< BiTreeIterator< Key, Value >, BiTreeIterator< Key, Value > > equal_range(const Key& k);
-    std::pair< ConstBiTreeIterator< Key, Value >, ConstBiTreeIterator< Key, Value > > equal_range(const Key& k) const;
-
-    BiTreeIterator< Key, Value > lower_bound(const Key& k);
-    ConstBiTreeIterator< Key, Value > lower_bound(const Key& k) const;
-    BiTreeIterator< Key, Value > upper_bound(const Key& k);
-    ConstBiTreeIterator< Key, Value > upper_bound(const Key& k) const;
   };
 }
 
@@ -92,33 +61,9 @@ nikonov::BinarySearchTree< Key, Value, Compare >::~BinarySearchTree() noexcept
 }
 
 template< typename Key, typename Value, typename Compare >
-nikonov::BiTreeIterator< Key, Value > nikonov::BinarySearchTree< Key, Value, Compare >::begin() noexcept
-{
-  return { root_ };
-}
-
-template< typename Key, typename Value, typename Compare >
-nikonov::ConstBiTreeIterator< Key, Value > nikonov::BinarySearchTree< Key, Value, Compare >::begin() const noexcept
-{
-  return { root_ };
-}
-
-template< typename Key, typename Value, typename Compare >
 nikonov::ConstBiTreeIterator< Key, Value > nikonov::BinarySearchTree< Key, Value, Compare >::cbegin() const noexcept
 {
   return { root_ };
-}
-
-template< typename Key, typename Value, typename Compare >
-nikonov::BiTreeIterator< Key, Value > nikonov::BinarySearchTree< Key, Value, Compare >::end() noexcept
-{
-  return { nullptr };
-}
-
-template< typename Key, typename Value, typename Compare >
-nikonov::ConstBiTreeIterator< Key, Value > nikonov::BinarySearchTree< Key, Value, Compare >::end() const noexcept
-{
-  return { nullptr };
 }
 
 template< typename Key, typename Value, typename Compare >
@@ -151,18 +96,6 @@ Value& nikonov::BinarySearchTree< Key, Value, Compare >::operator[](const Key& k
 }
 
 template< typename Key, typename Value, typename Compare >
-Value& nikonov::BinarySearchTree< Key, Value, Compare >::operator[](Key&& k)
-{
-  auto iter = find(k);
-  if (iter != end())
-  {
-    return (*iter).second;
-  }
-  auto inserted = insert(std::make_pair(k, Value()));
-  return inserted.first->second;
-}
-
-template< typename Key, typename Value, typename Compare >
 Value& nikonov::BinarySearchTree< Key, Value, Compare >::at(const Key& k)
 {
   return const_cast< Value& >(static_cast< const BinarySearchTree& >(*this).at(k));
@@ -177,12 +110,6 @@ const Value& nikonov::BinarySearchTree< Key, Value, Compare >::at(const Key& k) 
     return (*iter).second;
   }
   throw std::logic_error("ERROR: can't find element with such key");
-}
-
-template< typename Key, typename Value, typename Compare >
-std::pair< nikonov::BiTreeIterator< Key, Value >, bool > nikonov::BinarySearchTree< Key, Value, Compare >::insert(const value_type& val)
-{
-  
 }
 
 template< typename Key, typename Value, typename Compare >
