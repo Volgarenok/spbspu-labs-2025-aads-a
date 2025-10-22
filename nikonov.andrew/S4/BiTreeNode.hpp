@@ -10,18 +10,18 @@ namespace nikonov
     class BiTreeNode
     {
     public:
-      std::pair< Key, Value > data_;
-      BiTreeNode* parent_;
-      BiTreeNode* left_;
-      BiTreeNode* right_;
+      std::pair< Key, Value > data;
+      BiTreeNode* parent;
+      BiTreeNode* left;
+      BiTreeNode* right;
       BiTreeNode(const Key& key, const Value& val);
     };
     template< typename Key, typename Value >
     BiTreeNode< Key, Value >::BiTreeNode(const Key& key, const Value& val):
-      data_(std::make_pair(key, val)),
-      parent_(nullptr),
-      left_(nullptr),
-      right_(nullptr)
+      data(std::make_pair(key, val)),
+      parent(nullptr),
+      left(nullptr),
+      right(nullptr)
     {}
   }
 }
