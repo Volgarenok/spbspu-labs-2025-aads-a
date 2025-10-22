@@ -1,5 +1,5 @@
-#ifndef HASHTABLE_H
-#define HASHTABLE_H
+#ifndef HASHTABLE_HPP
+#define HASHTABLE_HPP
 
 #include <vector>
 #include <functional>

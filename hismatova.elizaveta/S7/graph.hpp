@@ -7,7 +7,7 @@
 #include <vector>
 #include <set>
 #include <algorithm>
-#include "hashtable.h"
+#include "hashtable.hpp"
 
 namespace hismatova
 {
