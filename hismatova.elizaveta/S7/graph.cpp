@@ -1,4 +1,5 @@
 #include "graph.hpp"
+#include "hashtable.hpp"
 namespace hismatova
 {
   std::vector< std::string > GraphProcessor::split(const std::string& str)
