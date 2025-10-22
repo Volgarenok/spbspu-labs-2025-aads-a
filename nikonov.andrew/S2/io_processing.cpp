@@ -16,6 +16,7 @@ void nikonov::printResults(Stack< Postfix > toOut, std::ostream & out)
 {
   if (toOut.empty())
   {
+    out << '\n';
     return;
   }
   out << toOut.top()();
