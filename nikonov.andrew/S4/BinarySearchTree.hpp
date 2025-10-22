@@ -6,10 +6,6 @@ namespace nikonov
   template< typename Key, typename Value, typename Compare >
   class BinarySearchTree
   {
-    using value_type = std::pair< Key, Value >;
-    detail::BiTreeNode< Key, Value >* root_;
-    size_t size_;
-    Compare cmp_;
   public:
     BinarySearchTree() noexcept;
     BinarySearchTree(const BinarySearchTree& rhs);
@@ -18,6 +14,9 @@ namespace nikonov
 
     ConstBiTreeIterator< Key, Value > cbegin() const noexcept;
     ConstBiTreeIterator< Key, Value > cend() const noexcept;
+
+    BinarySearchTree& operator=(const BinarySearchTree& other);
+    BinarySearchTree& operator=(BinarySearchTree&& other) noexcept;
 
     size_t size() const noexcept;
     bool empty() const noexcept;
@@ -30,34 +29,87 @@ namespace nikonov
     void clear() noexcept;
 
     ConstBiTreeIterator< Key, Value > find(const Key& k) const;
+
+  private:
+    using value_type = std::pair< Key, Value >;
+    detail::BiTreeNode< Key, Value >* root_;
+    size_t size_;
+    Compare cmp_;
+
+    void clearNode(detail::BiTreeNode< Key, Value >* node);
+    detail::BiTreeNode< Key, Value >* insertNode(detail::BiTreeNode< Key, Value >* node, const Key& key,
+      const Value& value, detail::BiTreeNode< Key, Value >* parent, size_t& size);
+    detail::BiTreeNode< Key, Value >* findNode(detail::BiTreeNode< Key, Value >* node, const Key& key) const;
+    void copyTree(detail::BiTreeNode< Key, Value >*& node, detail::BiTreeNode< Key, Value >* otherNode, detail::BiTreeNode< Key, Value >* parent);
   };
 }
 
 template< typename Key, typename Value, typename Compare >
 nikonov::BinarySearchTree< Key, Value, Compare >::BinarySearchTree() noexcept:
-  root_(nullptr)
+  root_(nullptr),
+  size_(0),
+  cmp_(Compare())
 {}
 
 template< typename Key, typename Value, typename Compare >
-nikonov::BinarySearchTree< Key, Value, Compare >::BinarySearchTree(const BinarySearchTree& rhs)
+nikonov::BinarySearchTree< Key, Value, Compare >::BinarySearchTree(const BinarySearchTree& other):
+  root_(nullptr),
+  size_(0),
+  cmp_(other.comp_)
 {
-  for (BiTreeIterator< Key, Value > it = rhs.begin(); it != rhs.end(); ++it) 
+  try
   {
-    insert(it.node_->data_);
+    copyTree(root_, other.root_, nullptr);
+  }
+  catch (std::bad_alloc&)
+  {
+    clear();
+    throw;
   }
 }
 
 template< typename Key, typename Value, typename Compare >
-nikonov::BinarySearchTree< Key, Value, Compare >::BinarySearchTree(BinarySearchTree&& rhs) noexcept
+nikonov::BinarySearchTree< Key, Value, Compare >::BinarySearchTree(BinarySearchTree&& other) noexcept:
+  root_(other.root_),
+  size_(other.size_),
+  cmp_(std::move(other.cmp_))
 {
-  root_ = rhs.root_;
-  rhs.root_ = nullptr;
+  other.root_ = nullptr;
+  other.size_ = 0;
 }
 
 template< typename Key, typename Value, typename Compare >
 nikonov::BinarySearchTree< Key, Value, Compare >::~BinarySearchTree() noexcept
 {
   clear();
+}
+
+template< typename Key, typename Value, typename Compare >
+nikonov::BinarySearchTree< Key, Value, Compare >& nikonov::BinarySearchTree< Key, Value, Compare >::operator=(const BinarySearchTree& other)
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+  BinarySearchTree temp(other);
+  swap(temp);
+  return *this;
+}
+
+template< typename Key, typename Value, typename Compare >
+nikonov::BinarySearchTree< Key, Value, Compare >& nikonov::BinarySearchTree< Key, Value, Compare >::operator=(BinarySearchTree&& other) noexcept
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+  clear();
+  root_ = other.root_;
+  size_ = other.size_;
+  cmp_ = std::move(other.comp_);
+  other.root_ = nullptr;
+  other.size_ = 0;
+  return *this;
 }
 
 template< typename Key, typename Value, typename Compare >
@@ -75,18 +127,13 @@ nikonov::ConstBiTreeIterator< Key, Value > nikonov::BinarySearchTree< Key, Value
 template< typename Key, typename Value, typename Compare >
 size_t nikonov::BinarySearchTree< Key, Value, Compare >::size() const noexcept
 {
-  size_t size = 0;
-  for (auto it = cbegin(); it != cend(); ++it)
-  {
-    ++size;
-  }
-  return size;
+  return size_;
 }
 
 template< typename Key, typename Value, typename Compare >
 bool nikonov::BinarySearchTree< Key, Value, Compare >::empty() const noexcept
 {
-  return root_ == nullptr;
+  return !size_;
 }
 
 template< typename Key, typename Value, typename Compare >
@@ -116,19 +163,66 @@ template< typename Key, typename Value, typename Compare >
 void nikonov::BinarySearchTree< Key, Value, Compare >::swap(BinarySearchTree& rhs) noexcept
 {
   std::swap(root_, rhs.root_);
+  std::swap(size_, other.size_);
+  std::swap(cmp_, other.cmp_);
 }
-
 
 template< typename Key, typename Value, typename Compare >
 void nikonov::BinarySearchTree< Key, Value, Compare >::clear() noexcept
 {
-  auto iter = begin();
-  while (iter != end())
-  {
-    auto curr = iter++;
-    delete *curr;
-  }
+  clearNode(root_);
+  root_ = nullptr;
+  size_ = 0;
 }
 
+template < typename Key, typename Value, typename Compare >
+void nikonov::BinarySearchTree< Key, Value, Compare >::clearNode(detail::BiTreeNode< Key, Value >* node)
+{
+  if (!node)
+  {
+    return;
+  }
+  clearNode(node->left);
+  clearNode(node->right);
+  delete node;
+}
+
+template < typename Key, typename Value, typename Compare >
+void nikonov::BinarySearchTree< Key, Value, Compare >::copyTree(detail::BiTreeNode< Key, Value >*& node,
+  detail::BiTreeNode< Key, Value >* otherNode,
+  detail::BiTreeNode< Key, Value >* parent)
+{
+  if (!otherNode)
+  {
+    node = nullptr;
+    return;
+  }
+  node = new detail::BiTreeNode< Key, Value >(otherNode->data.first, otherNode->data.second);
+  node->parent = parent;
+  ++size_;
+  try
+  {
+    copyTree(node->left, otherNode->left, node);
+  }
+  catch (std::bad_alloc&)
+  {
+    delete node;
+    node = nullptr;
+    --size_;
+    throw;
+  }
+  try
+  {
+    copyTree(node->right, otherNode->right, node);
+  }
+  catch (std::bad_alloc&)
+  {
+    clearNode(node->left);
+    delete node;
+    node = nullptr;
+    --size_;
+    throw;
+  }
+}
 
 #endif
