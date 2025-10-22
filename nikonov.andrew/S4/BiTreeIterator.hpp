@@ -1,197 +1,169 @@
 #ifndef BITREEITERATOR_HPP
 #define BITREEITERATOR_HPP
-#include "BiTreeNode.hpp"
 #include <iterator>
-#include <cassert>
-#include <memory>
+#include <utility>
+#include "BiTreeNode.hpp"
+
 namespace nikonov
 {
-  template< typename Key, typename Value, typename Compare >
-  class BinarySearchTree;
-
   template< typename Key, typename Value >
-  class BiTreeIterator: public std::iterator< std::forward_iterator_tag, std::pair< Key, Value > >
+  class ConstBiTreeIterator : public std::iterator< std::bidirectional_iterator_tag, const std::pair< Key, Value > >
   {
-    template< typename Key1, typename Value1, typename Compare >
-    friend class BinarySearchTree;
-
-    detail::BiTreeNode< Key, Value >* node_;
-    explicit BiTreeIterator(detail::BiTreeNode< Key, Value >* ptr);
   public:
-    using this_t = BiTreeIterator< Key, Value >;
-    BiTreeIterator();
-    ~BiTreeIterator() = default;
-    BiTreeIterator(const this_t&) = default;
-    this_t& operator=(const this_t&) = default;
+    using Node = detail::BiTreeNode< Key, Value >;
 
-    this_t& operator++() noexcept;
-    this_t operator++(int) noexcept;
-
-    std::pair< Key, Value >& operator*() noexcept;
-    std::pair< Key, Value >* operator->() noexcept;
-
-    bool operator!=(const this_t& rhs) const noexcept;
-    bool operator==(const this_t& rhs) const noexcept;
-  };
-
-  template< typename Key, typename Value >
-  BiTreeIterator< Key, Value >::BiTreeIterator(detail::BiTreeNode< Key, Value >* ptr):
-    node_(ptr)
-  {}
-
-  template< typename Key, typename Value >
-  BiTreeIterator< Key, Value >::BiTreeIterator():
-    node_(nullptr)
-  {}
-
-  template< typename Key, typename Value >
-  BiTreeIterator< Key, Value >& BiTreeIterator< Key, Value >::operator++() noexcept
-  {
-    assert(node_ != nullptr);
-    if (node_->right_)
-    {
-      node_ = node_->right_;
-      while (node_->left_)
-      {
-        node_ = node_->left_;
-      }
-    }
-    else
-    {
-      auto parent = node_->parent_;
-      while (parent && node_ == parent->right_)
-      {
-        node_ = parent;
-        parent = parent->parent_;
-      }
-      node_ = parent;
-    }
-    return *this;
-  }
-
-  template< typename Key, typename Value >
-  BiTreeIterator< Key, Value > BiTreeIterator< Key, Value >::operator++(int) noexcept
-  {
-    assert(node_ != nullptr);
-    BiTreeIterator copy(*this);
-    ++(*this);
-    return copy;
-  }
-
-  template< typename Key, typename Value >
-  std::pair< Key, Value >& BiTreeIterator< Key, Value >::operator*() noexcept
-  {
-    assert(node_ != nullptr);
-    return node_->data_;
-  }
-
-  template< typename Key, typename Value >
-  std::pair< Key, Value >* BiTreeIterator< Key, Value >::operator->() noexcept
-  {
-    assert(node_ != nullptr);
-    return std::addressof(node_->data_);
-  }
-
-  template< typename Key, typename Value >
-  bool BiTreeIterator< Key, Value >::operator==(const this_t& rhs) const noexcept
-  {
-    return (node_ == rhs->node_);
-  }
-  template< typename Key, typename Value >
-  bool BiTreeIterator< Key, Value >::operator!=(const this_t& rhs) const noexcept
-  {
-    return !(*this == rhs);
-  }
-
-  template< typename Key, typename Value >
-  class ConstBiTreeIterator: public std::iterator< std::forward_iterator_tag, std::pair< Key, Value > >
-  {
-    detail::BiTreeNode< Key, Value >* node_;
-    explicit ConstBiTreeIterator(detail::BiTreeNode< Key, Value >* ptr);
-  public:
-    using this_t = ConstBiTreeIterator< Key, Value >;
-    ConstBiTreeIterator();
+    ConstBiTreeIterator() noexcept;
+    ConstBiTreeIterator(const Node* node) noexcept;
+    ConstBiTreeIterator(const ConstBiTreeIterator&) = default;
     ~ConstBiTreeIterator() = default;
-    ConstBiTreeIterator(const this_t&) = default;
-    this_t& operator=(const this_t&) = default;
 
-    this_t& operator++() noexcept;
-    this_t operator++(int) noexcept;
+    ConstBiTreeIterator& operator=(const ConstBiTreeIterator&) = default;
 
-    const std::pair< Key, Value >& operator*() const noexcept;
-    const std::pair< Key, Value >* operator->() const noexcept;
+    ConstBiTreeIterator& operator++();
+    ConstBiTreeIterator operator++(int);
+    ConstBiTreeIterator& operator--();
+    ConstBiTreeIterator operator--(int);
 
-    bool operator!=(const this_t& rhs) const noexcept;
-    bool operator==(const this_t& rhs) const noexcept;
+    bool operator==(const ConstBiTreeIterator& other) const noexcept;
+    bool operator!=(const ConstBiTreeIterator& other) const noexcept;
+
+    const std::pair< Key, Value >& operator*() const;
+    const std::pair< Key, Value >* operator->() const;
+
+  private:
+    const Node* current_;
+
+    const Node* findMin(const Node* node) const;
+    const Node* findMax(const Node* node) const;
   };
 
   template< typename Key, typename Value >
-  ConstBiTreeIterator< Key, Value >::ConstBiTreeIterator(detail::BiTreeNode< Key, Value >* ptr):
-    node_(ptr)
+  ConstBiTreeIterator< Key, Value >::ConstBiTreeIterator() noexcept:
+    current_(nullptr)
   {}
 
   template< typename Key, typename Value >
-  ConstBiTreeIterator< Key, Value >::ConstBiTreeIterator():
-    node_(nullptr)
+  ConstBiTreeIterator< Key, Value >::ConstBiTreeIterator(const Node* node) noexcept:
+    current_(node)
   {}
 
   template< typename Key, typename Value >
-  ConstBiTreeIterator< Key, Value >& ConstBiTreeIterator< Key, Value >::operator++() noexcept
+  ConstBiTreeIterator< Key, Value >& ConstBiTreeIterator< Key, Value >::operator++()
   {
-    assert(node_ != nullptr);
-    if (node_->right_)
+    if (current_ == nullptr)
     {
-      node_ = node_->right_;
-      while (node_->left_)
-      {
-        node_ = node_->left_;
-      }
+      return *this;
+    }
+    if (current_->right != nullptr)
+    {
+      current_ = findMin(current_->right);
     }
     else
     {
-      auto parent = node_->parent_;
-      while (parent && node_ == parent->right_)
+      const Node* parent = current_->parent;
+      const Node* node = current_;
+      while (parent != nullptr && node == parent->right)
       {
-        node_ = parent;
-        parent = parent->parent_;
+        node = parent;
+        parent = parent->parent;
       }
-      node_ = parent;
+      current_ = parent;
     }
     return *this;
   }
 
   template< typename Key, typename Value >
-  ConstBiTreeIterator< Key, Value > ConstBiTreeIterator< Key, Value >::operator++(int) noexcept
+  ConstBiTreeIterator< Key, Value > ConstBiTreeIterator< Key, Value >::operator++(int)
   {
-    assert(node_ != nullptr);
-    ConstBiTreeIterator copy(*this);
+    ConstBiTreeIterator temp = *this;
     ++(*this);
-    return copy;
+    return temp;
   }
 
   template< typename Key, typename Value >
-  const std::pair< Key, Value >& ConstBiTreeIterator< Key, Value >::operator*() const noexcept
+  ConstBiTreeIterator< Key, Value >& ConstBiTreeIterator< Key, Value >::operator--()
   {
-    assert(node_ != nullptr);
-    return node_->data_;
+    if (current_ == nullptr)
+    {
+      return *this;
+    }
+    if (current_->left != nullptr)
+    {
+      current_ = findMax(current_->left);
+    }
+    else
+    {
+      const Node* parent = current_->parent;
+      const Node* node = current_;
+      
+      while (parent != nullptr && node == parent->left)
+      {
+        node = parent;
+        parent = parent->parent;
+      }
+      current_ = parent;
+    }
+    return *this;
   }
 
   template< typename Key, typename Value >
-  const std::pair< Key, Value >* ConstBiTreeIterator< Key, Value >::operator->() const noexcept
+  ConstBiTreeIterator< Key, Value > ConstBiTreeIterator< Key, Value >::operator--(int)
   {
-    assert(node_ != nullptr);
-    return std::addressof(node_->data_);
+    ConstBiTreeIterator temp = *this;
+    --(*this);
+    return temp;
   }
 
   template< typename Key, typename Value >
-  bool ConstBiTreeIterator< Key, Value >::operator==(const this_t& rhs) const noexcept
+  bool ConstBiTreeIterator< Key, Value >::operator==(const ConstBiTreeIterator& other) const noexcept
   {
-    return (node_ == rhs->node_);
+    return current_ == other.current_;
   }
+
   template< typename Key, typename Value >
-  bool ConstBiTreeIterator< Key, Value >::operator!=(const this_t& rhs) const noexcept
+  bool ConstBiTreeIterator< Key, Value >::operator!=(const ConstBiTreeIterator& other) const noexcept
   {
-    return !(*this == rhs);
+    return !(*this == other);
+  }
+
+  template< typename Key, typename Value >
+  const std::pair< Key, Value >& ConstBiTreeIterator< Key, Value >::operator*() const
+  {
+    return current_->data;
+  }
+
+  template< typename Key, typename Value >
+  const std::pair< Key, Value >* ConstBiTreeIterator< Key, Value >::operator->() const
+  {
+    return &(current_->data);
+  }
+
+  template< typename Key, typename Value >
+  const typename ConstBiTreeIterator< Key, Value >::Node* ConstBiTreeIterator< Key, Value >::findMin(const Node* node) const
+  {
+    if (node == nullptr)
+    {
+      return nullptr;
+    }
+    while (node->left != nullptr)
+    {
+      node = node->left;
+    }
+    return node;
+  }
+
+  template< typename Key, typename Value >
+  const typename ConstBiTreeIterator< Key, Value >::Node* ConstBiTreeIterator< Key, Value >::findMax(const Node* node) const
+  {
+    if (node == nullptr)
+    {
+      return nullptr;
+    }
+    while (node->right != nullptr)
+    {
+      node = node->right;
+    }
+    return node;
   }
 }
 #endif
