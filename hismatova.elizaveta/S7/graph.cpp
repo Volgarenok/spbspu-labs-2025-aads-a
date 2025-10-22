@@ -384,7 +384,7 @@ namespace hismatova
     inverse_graphs[graphName] = HashTable< std::string, HashTable< std::string, std::vector< int > > >();
     vertices[graphName] = std::set< std::string >();
 
-    for (int i = 0; i < count; i++)
+    for (siz_t i = 0; i < static_cast< size_t >(count); i++)
     {
       addVertex(graphName, tokens[3 + i]);
     }
@@ -469,7 +469,7 @@ namespace hismatova
     vertices[newGraph] = std::set< std::string >();
 
     std::set< std::string > selectedVertices;
-    for (int i = 0; i < count; i++)
+    for (size_t i = 0; i < static_cast< size_t >(count); i++)
     {
       std::string vertex = tokens[4 + i];
       if (!vertexExists(oldGraph, vertex))
