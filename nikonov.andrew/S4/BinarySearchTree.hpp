@@ -7,7 +7,7 @@
 
 namespace nikonov
 {
-  template< typename Key, typename Value, typename Compare >
+  template< typename Key, typename Value, typename Compare = std::less< Key > >
   class BinarySearchTree
   {
   public:
