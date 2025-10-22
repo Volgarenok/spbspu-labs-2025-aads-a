@@ -206,7 +206,7 @@ namespace hismatova
     file.close();
   }
 
-  void GraphProcessor::executeGraphs(const std::vector< std::string >& tokens)
+  void GraphProcessor::executeGraphs(const std::vector< std::string >&)
   {
     std::set< std::string > graphNames;
     for (auto it = graphs.begin(); it != graphs.end(); ++it)
@@ -363,7 +363,7 @@ namespace hismatova
       return;
     }
 
-    int count;
+    size_t count;
     try
     {
       count = std::stoi(tokens[2]);
@@ -374,7 +374,7 @@ namespace hismatova
       return;
     }
 
-    if (tokens.size() != 3 + count)
+    if (tokens.size() != static_cast< size_t >(3 + count))
     {
       std::cout << "<INVALID COMMAND>" << std::endl;
       return;
@@ -458,7 +458,7 @@ namespace hismatova
       return;
     }
 
-    if (graphExists(newGraph) || !graphExists(oldGraph) || tokens.size() != 4 + count)
+    if (graphExists(newGraph) || !graphExists(oldGraph) || tokens.size() != static_cast< size_t >(4 + count))
     {
       std::cout << "<INVALID COMMAND>" << std::endl;
       return;
