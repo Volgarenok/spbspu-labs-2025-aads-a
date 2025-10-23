@@ -2,6 +2,7 @@
 #include <vector>
 #include "CrossReferenceSystem.h"
 
+using namespace hismatova;
 std::vector< std::string > tokenize_command_line(const std::string& command_line)
 {
   std::vector< std::string > tokens;
