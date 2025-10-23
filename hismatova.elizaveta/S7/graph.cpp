@@ -63,13 +63,11 @@ void hismatova::GraphProcessor::removeEdge(const std::string& graphName, const s
   }
 
   auto& weights = graphs[graphName][from][to];
-  bool found = false;
   for (auto it = weights.begin(); it != weights.end(); )
   {
     if (*it == weight)
     {
       it = weights.erase(it);
-      found = true;
       break;
     }
     else
@@ -177,7 +175,7 @@ void hismatova::GraphProcessor::loadGraphsFromFile(const std::string& filename)
   file.close();
 }
 
-void hismatova::GraphProcessor::executeGraphs(const std::vector< std::string >& tokens)
+void hismatova::GraphProcessor::executeGraphs(const std::vector< std::string >&)
 {
   if (graphs.empty())
   {
@@ -278,6 +276,7 @@ void hismatova::GraphProcessor::executeInbound(const std::vector< std::string >&
   bool found = false;
   if (inverse_graphs[graphName].contains(vertex))
   {
+    bool found = false;
     std::vector< std::pair< std::string, int > > allEdges;
     auto& inMap = inverse_graphs[graphName][vertex];
     for (auto it = inMap.begin(); it != inMap.end(); ++it)
@@ -402,7 +401,7 @@ void hismatova::GraphProcessor::executeCreate(const std::vector< std::string >& 
   inverse_graphs[graphName] = HashTable< std::string, HashTable< std::string, std::vector< int > > >();
   vertices[graphName] = std::set<std::string>();
 
-  for (int i = 0; i < count; i++)
+  for (size_t i = 0; i < count; i++)
   {
     addVertex(graphName, tokens[3 + i]);
   }
@@ -499,7 +498,7 @@ void hismatova::GraphProcessor::executeExtract(const std::vector< std::string >&
   vertices[newGraph] = std::set<std::string>();
 
   std::set< std::string > selectedVertices;
-  for (int i = 0; i < count; i++)
+  for (size_t i = 0; i < count; i++)
   {
     std::string vertex = tokens[4 + i];
     if (!vertexExists(oldGraph, vertex))
