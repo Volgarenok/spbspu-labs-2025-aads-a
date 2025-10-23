@@ -4,8 +4,10 @@
 #include <functional>
 #include <queue>
 #include <limits>
+#include <tree/avl_tree.hpp>
+#include "queue.hpp"
 #include "terminal_text.hpp"
-using map_characters = std::map< std::string, karnauhova::Character >;
+using tree_character = karnauhova::AvlTree< std::string, karnauhova::Character >;
 namespace
 {
   void printInfo(const std::pair< size_t, karnauhova::Character >& pair)
@@ -46,7 +48,7 @@ namespace
   }
 }
 
-void karnauhova::choiceCharact(map_characters& players, const std::map< size_t, Character >& characters)
+void karnauhova::choiceCharact(tree_character& players, const AvlTree< size_t, Character >& characters)
 {
   while (!std::cin.eof())
   {
@@ -127,7 +129,7 @@ void karnauhova::choiceCharact(map_characters& players, const std::map< size_t, 
   }
 }
 
-void karnauhova::fight(map_characters& players)
+void karnauhova::fight(tree_character& players)
 {
   std::queue< std::pair < std::string, Character > > fight_queue;
   QueueInserter inserter{fight_queue};

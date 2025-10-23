@@ -6,8 +6,8 @@
 #include <vector>
 #include <algorithm>
 #include "terminal_text.hpp"
-using map_characters = std::map< std::string, karnauhova::Character >;
-using data_characters = std::map< size_t, karnauhova::Character >;
+using map_characters = karnauhova::AvlTree< std::string, karnauhova::Character >;
+using data_characters = karnauhova::AvlTree< size_t, karnauhova::Character >;
 namespace
 {
   struct TransformMap
@@ -87,7 +87,10 @@ void karnauhova::inputNewData(std::istream& in, data_characters& characters)
   }
   size_t index = 1;
   TransformMap trmp(index);
-  std::transform(temp.begin(), temp.end(), std::inserter(characters, characters.end()), trmp);
+  for (auto it = temp.begin(); it != temp.end(); ++it)
+  {
+    characters.insert(trmp(*it));
+  }
 }
 
 map_characters karnauhova::inputSaveData(std::istream& in, data_characters& characters)
@@ -105,7 +108,7 @@ map_characters karnauhova::inputSaveData(std::istream& in, data_characters& char
   in >> index_character1 >> hp1 >> position1;
   in >> index_character2 >> hp2 >> position2;
   inputNewData(in, characters);
-  std::map< std::string, karnauhova::Character > players;
+  AvlTree< std::string, karnauhova::Character > players;
   players[name1] = characters.at(index_character1);
   players.at(name1).position = position1;
   players.at(name1).damage(players.at(name1).volumeHp() - hp1);

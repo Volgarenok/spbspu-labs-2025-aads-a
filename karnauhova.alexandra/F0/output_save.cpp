@@ -19,7 +19,7 @@ namespace
     }
 };
 }
-void karnauhova::saveData(std::map< std::string, Character >& players, std::map< size_t, Character >& characters)
+void karnauhova::saveData(AvlTree< std::string, Character >& players, AvlTree< size_t, Character >& characters)
 {
   std::ofstream file;
   file.open("karnauhova.alexandra/F0/game_data_save.txt");

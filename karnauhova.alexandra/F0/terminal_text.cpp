@@ -17,7 +17,7 @@ void karnauhova::clearScreen()
   #endif
 }
 
-void karnauhova::helloWorld(std::map< std::string, Character >& players)
+void karnauhova::helloWorld(AvlTree< std::string, Character >& players)
 {
   clearScreen();
   std::cout << "\033[1;32m" << std::string(100, '=') << "\033[0m" << "\n";

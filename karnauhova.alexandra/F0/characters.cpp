@@ -1,6 +1,6 @@
 #include "characters.hpp"
 #include <functional>
-#include <map>
+#include <tree/avl_tree.hpp>
 #include <random>
 #include <iterator>
 #include <iostream>
@@ -34,7 +34,7 @@ karnauhova::Character::Character(std::string name, int hp, int atk1, int atk2):
 
 int karnauhova::Character::attack()
 {
-    std::map< int, int > cmds;
+    AvlTree< int, int > cmds;
     cmds[1] = attackHead();
     cmds[2] = attackBody();
     cmds[3] = attackArm();

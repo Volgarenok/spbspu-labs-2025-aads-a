@@ -1,8 +1,8 @@
 #include <iostream>
-#include <map>
 #include <string>
 #include <functional>
 #include <limits>
+#include <tree/avl_tree.hpp>
 #include "characters.hpp"
 #include "input_file.hpp"
 #include "terminal_text.hpp"
@@ -13,8 +13,8 @@ int main()
 {
   setlocale(LC_ALL, "ru");
   using namespace karnauhova;
-  std::map< size_t, Character > characters;
-  std::map< std::string, Character > players;
+  AvlTree< size_t, Character > characters;
+  AvlTree< std::string, Character > players;
   try
   {
     players = inputData(characters);
@@ -51,7 +51,7 @@ int main()
     }
   }
   delay(1200);
-  std::map< std::string, std::function< void() > > cmds;
+  AvlTree< std::string, std::function< void() > > cmds;
   cmds["CHARACTERS"] = std::bind(choiceCharact, std::ref(players), std::cref(characters));
   cmds["FIGHT"] = std::bind(fight, std::ref(players));
   while (!std::cin.eof())
