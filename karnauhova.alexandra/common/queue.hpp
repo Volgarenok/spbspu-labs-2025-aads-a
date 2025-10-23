@@ -21,6 +21,8 @@ namespace karnauhova
     void push(T&& val);
     T& front();
     const T& front() const;
+    T& back();
+    const T& back() const;
 
     void swap(Queue& other) noexcept;
   private:
@@ -83,6 +85,18 @@ namespace karnauhova
   const T& Queue< T >::front() const
   {
     return array_[head_data_];
+  }
+
+  template< typename T >
+  T& Queue< T >::back()
+  {
+    return array_.back();
+  }
+
+  template< typename T >
+  const T& Queue< T >::back() const
+  {
+    return array_.back();
   }
 
   template< typename T >

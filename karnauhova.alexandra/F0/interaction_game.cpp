@@ -19,7 +19,7 @@ namespace
 
   struct QueueInserter
   {
-    std::queue< std::pair< std::string, karnauhova::Character > >& queue;
+    karnauhova::Queue< std::pair< std::string, karnauhova::Character > >& queue;
     void operator()(const std::pair< const std::string, karnauhova::Character >& pair) const
     {
       queue.push(pair);
@@ -131,7 +131,7 @@ void karnauhova::choiceCharact(tree_character& players, const AvlTree< size_t, C
 
 void karnauhova::fight(tree_character& players)
 {
-  std::queue< std::pair < std::string, Character > > fight_queue;
+  Queue< std::pair < std::string, Character > > fight_queue;
   QueueInserter inserter{fight_queue};
   std::for_each(players.begin(), players.end(), inserter);
   if (fight_queue.front().second.baseHp() == 0 || fight_queue.back().second.baseHp() == 0)
