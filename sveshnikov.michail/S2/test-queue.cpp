@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <string>
-#include "queue.hpp"
+#include <queue.hpp>
 
 BOOST_AUTO_TEST_SUITE(special_methods_queue)
 BOOST_AUTO_TEST_CASE(constructors)
