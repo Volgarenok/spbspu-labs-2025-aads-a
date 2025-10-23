@@ -276,7 +276,7 @@ void hismatova::GraphProcessor::executeInbound(const std::vector< std::string >&
   bool found = false;
   if (inverse_graphs[graphName].contains(vertex))
   {
-    bool found = false;
+    found = false;
     std::vector< std::pair< std::string, int > > allEdges;
     auto& inMap = inverse_graphs[graphName][vertex];
     for (auto it = inMap.begin(); it != inMap.end(); ++it)
@@ -305,7 +305,6 @@ void hismatova::GraphProcessor::executeInbound(const std::vector< std::string >&
       std::cout << edge.first << " " << edge.second << std::endl;
     }
   }
-
   if (!found)
   {
     std::cout << "<INVALID COMMAND>" << std::endl;
