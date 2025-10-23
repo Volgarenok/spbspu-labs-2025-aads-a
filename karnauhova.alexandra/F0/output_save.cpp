@@ -25,11 +25,27 @@ void karnauhova::saveData(AvlTree< std::string, Character >& players, AvlTree< s
   file.open("karnauhova.alexandra/F0/game_data_save.txt");
   auto it = players.begin();
   file << it->first << " " << (++it)->first << "\n";
-  auto a = std::bind(compareCharacters, std::placeholders::_1, std::cref((--it)->second));
-  auto character = std::find_if(characters.begin(), characters.end(), a);
+  auto& target_character = (--it)->second;
+  auto character = characters.end();
+  for (auto iter = characters.begin(); iter != characters.end(); ++iter)
+  {
+    if (compareCharacters(*iter, target_character))
+    {
+      character = iter;
+      break;
+    }
+  }
   file << character->first << " " << it->second.volumeHp() << " " << it->second.position << "\n";
-  auto b = std::bind(compareCharacters, std::placeholders::_1, std::cref((++it)->second));
-  character = std::find_if(characters.begin(), characters.end(), b);
+  target_character = (++it)->second;
+  character = characters.end();
+  for (auto iter = characters.begin(); iter != characters.end(); ++iter)
+  {
+    if (compareCharacters(*iter, target_character))
+    {
+      character = iter;
+      break;
+    }
+  }
   file << character->first << " " << it->second.volumeHp() << " " << it->second.position << "\n";
 
   using ostr_iter = std::ostream_iterator< Character >;
