@@ -1,0 +1,155 @@
+#include "additional-utilities.hpp"
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+namespace
+{
+  nikonov::ConstListIterator< size_t > getIterAt(const nikonov::List< size_t > & list, size_t id);
+  void printNumsNSums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt);
+  void printOnlyNums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt);
+}
+nikonov::List< std::pair< std::string, nikonov::List< size_t > > > nikonov::getPList(std::istream& in, bool& overflowFlag)
+{
+  using pair_t = std::pair< std::string, List< size_t > >;
+  List< pair_t > pList;
+  std::string data = "";
+  std::string name = "";
+  bool dataIsName = true;
+  in >> data;
+  while (!in.eof())
+  {
+    List< size_t > vals;
+    size_t currSum = 0;
+    while (!in.eof())
+    {
+      if (dataIsName)
+      {
+        name = data;
+      }
+      if (in >> data)
+      {
+        try
+        {
+          size_t currElem = std::stoull(data);
+          dataIsName = false;
+          vals.push_back(currElem);
+          if (currSum > std::numeric_limits< size_t >::max() - currElem)
+          {
+            overflowFlag = true;
+          }
+          currSum += currElem;
+        }
+        catch (const std::invalid_argument&)
+        {
+          dataIsName = true;
+          break;
+        }
+      }
+    }
+    pair_t Pair{ name, vals };
+    pList.push_back(Pair);
+  }
+  return pList;
+}
+void nikonov::processPList(List< std::pair< std::string, List< size_t > > > pList, bool& overflowFlag)
+{
+  if (pList.size() == 0)
+  {
+    std::cout << 0 << '\n';
+    return;
+  }
+  auto pIter1 = pList.begin();
+  size_t maxValCnt = (*pIter1).second.size();
+  std::cout << (*pIter1).first;
+  while (++pIter1 != pList.end())
+  {
+    std::cout << " " << (*pIter1).first;
+    maxValCnt = maxValCnt > (*pIter1).second.size() ? maxValCnt : (*pIter1).second.size();
+  }
+  std::cout << '\n';
+  if (!overflowFlag && maxValCnt != 0)
+  {
+    ::printNumsNSums(pList, maxValCnt);
+  }
+  else if (maxValCnt != 0)
+  {
+    ::printOnlyNums(pList, maxValCnt);
+    throw std::overflow_error("overflow detected");
+  }
+  else
+  {
+    std::cout << 0 << '\n';
+  }
+}
+namespace
+{
+  nikonov::ConstListIterator< size_t > getIterAt(const nikonov::List< size_t > & list, size_t id)
+  {
+    auto iter = list.begin();
+    for (size_t i = 0; i < id; ++i, ++iter);
+    return iter;
+  }
+  void printNumsNSums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt)
+  {
+    nikonov::List< size_t > strSum;
+    for (size_t valId = 0; valId < maxValCnt; ++valId)
+    {
+      auto pIter = pList.begin();
+      while (pIter != pList.end() && valId >= (*pIter).second.size())
+      {
+        ++pIter;
+      }
+      if (pIter == pList.end())
+      {
+        return;
+      }
+      size_t currElem = *getIterAt((*(pIter++)).second, valId);
+      std::cout << currElem;
+      size_t currSum = currElem;
+      for (; pIter != pList.end(); ++pIter)
+      {
+        if (valId < (*pIter).second.size())
+        {
+          size_t currElem = *getIterAt((*pIter).second, valId);
+          currSum += currElem;
+          std::cout << " " << currElem;
+        }
+      }
+      strSum.push_back(currSum);
+      std::cout << '\n';
+    }
+    auto sumIter = strSum.begin();
+    std::cout << *(sumIter++);
+    for (size_t i = 1; i < strSum.size(); ++i)
+    {
+      std::cout << " " << *(sumIter++);
+    }
+    std::cout << '\n';
+  }
+  void printOnlyNums(const nikonov::List< std::pair< std::string, nikonov::List< size_t > > > & pList, size_t maxValCnt)
+  {
+    for (size_t valId = 0; valId < maxValCnt; ++valId)
+    {
+      auto pIter = pList.begin();
+      while (pIter != pList.end() && valId >= (*pIter).second.size())
+      {
+        ++pIter;
+      }
+      if (pIter == pList.end())
+      {
+        return;
+      }
+      size_t currElem = *getIterAt((*(pIter++)).second, valId);
+      std::cout << currElem;
+      for (; pIter != pList.end(); ++pIter)
+      {
+        if (valId < (*pIter).second.size())
+        {
+          size_t currElem = *getIterAt((*pIter).second, valId);
+          std::cout << " " << currElem;
+        }
+      }
+      std::cout << '\n';
+    }
+  }
+}
