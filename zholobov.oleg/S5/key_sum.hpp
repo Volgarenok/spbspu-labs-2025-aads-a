@@ -5,19 +5,17 @@
 #include <stdexcept>
 #include <string>
 
-namespace {
+namespace zholobov {
 
   template < typename KeyType >
   bool isAdditionOverflow(KeyType lhs, KeyType rhs)
   {
+    static_assert(std::is_integral< KeyType >::value && std::is_signed< KeyType >::value,
+        "KeyType must be a signed integral type.");
     constexpr KeyType max_value = std::numeric_limits< KeyType >::max();
     constexpr KeyType min_value = std::numeric_limits< KeyType >::min();
     return (((rhs > 0) && (lhs > (max_value - rhs))) || ((rhs < 0) && (lhs < (min_value - rhs))));
   }
-
-}
-
-namespace zholobov {
 
   template < typename KeyType >
   struct KeySum {
