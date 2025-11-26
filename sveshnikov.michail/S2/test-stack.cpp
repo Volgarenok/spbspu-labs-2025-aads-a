@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <string>
-#include "stack.hpp"
+#include <stack.hpp>
 
 BOOST_AUTO_TEST_SUITE(special_methods_stack)
 BOOST_AUTO_TEST_CASE(constructors)

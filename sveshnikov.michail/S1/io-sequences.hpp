@@ -1,7 +1,7 @@
 #ifndef IO_SEQUENCES_HPP
 #define IO_SEQUENCES_HPP
 #include <string>
-#include "fwdlist-ring.hpp"
+#include <list/fwdlist-ring.hpp>
 
 namespace sveshnikov
 {
