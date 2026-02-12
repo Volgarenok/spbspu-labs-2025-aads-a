@@ -1,7 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "list.hpp"
 
-namespace {
+namespace
+{
   template< typename T >
   void compare_list_values(const bocharov::List< T > & first, const bocharov::List< T > & second) noexcept
   {
